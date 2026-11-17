@@ -322,7 +322,7 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                 return true
             }
         }
-        webClient = object : WebViewClient() {
+        webViewClient = object : WebViewClient() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
                 val url = request.url.toString()
                 if (AdBlock.isBlocked(url)) {
