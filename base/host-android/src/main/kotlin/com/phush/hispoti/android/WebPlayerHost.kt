@@ -261,23 +261,25 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
             Logbook.log("x-requested-with: cannot be turned off on this WebView")
         }
         // Client hints must agree with the desktop user agent: by default the WebView announces
-        // "Android WebView" / mobile in Sec-CH-UA headers and navigator.userAgentData.
-        if (androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.USER_AGENT_METADATA)) {
-            val brands = fingerprint.brands.map {
-                androidx.webkit.UserAgentMetadata.BrandVersion.Builder().setBrand(it.name).setMajorVersion(it.major).setFullVersion(it.fullVersion).build()
-            }
-            androidx.webkit.WebSettingsCompat.setUserAgentMetadata(settings, androidx.webkit.UserAgentMetadata.Builder()
-                .setBrandVersionList(brands)
-                .setFullVersion(fingerprint.fullVersion)
-                .setPlatform("Linux")
-                .setPlatformVersion(fingerprint.kernel)
-                .setArchitecture("x86")
-                .setBitness(64)
-                .setMobile(false)
-                .setModel("")
-                .setWow64(false)
-                .build())
+        // "Android WebView" / mobile in Sec-CH-UA headers and navigator.userAgentData. Set
+        // unconditionally (WebSettingsCompat is a no-op on APIs that lack the feature) so every
+        // request the page makes — including the Google OAuth sign-in — presents the same
+        // desktop Chrome identity a real browser would.
+        val brands = fingerprint.brands.map {
+            androidx.webkit.UserAgentMetadata.BrandVersion.Builder().setBrand(it.name).setMajorVersion(it.major).setFullVersion(it.fullVersion).build()
         }
+        androidx.webkit.WebSettingsCompat.setUserAgentMetadata(settings, androidx.webkit.UserAgentMetadata.Builder()
+            .setBrandVersionList(brands)
+            .setFullVersion(fingerprint.fullVersion)
+            .setPlatform("Linux")
+            .setPlatformVersion(fingerprint.kernel)
+            .setArchitecture("x86")
+            .setBitness(64)
+            .setMobile(false)
+            .setModel("")
+            .setWow64(false)
+            .build())
+        Logbook.log("client hints: ${fingerprint.secChUa} (platform ${fingerprint.kernel})")
         // The page plays the audio: its renderer keeps its priority when the screen is off.
         setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false)
         // Playback control requests leave from the app, without the WebView's X-Requested-With.
