@@ -542,8 +542,7 @@ internal class ControlRelay(private val view: WebView) {
          * apresolve.spotify.com — these fail DNS through the VPN on WebView's resolver,
          * but work via OkHttp's system resolver. Relay just those so the player reaches ready.
          */
-         */
-        private val RELAYED = Regex("^https://([a-z0-9-]+\\.)*spotify\\.com/(connect-state|track-playback)/v1/|^https://open\\.spotify\\.com/api/|^https://clienttoken\\.spotify\\.com/|^https://apresolve\\.spotify\\.com/")
+         private val RELAYED = Regex("^https://([a-z0-9-]+\\.)*spotify\\.com/(connect-state|track-playback)/v1/|^https://open\\.spotify\\.com/api/|^https://clienttoken\\.spotify\\.com/|^https://apresolve\\.spotify\\.com/")
         private val NOT_RELAYED = Regex("^https://(accounts|challenge|www)\\.spotify\\.com/")
 
         /**
