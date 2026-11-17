@@ -27,6 +27,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.ByteArrayInputStream
+import java.util.concurrent.TimeUnit
+import okhttp3.Headers
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 
 /**
  * [BridgeHost] on an Android WebView that loads the official Web Player.
@@ -206,6 +211,47 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
     /** Fetches the audio files itself: the last request the WebView would stamp with its package. */
     private val media = MediaProxy(MediaProxy.client()) { relay.identityPair() }
 
+    /** OkHttp client for the enterprise SSO check: avoids the WebView's X-Requested-With header. */
+    private val loginHttp by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    /**
+     * Fetches a login page's request with OkHttp (no X-Requested-With) and hands the answer back to
+     * the WebView as the page's response. Cookies the answer sets are passed on. Null on failure:
+     * the WebView fetches it itself then.
+     */
+    private fun OkHttpClient.fetch(request: WebResourceRequest): WebResourceResponse? = runCatching {
+        val builder = Request.Builder().url(request.url.toString())
+        request.requestHeaders.forEach { (name, value) ->
+            if (name.lowercase() !in LOGIN_UNWANTED) runCatching { builder.header(name, value) }
+        }
+        if (!request.requestHeaders.keys.any { it.equals("Accept-Language", true) })
+            builder.header("Accept-Language", Fingerprint.acceptLanguage(android.os.LocaleList.getDefault().toLanguageTags().split(',')))
+        builder.method(request.method, request.method.let { if (it == "GET" || it == "HEAD") null else okhttp3.RequestBody.create(null, "".toByteArray()) })
+        val answer: Response = newCall(builder.build()).execute()
+        answer.use {
+            val bytes = it.body?.bytes() ?: ByteArray(0)
+            it.headers.toMultimap().forEach { (name, values) ->
+                if (name.equals("Set-Cookie", true)) values.forEach { v -> cookies().setCookie(request.url.toString(), v) }
+            }
+            Logbook.log("login step (fetched here): ${request.method} ${request.url.toString().substringAfter("accounts.spotify.com").substringBefore('?').take(90)} -> ${it.code}")
+            val headers = it.headers.toMultimap().filterKeys { k -> !k.equals("Set-Cookie", true) }
+                .mapValues { (_, v) -> v.joinToString(", ") }
+            WebResourceResponse(
+                it.header("Content-Type")?.substringBefore(';') ?: "application/json",
+                "utf-8",
+                it.code,
+                it.message.ifEmpty { if (it.isSuccessful) "OK" else "Error" },
+                headers + ("Access-Control-Allow-Origin" to "https://accounts.spotify.com") + ("Access-Control-Allow-Credentials" to "true"),
+                ByteArrayInputStream(bytes),
+            )
+        }
+    }.getOrNull()
+
     /**
      * WebView profiles (androidx.webkit MULTI_PROFILE): each account keeps its own cookies and Web
      * storage, so several stay signed in at once. Without them (an older WebView) the page holds one
@@ -365,6 +411,17 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                         return proxied
                     }
                     Logbook.log("audio proxy failed, the WebView fetches it: ${Logbook.noQuery(url).take(110)}")
+                }
+                // The enterprise SSO check (accounts.spotify.com/login/enterprise/discover) is an XHR
+                // the page makes after the e-mail. The WebView stamps every request with
+                // "X-Requested-With: <package>", and the API was made to allow that header for a few
+                // origins — an empty allowlist is what suppresses it everywhere — but on this
+                // WebView (SM-S928B, WebView 157) the call is a no-op, so the header rides on this
+                // request and the check never answers: the sign-in page stays on the e-mail step for
+                // ever, and every wait ends in "Try again". Fetched here, the request carries no such
+                // header and the check answers, so the page proceeds to the player.
+                if (url.contains("/login/enterprise/discover")) {
+                    return loginHttp.fetch(request)
                 }
                 return null
             }
@@ -993,6 +1050,8 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         /** A removed profile still held by the WebView just replaced: deleted again after this. */
         private const val PURGE_RETRY_MS = 10_000L
         private const val LOAD_RETRIES = 4
+        /** Headers the login fetch does not copy from the WebView: its mark and transport ones. */
+        private val LOGIN_UNWANTED = setOf("x-requested-with", "host", "content-length", "connection")
         const val LOGIN_URL = "https://accounts.spotify.com/login?continue=https%3A%2F%2Fopen.spotify.com%2F"
 
         /**
