@@ -55,23 +55,22 @@ enum class LoginLoad {
         fun isSpotifyAccounts(url: String?): Boolean = hostOf(url) == "accounts.spotify.com"
 
         /**
-         * A page of the sign-in: Spotify's account and challenge pages, and a `/login` path on a
-         * Spotify host. Judged on the host and the path, not on the whole address: a player address
-         * that merely carries one of these names in its query (a `continue=` back to the login) is
-         * not a sign-in page, and was taken for one.
-         *
-         * Not the third-party providers: Google refuses OAuth in an embedded WebView ("This browser
-         * or app may not be secure"), so Hispoti signs in with email/password at accounts.spotify.com
-         * and never routes to Google, Facebook or Apple. A navigation to one of those is refused, not
-         * waited on — and their own `/login.php` paths are not sign-in pages either.
+         * A page of the sign-in: Spotify's account and challenge pages, a `/login` path on a
+         * Spotify host, and a third-party sign-in provider (Google, Facebook, Apple) that Spotify
+         * hands the flow to. Judged on the host and the path, not on the whole address: a player
+         * address that merely carries one of these names in its query (a `continue=` back to the
+         * login) is not a sign-in page, and was taken for one.
          */
         fun isLoginUrl(url: String?): Boolean {
             val uri = runCatching { java.net.URI((url ?: return false).substringBefore('#').substringBefore('?')) }.getOrNull() ?: return false
             val host = uri.host?.lowercase() ?: return false
             if (host == "accounts.spotify.com" || host == "challenge.spotify.com") return true
             if (host.endsWith(".spotify.com") && uri.path?.contains("/login") == true) return true
-            return false
+            return OAUTH_HOSTS.any { host == it || host.endsWith(".$it") }
         }
+
+        /** The third-party sign-in providers Spotify's own page can hand the flow to. */
+        private val OAUTH_HOSTS = listOf("accounts.google.com", "google.com", "gstatic.com", "googleusercontent.com", "facebook.com", "apple.com")
 
         private fun hostOf(url: String?): String? =
             runCatching { java.net.URI((url ?: return null).substringBefore('#').substringBefore('?')).host?.lowercase() }.getOrNull()

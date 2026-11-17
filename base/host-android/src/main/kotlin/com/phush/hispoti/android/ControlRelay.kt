@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit
  * `HispotiNet.postMessage` ([exposeToPlayer]), which repeats them with OkHttp using the page's own headers (its token,
  * client token, connection id), then hands the response back to the page.
  */
-internal class ControlRelay(private val view: WebView, private val fingerprint: Fingerprint) {
+internal class ControlRelay(private val view: WebView) {
     /** The page's player registered its playback device (it started, and takes commands). */
     @Volatile var onDeviceRegistered: (() -> Unit)? = null
     private val main = Handler(Looper.getMainLooper())
@@ -148,7 +148,7 @@ internal class ControlRelay(private val view: WebView, private val fingerprint: 
             reply(id, doc, 0, "{}", "")
             return
         }
-        val built = relayHeaders(given, identity, fingerprint.userAgent, fallbackLanguage, fingerprint.secChUa)
+        val built = relayHeaders(given, identity, UserAgents.random(view.context), fallbackLanguage, "")
         // The registration goes out as the real Web Player sends it, except for its name: the phone's
         // own (see [deviceName]) replaces "Web Player (Chrome)".
         val registration = body != null && com.phush.hispoti.spotify.bridge.AdBlock.isDeviceRegistration(method, url)
@@ -692,8 +692,8 @@ internal class ControlRelay(private val view: WebView, private val fingerprint: 
             // presents, the relayed request presents the same.
             headers["Accept-Language"] = fromPage("acceptLanguage", language)
             headers["sec-ch-ua"] = fromPage("brands", secChUa)
-            headers["sec-ch-ua-mobile"] = fromPage("mobile", "?0")
-            headers["sec-ch-ua-platform"] = "\"${fromPage("platform", "Linux")}\""
+            headers["sec-ch-ua-mobile"] = fromPage("mobile", "?1")
+            headers["sec-ch-ua-platform"] = "\"${fromPage("platform", "Android")}\""
             return headers.build()
         }
 

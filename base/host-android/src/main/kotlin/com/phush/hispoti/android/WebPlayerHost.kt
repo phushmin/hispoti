@@ -113,100 +113,12 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
     private val debuggable = context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
 
     /**
-     * This install's browser identity, drawn once (see [Fingerprint]) and handed to the API as
-     * well: the page and the app's own calls must present the *same* browser, or the difference
-     * between them is itself the tell.
+     * This install's browser identity: a real Android mobile Chrome (see [UserAgents] and
+     * [Fingerprint]), handed to the API as well. The page and the app's own calls present the
+     * same browser, so nothing about them contradicts.
      */
     internal val fingerprint = Fingerprint.of(context)
     val userAgent: String get() = fingerprint.userAgent
-
-    /** JS injected at document-start to override navigator properties that WebView's
-     * client-hints API silently fails to set (UnsupportedOperationException on this
-     * WebView version). Mirrors the exact values set via setUserAgentMetadata above so
-     * every JS check sees the same desktop Chrome identity the UA claims.
-     * navigator.userAgentData / platform / vendor are getters on their prototypes, so an
-     * own-property defineProperty is the only way to shadow them reliably. */
-    private val navigatorOverride = """
-        (function(){
-        var def=function(o,k,v){try{Object.defineProperty(o,k,{value:v,writable:true,configurable:true,enumerable:true})}catch(e){}};
-        var uad={
-            brands:[
-                {brand:"Google Chrome",version:"${fingerprint.major}"},
-                {brand:"Chromium",version:"${fingerprint.major}"},
-                {brand:"Not A.Brand",version:"99"}
-            ],
-            mobile:false,
-            platform:"Linux",
-            architecture:"x86",
-            bitness:"64",
-            platformVersion:"${fingerprint.kernel}",
-            fullVersionList:[
-                {brand:"Google Chrome",version:"${fingerprint.fullVersion}"},
-                {brand:"Chromium",version:"${fingerprint.fullVersion}"},
-                {brand:"Not A.Brand",version:"99.0.0.0"}
-            ],
-            fullVersion:"${fingerprint.fullVersion}",
-            models:[],
-            getHighEntropyValues:function(hints){
-                var all={brands:uad.brands,mobile:uad.mobile,platform:uad.platform,platformVersion:uad.platformVersion,
-                    architecture:uad.architecture,bitness:uad.bitness,fullVersionList:uad.fullVersionList,
-                    fullVersion:uad.fullVersion,models:uad.models,wow64:false};
-                var out={};
-                (hints||[]).forEach(function(k){out[k]=all[k]});
-                return Promise.resolve(out);
-            },
-            toJSON:function(){return {brands:uad.brands,mobile:uad.mobile,platform:uad.platform}}
-        };
-        def(navigator,"userAgentData",uad);
-        def(navigator,"platform","Linux x86_64");
-        def(navigator,"maxTouchPoints",0);
-        def(navigator,"hardwareConcurrency",8);
-        def(navigator,"vendor","Google Chrome");
-        def(navigator,"webdriver",false);
-        def(navigator,"deviceMemory",8);
-        })()
-    """.trimIndent()
-
-    /**
-     * The sign-in page's third-party "Continue with Google / Facebook / Apple" buttons are the only
-     * way into an OAuth provider whose login refuses embedded browsers ("This browser or app may not
-     * be secure"). They are removed from the page: Hispoti signs in with email/password at
-     * accounts.spotify.com, and the provider buttons are gone, not merely dead.
-     */
-    private val socialLoginBlock = """
-        (function(){
-        var NEEDLE=/continue with|sign in with|log in with|log in|continue/i;
-        var PROVIDERS=/google|facebook|apple|phone|sms/i;
-        function hide(el){
-            var p=el;
-            while(p&&p!==document.body){
-                var tag=(p.tagName||'').toLowerCase();
-                if(tag==='button'||(p.getAttribute&&p.getAttribute('role')==='button')||(tag==='a'&&p.getAttribute('href'))){break}
-                p=p.parentElement;
-            }
-            var t=p||el;
-            if(t&&t.style){t.style.setProperty('display','none','important')}
-        }
-        function scan(){
-            try{
-                var els=document.querySelectorAll('button,a,div[role="button"],span');
-                for(var i=0;i<els.length;i++){
-                    var el=els[i];
-                    var txt=(el.innerText||'').trim().toLowerCase();
-                    if(!txt||txt.length>64){continue}
-                    if(NEEDLE.test(txt)&&PROVIDERS.test(txt)){hide(el)}
-                }
-            }catch(e){}
-        }
-        function attach(){
-            scan();
-            try{var mo=new MutationObserver(function(){setTimeout(scan,250)});mo.observe(document.documentElement,{childList:true,subtree:true})}
-            catch(e){}
-        }
-        if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',attach)}
-        else{attach()}
-    })()
-    """.trimIndent()
 
     init {
         // Debug builds only: lets desktop tools (chrome://inspect, CDP) look at the page.
@@ -353,31 +265,8 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         } catch (e: UnsupportedOperationException) {
             Logbook.log("x-requested-with: cannot be turned off on this WebView")
         }
-        // Client hints must agree with the desktop user agent: by default the WebView announces
-        // "Android WebView" / mobile in Sec-CH-UA headers and navigator.userAgentData. Set
-        // unconditionally (WebSettingsCompat is a no-op on APIs that lack the feature) so every
-        // request the page makes — including the Google OAuth sign-in — presents the same
-        // desktop Chrome identity a real browser would.
-        val brands = fingerprint.brands.map {
-            androidx.webkit.UserAgentMetadata.BrandVersion.Builder().setBrand(it.name).setMajorVersion(it.major).setFullVersion(it.fullVersion).build()
-        }
-        try {
-            androidx.webkit.WebSettingsCompat.setUserAgentMetadata(settings, androidx.webkit.UserAgentMetadata.Builder()
-                .setBrandVersionList(brands)
-                .setFullVersion(fingerprint.fullVersion)
-                .setPlatform("Linux")
-                .setPlatformVersion(fingerprint.kernel)
-                .setArchitecture("x86")
-                .setBitness(64)
-                .setMobile(false)
-                .setModel("")
-                .setWow64(false)
-                .build())
-        } catch (e: UnsupportedOperationException) {
-            Logbook.log("client hints: cannot be turned off on this WebView")
-        }
-        Logbook.log("client hints: ${fingerprint.secChUa} (platform ${fingerprint.kernel})")
         // The page plays the audio: its renderer keeps its priority when the screen is off.
+        setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false)        // The page plays the audio: its renderer keeps its priority when the screen is off.
         setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false)
         // Playback control requests leave from the app, without the WebView's X-Requested-With.
         relay = ControlRelay(this, fingerprint).also {
@@ -423,13 +312,6 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                         if (taken) return
                         taken = true
                         probe.stopLoading()
-                        // Do not open third-party OAuth hosts in the WebView:
-                        val host = runCatching { android.net.Uri.parse(url).host?.lowercase() }.getOrNull()
-                        if (host == "accounts.google.com" || host == "facebook.com" || host == "appleid.apple.com") {
-                            Logbook.log("blocked OAuth navigation to $url")
-                            probe.post { probe.destroy() }
-                            return
-                        }
                         if (url.startsWith("https://") || url.startsWith("http://")) view.loadUrl(url)
                         probe.post { probe.destroy() }
                     }
@@ -441,18 +323,7 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                 return true
             }
         }
-        // The androidx client-hints API is a no-op on some WebViews (this device's 157.0.8103.50
-        // throws UnsupportedOperationException), so the page's JS still reads navigator.userAgentData
-        // and navigator.platform as "Android WebView". Override them at document start, before the
-        // page runs, so every JS check sees the same desktop Chrome identity the UA string claims.
-        // Also inject immediately (inline) so that even navigations in flight after this view is
-        // created get the override, not only future document-start injections.
-        val docStart = androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT)
-        if (docStart) androidx.webkit.WebViewCompat.addDocumentStartJavaScript(this, navigatorOverride, setOf("https://open.spotify.com", "https://accounts.spotify.com"))
-        if (docStart) androidx.webkit.WebViewCompat.addDocumentStartJavaScript(this, socialLoginBlock, setOf("https://accounts.spotify.com"))
-        evaluateJavascript(navigatorOverride, null)
-        Logbook.log("navigator override: ${if (docStart) "document start + inline" else "inline"}")
-        webViewClient = object : WebViewClient() {
+        webClient = object : WebViewClient() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
                 val url = request.url.toString()
                 if (AdBlock.isBlocked(url)) {
@@ -583,11 +454,12 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                 }
             }
 
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val host = request.url.host.orEmpty()
                 // Stay on Spotify's own pages (player, login, consent, audio); open nothing else.
                 // Exact or subdomain match: "evilspotify.com" must not count as Spotify.
-                val allowed = listOf("spotify.com", "spotify.net", "scdn.co")
+                // Third-party sign-in hosts (Google, Facebook, Apple) are allowed in the same WebView.
+                val allowed = listOf("spotify.com", "spotify.net", "scdn.co", "google.com", "gstatic.com", "googleusercontent.com", "facebook.com", "apple.com")
                     .any { host == it || host.endsWith(".$it") }
                 // And only over https: a plain http link to those hosts, or any other scheme, stays out.
                 // The page's own loads (loadUrl, about:blank) do not come through here.

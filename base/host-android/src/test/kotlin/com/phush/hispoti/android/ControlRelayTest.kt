@@ -123,7 +123,7 @@ class ControlRelayTest {
             """{"authorization":"Bearer t","client-token":"c","app-platform":"WebPlayer","spotify-app-version":"1.2.3","content-type":"application/json","Cookie":"sp_dc=x","X-Requested-With":"com.phush.hispoti"}""",
         )
         val page = org.json.JSONObject(
-            """{"userAgent":"Mozilla/5.0 (X11; Linux x86_64) Chrome/155.0.0.0","brands":"\"Chromium\";v=\"155\"","mobile":"?0","platform":"Linux","acceptLanguage":"fr-CH,fr;q=0.9"}""",
+            """{"userAgent":"Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36","brands":"\"Chromium\";v=\"145\",\"Not_A Brand\";v=\"8\",\"Google Chrome\";v=\"145\"","mobile":"?1","platform":"Android","acceptLanguage":"fr-CH,fr;q=0.9"}""",
         )
         val h = ControlRelay.relayHeaders(given, page, "fallback", "en", "fallback")
         // OkHttp adds Content-Length for the body, the decoding interceptor Accept-Encoding.
