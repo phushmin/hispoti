@@ -55,19 +55,21 @@ enum class LoginLoad {
         fun isSpotifyAccounts(url: String?): Boolean = hostOf(url) == "accounts.spotify.com"
 
         /**
-         * A page of the sign-in: Spotify's account and challenge pages, a `/login` path anywhere,
-         * and the "Continue with Google / Facebook / Apple" pages. Judged on the host and the path,
-         * not on the whole address: a player address that merely carries one of these names in its
-         * query (a `continue=` back to the login) is not a sign-in page, and was taken for one.
+         * A page of the sign-in: Spotify's account and challenge pages, and a `/login` path on a
+         * Spotify host. Judged on the host and the path, not on the whole address: a player address
+         * that merely carries one of these names in its query (a `continue=` back to the login) is
+         * not a sign-in page, and was taken for one.
+         *
+         * Not the third-party providers: Google refuses OAuth in an embedded WebView ("This browser
+         * or app may not be secure"), so Hispoti signs in with email/password at accounts.spotify.com
+         * and never routes to Google, Facebook or Apple. A navigation to one of those is refused, not
+         * waited on — and their own `/login.php` paths are not sign-in pages either.
          */
         fun isLoginUrl(url: String?): Boolean {
             val uri = runCatching { java.net.URI((url ?: return false).substringBefore('#').substringBefore('?')) }.getOrNull() ?: return false
             val host = uri.host?.lowercase() ?: return false
             if (host == "accounts.spotify.com" || host == "challenge.spotify.com") return true
-            if (uri.path?.contains("/login") == true) return true
-            // Not Google/Facebook/Apple: those are third-party OAuth providers, and Google refuses
-            // OAuth in an embedded WebView ("browser not secure"). Spotube's plugin logs in directly
-            // at accounts.spotify.com (email/password), and so does Hispoti now.
+            if (host.endsWith(".spotify.com") && uri.path?.contains("/login") == true) return true
             return false
         }
 

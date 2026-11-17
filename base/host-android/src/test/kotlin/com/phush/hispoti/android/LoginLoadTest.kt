@@ -16,11 +16,14 @@ class LoginLoadTest {
         assertTrue(LoginLoad.isLoginUrl("https://www.spotify.com/es/login/"))
     }
 
-    @Test fun `continue with google facebook apple stays mid sign-in`() {
-        assertTrue(LoginLoad.isLoginUrl("https://accounts.google.com/o/oauth2/v2/auth?client_id=1"))
-        assertTrue(LoginLoad.isLoginUrl("https://www.facebook.com/login.php?x=1"))
-        assertTrue(LoginLoad.isLoginUrl("https://m.facebook.com/dialog/oauth"))
-        assertTrue(LoginLoad.isLoginUrl("https://appleid.apple.com/auth/authorize"))
+    @Test fun `third-party OAuth is not a login page`() {
+        // Google refuses OAuth in an embedded WebView ("This browser or app may not be secure"), so
+        // Hispoti signs in with email/password at accounts.spotify.com and never routes to a
+        // provider. Those hosts are not sign-in pages: a navigation to them is refused, not waited on.
+        assertFalse(LoginLoad.isLoginUrl("https://accounts.google.com/o/oauth2/v2/auth?client_id=1"))
+        assertFalse(LoginLoad.isLoginUrl("https://www.facebook.com/login.php?x=1"))
+        assertFalse(LoginLoad.isLoginUrl("https://m.facebook.com/dialog/oauth"))
+        assertFalse(LoginLoad.isLoginUrl("https://appleid.apple.com/auth/authorize"))
     }
 
     @Test fun `the player is not a login page, whatever its query says`() {
