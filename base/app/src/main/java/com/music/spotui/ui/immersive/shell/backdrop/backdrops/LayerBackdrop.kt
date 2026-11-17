@@ -6,9 +6,9 @@
  * against older Compose broke at runtime) and to add a backdrop resolution
  * scale for cheaper effect rendering. KMP expect/actual declarations were
  * merged into this single Android source set. Package renamed accordingly.
- * Myspoti copy taken from BitChord's vendored tree (github.com/kushagrasinghx/BitChord,
+ * Hispoti copy taken from BitChord's vendored tree (github.com/kushagrasinghx/BitChord,
  * app/src/main/java/com/music/bitchord/ui/components/backdrop at edc1e6f), which adds
- * backdropScale and exportedBackdrop to drawBackdrop. Package renamed again for Myspoti.
+ * backdropScale and exportedBackdrop to drawBackdrop. Package renamed again for Hispoti.
  */
 package com.music.spotui.ui.immersive.shell.backdrop.backdrops
 
@@ -122,7 +122,7 @@ class LayerBackdrop internal constructor(
             val c = s.coordinates ?: continue
             val layer = s.layer ?: continue
             if (layer.isReleased) {
-                app.myspoti.host.android.Logbook.log("glass: backdrop source sampled after release, skipped")
+                com.phush.hispoti.host.android.Logbook.log("glass: backdrop source sampled after release, skipped")
                 continue
             }
             if (!c.isAttached || layer.size.width <= 0) continue

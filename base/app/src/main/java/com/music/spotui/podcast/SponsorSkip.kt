@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import app.myspoti.host.android.Logbook
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.host.android.Logbook
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.preferences.SponsorBlockPref
 import com.music.spotui.di.Graph
 import com.music.spotui.di.SongPlayer
@@ -56,7 +56,7 @@ object SponsorSkip {
     private var tracker: SkipTracker? = null
 
     fun init() {
-        MyspotiRuntime.scope.launch(Dispatchers.Main) {
+        HispotiRuntime.scope.launch(Dispatchers.Main) {
             while (true) delay(runCatching { tick() }.getOrElse { Log.w(TAG, "check failed: ${it.message}"); IDLE_MS })
         }
     }
@@ -118,7 +118,7 @@ object SponsorSkip {
         lookup?.cancel()
         lookupUri = uri
         failedAt = 0L
-        lookup = MyspotiRuntime.scope.launch(Dispatchers.IO) {
+        lookup = HispotiRuntime.scope.launch(Dispatchers.IO) {
             val id = uri.substringAfterLast(':')
             val found = runCatching { segmentsFor(id, title, show, durationMs) }
                 .onFailure { Log.w(TAG, "lookup failed: ${it.message}") }
@@ -158,7 +158,7 @@ object SponsorSkip {
             .addQueryParameter("categories", categories)
             .addQueryParameter("actionTypes", "[\"skip\"]")
             .build()
-        val request = Request.Builder().url(url).header("X-CLIENT-NAME", "Myspoti").build()
+        val request = Request.Builder().url(url).header("X-CLIENT-NAME", "Hispoti").build()
         return YouTubeSource.http.newCall(request).execute().use { r ->
             when {
                 // No segment for any id of that prefix.

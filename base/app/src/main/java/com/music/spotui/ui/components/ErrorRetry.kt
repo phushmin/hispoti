@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 
 /** A page or list that could not load: what happened, and a Try again button. */
 @Composable

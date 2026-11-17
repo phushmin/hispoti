@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.C
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.automix.AutoMix
 import com.music.spotui.cast.CastPlayback
 import com.music.spotui.data.offline.OfflineStore
@@ -42,7 +42,7 @@ import java.util.Locale
 /**
  * "Stats for nerds": what the app knows of the sound that plays, read again every second while the
  * sheet is open (and not at all otherwise: the reading lives in the sheet's composition). For
- * Myspoti's own player: the source, the format the decoder reports, the bit rate, the buffer, the
+ * Hispoti's own player: the source, the format the decoder reports, the bit rate, the buffer, the
  * output and the processing. For Spotify: what the page announces and the mirror; the stream itself
  * is encrypted in the page, so nothing more is claimed. The sources asked and the quality announced
  * are told in full by "Why this source?" ([WhySourceSheet]), opened from the player's source line.
@@ -147,8 +147,8 @@ internal object NerdStats {
         val cue = LocalPlayer.mixCue.value
         if (cue != null) {
             val style = c.getString(when (cue.style) {
-                app.myspoti.automix.MixPlan.Style.BLEND -> R.string.nerd_automix_blend
-                app.myspoti.automix.MixPlan.Style.CUT -> R.string.nerd_automix_cut
+                com.phush.hispoti.automix.MixPlan.Style.BLEND -> R.string.nerd_automix_blend
+                com.phush.hispoti.automix.MixPlan.Style.CUT -> R.string.nerd_automix_cut
                 else -> R.string.nerd_automix_fade
             })
             if (cue.mixing) return c.getString(R.string.nerd_automix_mixing, style)
@@ -207,7 +207,7 @@ internal object NerdStats {
             rows += c.getString(R.string.nerd_device) to remote.name
             return NerdSection(title, rows, c.getString(R.string.nerd_spotify_remote))
         }
-        val page = app.myspoti.host.android.MyspotiRuntime.spotify.player
+        val page = com.phush.hispoti.host.android.HispotiRuntime.spotify.player
         rows += c.getString(R.string.nerd_device) to c.getString(R.string.nerd_device_this_phone)
         val extension = Extensions.mirrorBy.value
         rows += c.getString(R.string.nerd_mirror) to when {

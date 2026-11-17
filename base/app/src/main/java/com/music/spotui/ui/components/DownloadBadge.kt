@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.offline.OfflineStatus
 
 private val Green: Color get() = com.music.spotui.ui.theme.AppAccent

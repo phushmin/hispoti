@@ -16,7 +16,7 @@ import androidx.compose.runtime.setValue
  * the player is rebuilt.
  */
 object DataSaver {
-    private const val PREFS = "myspoti_prefs"
+    private const val PREFS = "hispoti_prefs"
     private const val KEY = "DataSaver"
 
     /** The user's switch. */
@@ -49,8 +49,8 @@ object DataSaver {
         if (now == wasActive) return
         wasActive = now
         main.post {
-            if (now) app.myspoti.host.android.MyspotiRuntime.suspendPlayer()
-            else app.myspoti.host.android.MyspotiRuntime.resume()
+            if (now) com.phush.hispoti.host.android.HispotiRuntime.suspendPlayer()
+            else com.phush.hispoti.host.android.HispotiRuntime.resume()
         }
     }
 

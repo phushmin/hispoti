@@ -2,7 +2,7 @@
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/components/LiquidGlass.kt at edc1e6f, itself adapted
  * from EchoMusicApp/Echo-Music's GlassEffectConfig / Modifier.liquidGlass (GPL-3.0).
- * Modified for Myspoti, 2026-10: the switch is LiquidGlassPref, the fallback is Myspoti's Haze
+ * Modified for Hispoti, 2026-10: the switch is LiquidGlassPref, the fallback is Hispoti's Haze
  * frost, the page is recorded per page (each page's list) instead of around the whole app, and
  * a glass drawn inside the page it samples falls back to a plain fill, one in another window (a
  * sheet) samples the page by screen position. 2026-10 (later): the window-blur gate is gone, the
@@ -104,7 +104,7 @@ fun rememberLiquidGlassActive(): Boolean {
             path == GlassPath.LENS -> "Android ${Build.VERSION.SDK_INT}: RuntimeShader lens and live RenderEffect blur"
             else -> "Android ${Build.VERSION.SDK_INT}: live RenderEffect blur, no RuntimeShader for the lens"
         }
-        app.myspoti.host.android.Logbook.log("glass: $path ($why)")
+        com.phush.hispoti.host.android.Logbook.log("glass: $path ($why)")
     }
     return path != GlassPath.FROST
 }
@@ -342,7 +342,7 @@ internal class PageBackdrop(private val page: LayerBackdrop) : Backdrop {
         if (line == lastReport || reports >= 14) return
         lastReport = line
         reports++
-        app.myspoti.host.android.Logbook.log(line)
+        com.phush.hispoti.host.android.Logbook.log(line)
     }
 
     private companion object {

@@ -51,7 +51,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.di.SongPlayer
 import com.music.spotui.ui.theme.AppPalette
 

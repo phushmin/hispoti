@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.entity.ArtistOverviewModel
 import com.music.spotui.data.entity.LibraryEntry

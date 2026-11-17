@@ -2,7 +2,7 @@
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/components/SongActionsSheet.kt (TintedSheet, ActionRow,
  * SheetTrackHeader, SheetHeading, GroupSeparator) and ArtworkBackdrop.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.sheets
 
@@ -97,7 +97,7 @@ val LocalImmersiveRowStyle = staticCompositionLocalOf { ImmersiveRowStyle.Sheet 
 /**
  * A cover's colours made into a sheet tint: a deep wash of its dominant colour for the ground
  * and a brightened version for the accent. Without a cover ([imageUrl] null) the flat ground and
- * Myspoti's own accent. The first sight of a cover warms in; a known one is right on the first
+ * Hispoti's own accent. The first sight of a cover warms in; a known one is right on the first
  * frame, and "reduce motion" turns the fade into a cut.
  */
 @Composable

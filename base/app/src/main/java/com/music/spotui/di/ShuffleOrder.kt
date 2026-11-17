@@ -3,7 +3,7 @@ package com.music.spotui.di
 import kotlin.random.Random
 
 /**
- * Myspoti's shuffle of a list (see [AppShuffle]): every song of the list once, in an order drawn
+ * Hispoti's shuffle of a list (see [AppShuffle]): every song of the list once, in an order drawn
  * once, before the list starts over. A song twice in the list is there twice. [at] is the index of
  * the song playing in the order.
  */

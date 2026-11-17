@@ -2,7 +2,7 @@
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/screens/HomeScreen.kt (SectionHeader, Shelf, ShelfCard, HeroCard),
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/components/ShelfRow.kt and
- * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/components/Common.kt at edc1e6f. Modified for Myspoti, 2026-10.
+ * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/components/Common.kt at edc1e6f. Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.components
 
@@ -43,7 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage

@@ -123,7 +123,7 @@ import com.music.spotui.di.SongPlayer
 import com.music.spotui.ui.components.rememberFrameClock
 import com.music.spotui.ui.components.shareLyricLines
 import com.music.spotui.ui.viewmodel.LyricsViewModel
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import kotlinx.coroutines.delay
 import java.util.Locale
 

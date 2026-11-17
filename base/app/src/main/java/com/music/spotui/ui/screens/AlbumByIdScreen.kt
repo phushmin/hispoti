@@ -2,7 +2,7 @@ package com.music.spotui.ui.screens
 
 import com.music.spotui.ui.theme.AppText
 
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 
 import androidx.compose.ui.res.stringResource
 

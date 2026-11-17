@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.BetaLogs
 
 /**
@@ -128,7 +128,7 @@ private const val HOLD_MS = 900
 
 @Composable
 private fun LogsDialog(onDismiss: () -> Unit) {
-    com.music.spotui.extensions.ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.REPORT)
+    com.music.spotui.extensions.ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.REPORT)
     val context = LocalContext.current
     var text by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(Unit) { text = BetaLogs.recent() }
@@ -165,7 +165,7 @@ private fun LogsDialog(onDismiss: () -> Unit) {
 
 private fun copy(context: Context, text: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    clipboard.setPrimaryClip(ClipData.newPlainText("Myspoti logs", text))
+    clipboard.setPrimaryClip(ClipData.newPlainText("Hispoti logs", text))
     Toast.makeText(context, R.string.beta_logs_copied, Toast.LENGTH_SHORT).show()
 }
 

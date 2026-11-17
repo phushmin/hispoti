@@ -32,7 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.SongsModel
 import com.music.spotui.di.Haptics
 import com.music.spotui.ui.components.EpisodeDownloadButton

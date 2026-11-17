@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/screens/SearchScreen.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.screens
 
@@ -56,9 +56,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import app.myspoti.api.MediaCard
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.MediaCard
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.api.Features
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.entity.AlbumsModel
@@ -157,13 +157,13 @@ fun ImmersiveSearchScreen(navController: NavController) {
         value = emptyList()
         if (filter != SearchFilter.Profiles || text.isBlank()) return@produceState
         delay(250)
-        value = runCatching { MyspotiRuntime.api.search.users(text.trim(), limit = 30).items }.getOrDefault(emptyList())
+        value = runCatching { HispotiRuntime.api.search.users(text.trim(), limit = 30).items }.getOrDefault(emptyList())
     }
     val suggestions by produceState(emptyList<String>(), text) {
         value = emptyList()
         if (text.isBlank()) return@produceState
         delay(300)
-        value = runCatching { MyspotiRuntime.api.search.suggestions(text.trim(), 6) }.getOrDefault(emptyList())
+        value = runCatching { HispotiRuntime.api.search.suggestions(text.trim(), 6) }.getOrDefault(emptyList())
             .filter { !it.equals(text.trim(), ignoreCase = true) }
     }
     val tiles = rememberBrowseTiles()
@@ -232,7 +232,7 @@ fun ImmersiveSearchScreen(navController: NavController) {
                             clearRecentItems(context)
                             recents = emptyList()
                             // The account's own list too, so other devices forget them as well.
-                            val runtime = MyspotiRuntime
+                            val runtime = HispotiRuntime
                             runtime.scope.launch { runCatching { runtime.api.search.clearRecent() } }
                         },
                     )
@@ -595,7 +595,7 @@ private fun LazyListScope.searchResults(
     // What extensions add for this search (search.provide), under Spotify's results.
     if (filter != SearchFilter.Profiles && text.isNotBlank()) item(key = "search:extensions") {
         com.music.spotui.extensions.ExtensionBlocks(
-            app.myspoti.extensions.Hook.SEARCH, app.myspoti.extensions.Surface.SEARCH,
+            com.phush.hispoti.extensions.Hook.SEARCH, com.phush.hispoti.extensions.Surface.SEARCH,
             kotlinx.serialization.json.buildJsonObject { put("query", kotlinx.serialization.json.JsonPrimitive(text.trim())) }.toString(),
             delayMs = 400,
         )

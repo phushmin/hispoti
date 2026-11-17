@@ -251,7 +251,7 @@ object LibraryOutbox {
         val prefs = c.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val book = Book(prefs.getString(BOOK, null))
         prefs.getString(LEGACY, null)?.let { legacy ->
-            val signedIn = c.applicationContext.getSharedPreferences("myspoti_prefs", Context.MODE_PRIVATE).getBoolean("LoggedIn", false)
+            val signedIn = c.applicationContext.getSharedPreferences("hispoti_prefs", Context.MODE_PRIVATE).getBoolean("LoggedIn", false)
             book.adopt(legacy, signedIn)
             prefs.edit().putString(BOOK, book.text()).remove(LEGACY).apply()
         }
@@ -262,7 +262,7 @@ object LibraryOutbox {
             ready = ready,
             account = account,
             pause = { kotlinx.coroutines.delay(it) },
-            log = { android.util.Log.i("LibraryOutbox", it); app.myspoti.host.android.Logbook.log(it) },
+            log = { android.util.Log.i("LibraryOutbox", it); com.phush.hispoti.host.android.Logbook.log(it) },
             scope = scope,
         ).also { it.request() }
         val cm = c.getSystemService(ConnectivityManager::class.java) ?: return

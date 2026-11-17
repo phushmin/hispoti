@@ -1,6 +1,6 @@
 package com.music.spotui.ui.screens
 
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 
 /** One row Settings' search finds: its title, its description (0: none) and where it is ([place]). */
 internal class SettingsEntry(val title: Int, val detail: Int, val place: String)
@@ -19,7 +19,7 @@ internal object SettingsSearch {
         SettingsEntry(R.string.extensions_title, R.string.extensions_row_detail, "Sources"),
         SettingsEntry(R.string.settings_autoplay_title, R.string.settings_autoplay_detail, "Playback"),
         SettingsEntry(R.string.settings_release_notify, R.string.settings_release_notify_detail, "Playback"),
-        SettingsEntry(R.string.myspoti_shuffle_title, R.string.myspoti_shuffle_detail, "Playback"),
+        SettingsEntry(R.string.hispoti_shuffle_title, R.string.hispoti_shuffle_detail, "Playback"),
         SettingsEntry(R.string.equalizer_title, R.string.equalizer_settings_detail, "Playback"),
         SettingsEntry(R.string.settings_keep_playing_title, R.string.settings_keep_playing_detail, "Playback"),
         SettingsEntry(R.string.settings_headset_skip_title, R.string.settings_headset_skip_detail, "Playback"),
@@ -81,7 +81,7 @@ internal object SettingsSearch {
     val classic: List<SettingsEntry> = listOf(
         SettingsEntry(R.string.settings_autoplay_title, R.string.settings_autoplay_detail, "0"),
         SettingsEntry(R.string.settings_release_notify, R.string.settings_release_notify_detail, "0"),
-        SettingsEntry(R.string.myspoti_shuffle_title, R.string.myspoti_shuffle_detail, "0"),
+        SettingsEntry(R.string.hispoti_shuffle_title, R.string.hispoti_shuffle_detail, "0"),
         SettingsEntry(R.string.settings_keep_playing_title, R.string.settings_keep_playing_detail, "0"),
         SettingsEntry(R.string.settings_headset_skip_title, R.string.settings_headset_skip_detail, "0"),
         SettingsEntry(R.string.settings_connect_mirror_title, R.string.settings_connect_mirror_detail, "0"),

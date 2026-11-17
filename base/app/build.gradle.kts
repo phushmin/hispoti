@@ -28,19 +28,19 @@ android {
             all { it.systemProperty("roborazzi.test.record", "true") }
         }
     }
-    namespace = "app.myspoti.engine"
+    namespace = "com.phush.hispoti.engine"
     compileSdk = 37
 
-    // Two channels that install side by side: betas ("2.0.0-beta.3") stay "app.myspoti",
-    // signed with the first key, as "Myspoti Beta"; releases are "app.myspoti.stable",
-    // signed with their own key, as "Myspoti".
+    // Two channels that install side by side: betas ("2.0.0-beta.3") stay "com.phush.hispoti",
+    // signed with the first key, as "Hispoti Beta"; releases are "com.phush.hispoti.stable",
+    // signed with their own key, as "Hispoti".
     // Local builds (no version given) are on the beta side, like the phone test builds.
     val version = (findProperty("appVersionName") as String?) ?: "2.4.0"
     // "-beta" as in UpdateChecker.isBeta, one predicate for the app id, the label and the log stripping.
     val beta = findProperty("appVersionName") == null || version.contains("-beta")
     defaultConfig {
-        applicationId = if (automixLab) "app.myspoti.automixlab" else if (beta) "app.myspoti" else "app.myspoti.stable"
-        manifestPlaceholders["appLabel"] = if (automixLab) "Myspoti Mix Lab" else if (beta) "Myspoti Beta" else "Myspoti"
+        applicationId = if (automixLab) "com.phush.hispoti.automixlab" else if (beta) "com.phush.hispoti" else "com.phush.hispoti.stable"
+        manifestPlaceholders["appLabel"] = if (automixLab) "Hispoti Mix Lab" else if (beta) "Hispoti Beta" else "Hispoti"
         // The adb command line (com.music.spotui.cli): betas and debug builds only.
         manifestPlaceholders["cliEnabled"] = beta.toString()
         minSdk = 29
@@ -50,7 +50,7 @@ android {
         versionName = version
         // GitHub "owner/repo" whose releases the app checks for updates; empty = off
         // (local builds). CI sets it to the repository it builds.
-        buildConfigField("String", "UPDATE_REPO", "\"${(findProperty("updateRepo") as String?) ?: System.getenv("MYSPOTI_UPDATE_REPO") ?: ""}\"")
+        buildConfigField("String", "UPDATE_REPO", "\"${(findProperty("updateRepo") as String?) ?: System.getenv("HISPOTI_UPDATE_REPO") ?: ""}\"")
         // -Pabis=arm64-v8a: one APK for one phone (the test builds). Without it, the ABI splits below.
         (findProperty("abis") as String?)?.let { ndk { abiFilters += it.split(",") } }
         // On-device tests (codecs): ./gradlew connectedDebugAndroidTest
@@ -63,20 +63,20 @@ android {
     }
 
     // Release key from the CI secrets (env), else keystore/keystore.properties.
-    val envStore = System.getenv("MYSPOTI_KEYSTORE")
+    val envStore = System.getenv("HISPOTI_KEYSTORE")
     val hasReleaseKey = envStore != null || keystorePropertiesFile.exists()
     // A stable release (a version without "-beta", given by CI) is never signed with the debug key:
     // without the release key the build stops. Local builds (no version) and -PoverDev are not stable releases.
     val stableRelease = !beta && findProperty("overDev") == null
     if (stableRelease && !hasReleaseKey && gradle.startParameter.taskNames.any { Regex("(assemble|bundle|package|install)Release").containsMatchIn(it) })
-        throw GradleException("A stable release needs the release key: set MYSPOTI_KEYSTORE (CI) or add keystore/keystore.properties.")
+        throw GradleException("A stable release needs the release key: set HISPOTI_KEYSTORE (CI) or add keystore/keystore.properties.")
     signingConfigs {
         create("release") {
             if (envStore != null) {
                 storeFile = file(envStore)
-                storePassword = System.getenv("MYSPOTI_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("MYSPOTI_KEY_ALIAS")
-                keyPassword = System.getenv("MYSPOTI_KEY_PASSWORD")
+                storePassword = System.getenv("HISPOTI_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("HISPOTI_KEY_ALIAS")
+                keyPassword = System.getenv("HISPOTI_KEY_PASSWORD")
             } else if (keystorePropertiesFile.exists()) {
                 storeFile = rootProject.file("keystore/${keystoreProperties.getProperty("storeFile")}")
                 storePassword = keystoreProperties.getProperty("storePassword")
@@ -90,7 +90,7 @@ android {
         debug {
             // Installs next to the release apps (own data, own sign-in).
             if (!automixLab) applicationIdSuffix = ".dev"
-            manifestPlaceholders["appLabel"] = if (automixLab) "Myspoti Mix Lab" else "Myspoti dev"
+            manifestPlaceholders["appLabel"] = if (automixLab) "Hispoti Mix Lab" else "Hispoti dev"
             manifestPlaceholders["cliEnabled"] = "true"
         }
         release {
@@ -101,7 +101,7 @@ android {
             // beta on the test phone without replacing the signed beta installed there.
             if (findProperty("overDev") != null && !automixLab) {
                 applicationIdSuffix = ".dev"
-                manifestPlaceholders["appLabel"] = "Myspoti dev"
+                manifestPlaceholders["appLabel"] = "Hispoti dev"
             }
             isMinifyEnabled = true
             isShrinkResources = true
@@ -114,7 +114,7 @@ android {
         }
     }
     // One build, every APK a release carries (named by collectApks below): one per ABI, and the
-    // universal one (both ABIs). x86 is left out: no phone or TV Myspoti targets runs it.
+    // universal one (both ABIs). x86 is left out: no phone or TV Hispoti targets runs it.
     splits {
         abi {
             isEnable = findProperty("abis") == null
@@ -141,7 +141,7 @@ dependencies {
     implementation("sh.calvin.reorderable:reorderable:3.1.0")
     // Jam: scan the invite QR code (Google code scanner, no camera permission).
     implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
-    // Myspoti TV: the support links as QR codes (Apache-2.0), the encoder alone.
+    // Hispoti TV: the support links as QR codes (Apache-2.0), the encoder alone.
     implementation("com.google.zxing:core:3.5.3")
     testImplementation("junit:junit:4.13.2")
     // The real org.json in unit tests (android.jar only has stubs).
@@ -213,16 +213,16 @@ dependencies {
 }
 /**
  * `./gradlew :app:collectApks` after assembleRelease: the APKs under clear names in
- * build/release-apks/: Myspoti-2.4.0-ARMv8.apk (64-bit phones, almost all of them),
- * Myspoti-2.4.0-ARMv7.apk (32-bit), Myspoti-2.4.0-universal.apk (both) and Myspoti-2.4.0-TV.apk
+ * build/release-apks/: Hispoti-2.4.0-ARMv8.apk (64-bit phones, almost all of them),
+ * Hispoti-2.4.0-ARMv7.apk (32-bit), Hispoti-2.4.0-universal.apk (both) and Hispoti-2.4.0-TV.apk
  * (Android TV: the universal APK, since many TVs run 32-bit apps on a 64-bit chip). Betas are
- * Myspoti-Beta-..., the optimised dev builds Myspoti-dev-...
+ * Hispoti-Beta-..., the optimised dev builds Hispoti-dev-...
  */
 tasks.register("collectApks") {
     mustRunAfter("assembleRelease")
     val version = (findProperty("appVersionName") as String?) ?: "2.4.0"
     val beta = findProperty("appVersionName") == null || version.contains("-beta")
-    val app = when { findProperty("overDev") != null -> "Myspoti-dev"; beta -> "Myspoti-Beta"; else -> "Myspoti" }
+    val app = when { findProperty("overDev") != null -> "Hispoti-dev"; beta -> "Hispoti-Beta"; else -> "Hispoti" }
     // Copies: the configuration cache cannot keep a reference to the script's own values.
     val abis = RELEASE_ABIS.toList()
     val abiNames = ABI_NAMES.toMap()

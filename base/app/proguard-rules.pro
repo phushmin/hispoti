@@ -1,6 +1,6 @@
 # The Web Player page calls the host through this @JavascriptInterface on WebViews without
 # web message listeners (PlayerChannel.kt).
--keepclassmembers class app.myspoti.host.android.PlayerChannel {
+-keepclassmembers class com.phush.hispoti.host.android.PlayerChannel {
     @android.webkit.JavascriptInterface <methods>;
 }
 # The extension page's bridge (ExtensionPage.kt): the page's script calls it by method name.
@@ -8,8 +8,8 @@
     @android.webkit.JavascriptInterface <methods>;
 }
 # Bundled resources read by name (bridge script, GraphQL operation table).
--keep class app.myspoti.spotify.bridge.BridgeScript { *; }
--keep class app.myspoti.spotify.gql.GqlOps { *; }
+-keep class com.phush.hispoti.spotify.bridge.BridgeScript { *; }
+-keep class com.phush.hispoti.spotify.gql.GqlOps { *; }
 -keep class org.bouncycastle.** { *; }
 -dontwarn org.bouncycastle.**
 -dontwarn javax.annotation.concurrent.GuardedBy
@@ -84,8 +84,8 @@
 
 # Extensions: a Spotify call's result is turned into JSON from the API models' own field names
 # (SpotifyDispatcher reads them by reflection), and the sandbox loads prelude.js from its jar.
--keepclassmembers class app.myspoti.api.** { <fields>; }
--keep class app.myspoti.extensions.** { *; }
+-keepclassmembers class com.phush.hispoti.api.** { <fields>; }
+-keep class com.phush.hispoti.extensions.** { *; }
 
 # The relay's Cronet (before Android 14): CronetProvider finds the Play services provider by its
 # class name, and zstd's decoder is reached from its native library by JNI.

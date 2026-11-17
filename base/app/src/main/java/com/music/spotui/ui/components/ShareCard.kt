@@ -22,7 +22,7 @@ import java.io.File
 
 /**
  * "Share as image": a 1080x1920 story card (blurred cover background, large cover, title,
- * artist, Myspoti wordmark) written to cache/shared/ and handed out through the FileProvider,
+ * artist, Hispoti wordmark) written to cache/shared/ and handed out through the FileProvider,
  * so Instagram / WhatsApp stories and the like can pick it up.
  */
 object ShareCard {
@@ -37,7 +37,7 @@ object ShareCard {
                 val card = render(title, artist, cover)
                 val dir = File(context.cacheDir, "shared").apply { mkdirs() }
                 dir.listFiles()?.forEach { it.delete() }
-                File(dir, "myspoti_card.png").also { f ->
+                File(dir, "hispoti_card.png").also { f ->
                     f.outputStream().use { card.compress(Bitmap.CompressFormat.PNG, 100, it) }
                 }
             }.getOrNull()
@@ -57,7 +57,7 @@ object ShareCard {
     private fun loadCover(context: Context, uri: String): Bitmap? {
         if (uri.isBlank()) return null
         val bmp = runCatching {
-            Glide.with(context.applicationContext).asBitmap().load(app.myspoti.host.android.Covers.large(uri)).submit(1000, 1000).get()
+            Glide.with(context.applicationContext).asBitmap().load(com.phush.hispoti.host.android.Covers.large(uri)).submit(1000, 1000).get()
         }.getOrNull() ?: return null
         return if (bmp.config == Bitmap.Config.HARDWARE) bmp.copy(Bitmap.Config.ARGB_8888, false) else bmp
     }
@@ -113,7 +113,7 @@ object ShareCard {
             color = Color.argb(170, 255, 255, 255); textSize = 40f; textAlign = Paint.Align.CENTER
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD); letterSpacing = 0.12f
         }
-        c.drawText("Myspoti", W / 2f, H - 150f, mark)
+        c.drawText("Hispoti", W / 2f, H - 150f, mark)
         return out
     }
 }

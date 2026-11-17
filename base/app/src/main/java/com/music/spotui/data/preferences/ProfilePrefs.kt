@@ -12,14 +12,14 @@ import android.content.SharedPreferences
 object ProfilePrefs {
     /** The active account's profile; the first one before the engine has started. */
     fun profile(): String = runCatching {
-        val runtime = app.myspoti.host.android.MyspotiRuntime
+        val runtime = com.phush.hispoti.host.android.HispotiRuntime
         if (runtime.isStarted) runtime.host.accounts.list.value.active else null
-    }.getOrNull() ?: app.myspoti.host.android.AccountList.DEFAULT_PROFILE
+    }.getOrNull() ?: com.phush.hispoti.host.android.AccountList.DEFAULT_PROFILE
 
-    val isDefault: Boolean get() = profile() == app.myspoti.host.android.AccountList.DEFAULT_PROFILE
+    val isDefault: Boolean get() = profile() == com.phush.hispoti.host.android.AccountList.DEFAULT_PROFILE
 
     /** [base] as the active account stores it. */
-    fun key(base: String): String = profile().let { if (it == app.myspoti.host.android.AccountList.DEFAULT_PROFILE) base else "$base@$it" }
+    fun key(base: String): String = profile().let { if (it == com.phush.hispoti.host.android.AccountList.DEFAULT_PROFILE) base else "$base@$it" }
 
     fun getString(p: SharedPreferences, base: String, default: String?): String? {
         val k = key(base)

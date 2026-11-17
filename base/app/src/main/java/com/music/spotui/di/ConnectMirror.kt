@@ -3,9 +3,9 @@ package com.music.spotui.di
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import app.myspoti.api.PlayerState
-import app.myspoti.host.android.MyspotiRuntime
-import app.myspoti.spotify.bridge.PageDevice
+import com.phush.hispoti.api.PlayerState
+import com.phush.hispoti.host.android.HispotiRuntime
+import com.phush.hispoti.spotify.bridge.PageDevice
 import com.music.spotui.data.local.LocalTrack
 import com.music.spotui.data.preferences.ConnectMirrorPref
 import com.music.spotui.data.preferences.DownloadSyncPref
@@ -23,7 +23,7 @@ import kotlinx.coroutines.sync.withLock
 /**
  * "Count extension plays on Spotify": while the local player plays a song an extension streams, the
  * Web Player plays the same Spotify song at the same place, unheard and at its lowest quality. The
- * phone stays one Spotify Connect device whatever makes the sound: Spotify's apps (and Myspoti on
+ * phone stays one Spotify Connect device whatever makes the sound: Spotify's apps (and Hispoti on
  * another phone) see the song and command it. Their pause, seek or skip reach the page, whose state
  * the local player follows here; the phone's own controls drive the local player as before, and the
  * page follows it. The play is the page's own, counted by Spotify as any other: the app reports
@@ -65,8 +65,8 @@ object ConnectMirror {
     /** At most that many lists remembered as putting the page on another song. */
     private const val MAX_MISSED = 32
 
-    private val api get() = MyspotiRuntime.api
-    private val page get() = MyspotiRuntime.spotify.player
+    private val api get() = HispotiRuntime.api
+    private val page get() = HispotiRuntime.spotify.player
     private val main = Handler(Looper.getMainLooper())
     private val echo = MirrorRules.Echo(SystemClock::elapsedRealtime)
     private val lock = Mutex()
@@ -129,12 +129,12 @@ object ConnectMirror {
     fun attach() {
         if (attached) return
         attached = true
-        MyspotiRuntime.scope.launch { page.playsElsewhere.collect { away -> if (away) wentAway() else cameBack() } }
+        HispotiRuntime.scope.launch { page.playsElsewhere.collect { away -> if (away) wentAway() else cameBack() } }
         // Commands are held during an ad and while the page reloads (it refuses them: "local player
         // is disabled"); the page usable again gets the song the local player is on, where it is.
         // A page ready again takes commands only once its device has joined Spotify Connect: the
         // song is sent then (or after JOIN_WAIT_MS without a join).
-        MyspotiRuntime.scope.launch {
+        HispotiRuntime.scope.launch {
             combine(api.ready, page.adPlaying, PageDevice.joined) { ready, ad, joined ->
                 if (!ready) { joinWaitedOut = false; main.removeCallbacks(joinWait) }
                 else if (!ad && !joined && PageDevice.reported && !joinWaitedOut) { main.removeCallbacks(joinWait); main.postDelayed(joinWait, MirrorRules.JOIN_WAIT_MS) }
@@ -235,7 +235,7 @@ object ConnectMirror {
         // An ad, a song still loading, Spotify limiting plays: nothing to judge on. The page's clock
         // after it lies between where it stood then and where its last state puts it: both are kept
         // for the seek test (a seek just before the gap is still followed, a stall in it is not one).
-        if (s.isBuffering || page.adPlaying.value || MyspotiRuntime.host.licenseLimited()) {
+        if (s.isBuffering || page.adPlaying.value || HispotiRuntime.host.licenseLimited()) {
             if (gapFrom == null) gapFrom = lastWeb?.takeIf { it.item?.uri == w.uri }?.positionAt(now)
             return
         }
@@ -272,7 +272,7 @@ object ConnectMirror {
         // A song refused its licence makes the page skip on by itself, a song a second or so: taken for
         // picks on another device, the local player followed and its songs switched at random (reported,
         // free account, 403 ×42). Those moves stay the page's; the local song plays on.
-        if (MirrorRules.movesSong(f) && MyspotiRuntime.host.licenceRefusedWithin(LICENCE_SKIP_MS)) {
+        if (MirrorRules.movesSong(f) && HispotiRuntime.host.licenceRefusedWithin(LICENCE_SKIP_MS)) {
             if (ignoredLicenceSkips++ % 10 == 0) log("the page went to ${web.uri} after a refused licence: not followed")
             return
         }
@@ -324,7 +324,7 @@ object ConnectMirror {
      */
     private fun followIfHere(uri: String, line: String, follow: () -> Unit) {
         val gen = generation
-        MyspotiRuntime.scope.launch {
+        HispotiRuntime.scope.launch {
             val device = activeElsewhere()
             main.post {
                 if (gen != generation || !running) return@post
@@ -391,7 +391,7 @@ object ConnectMirror {
             running = true
             firstPlay = true
             // An extension's own mirror (playback.mirror) gives way: two would fight over the page.
-            com.music.spotui.extensions.Extensions.mirrorReset("Myspoti plays the song on Spotify itself")
+            com.music.spotui.extensions.Extensions.mirrorReset("Hispoti plays the song on Spotify itself")
             // The page asks Android for the audio focus as it plays: the local player must not yield it.
             LocalPlayer.setMirrorFocus(true)
             startDriftCheck()
@@ -496,7 +496,7 @@ object ConnectMirror {
         // the next transport command (SongPlayer): a song Spotify plays next must find the page
         // heard, at the user's quality, the mirrored one paused. Each step on its own: a pause that
         // fails must not leave the page unheard or at its lowest quality.
-        ending = MyspotiRuntime.scope.launch {
+        ending = HispotiRuntime.scope.launch {
             lock.withLock {
                 if (heard) runCatching { api.player.pause() }.onFailure { log("ending: pause failed: ${it.message}") }
                 runCatching { api.player.setLocalMute(false) }.onFailure { log("ending: unmute failed: ${it.message}") }
@@ -515,7 +515,7 @@ object ConnectMirror {
     /** Playback was handed to another device and has not come back to play here yet (see [onEngine]). */
     val waitsBack: Boolean get() = handedAway
 
-    /** Myspoti moves playback to another device: the mirror ends there (the transfer moves the song). */
+    /** Hispoti moves playback to another device: the mirror ends there (the transfer moves the song). */
     fun leaving(device: String) {
         if (stop("playback moved to $device", pausePage = false)) handedAway = true
     }
@@ -577,7 +577,7 @@ object ConnectMirror {
 
     /**
      * A state of the engine while no local player plays (SongPlayer.applyState). [moved]: it started
-     * or changed song; [intended]: Myspoti asked for it. Playback back on this phone, or moved here
+     * or changed song; [intended]: Hispoti asked for it. Playback back on this phone, or moved here
      * by another device, goes back through the extensions (the mirror starts with the local player).
      */
     fun onEngine(s: PlayerState, moved: Boolean, intended: Boolean) {
@@ -589,7 +589,7 @@ object ConnectMirror {
         if (!back) return
         // Checked against the device list: the page shows the active device's song as playing, and
         // the watcher reports another device's takeover a few seconds late.
-        MyspotiRuntime.scope.launch {
+        HispotiRuntime.scope.launch {
             val device = activeElsewhere()
             main.post {
                 if (MirrorRules.backHere(playingHere, true, moved, intended, ConnectMirrorPref.on, activeElsewhere = device != null)) SongPlayer.backThroughExtensions()
@@ -634,7 +634,7 @@ object ConnectMirror {
     /** Between events the two clocks can part slowly: looked at again every [DRIFT_CHECK_MS], while it runs. */
     private fun startDriftCheck() {
         driftJob?.cancel()
-        driftJob = MyspotiRuntime.scope.launch {
+        driftJob = HispotiRuntime.scope.launch {
             while (true) {
                 delay(DRIFT_CHECK_MS)
                 if (LocalPlayer.isPlaying()) poke()
@@ -650,7 +650,7 @@ object ConnectMirror {
         echo.sent(echoMs)
         val gen = generation
         val live = { gen == generation }
-        MyspotiRuntime.scope.launch {
+        HispotiRuntime.scope.launch {
             lock.withLock {
                 if (!live()) return@withLock
                 // An ad or a reload: the page refuses commands now. Dropped: the page gets the song
@@ -673,5 +673,5 @@ object ConnectMirror {
 
     fun status() = Status(ConnectMirrorPref.on, running, want?.uri, want?.paused, landed, webAt(want), handedAway, failedUri)
 
-    private fun log(line: String) = app.myspoti.host.android.Logbook.log("mirror: $line")
+    private fun log(line: String) = com.phush.hispoti.host.android.Logbook.log("mirror: $line")
 }

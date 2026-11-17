@@ -33,9 +33,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
-import app.myspoti.host.android.SavedAccount
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
+import com.phush.hispoti.host.android.SavedAccount
 import com.music.spotui.di.Graph
 import com.music.spotui.di.SessionActions
 import com.music.spotui.ui.immersive.Immersive
@@ -64,9 +64,9 @@ private fun accountsLook(): AccountsLook =
 fun AccountsList(onLeave: () -> Unit = {}) {
     val look = accountsLook()
     val ctx = LocalContext.current
-    val host = MyspotiRuntime.host
+    val host = HispotiRuntime.host
     val list by host.accounts.list.collectAsStateWithLifecycle()
-    val livePlan by app.myspoti.spotify.AccountPlan.premium.collectAsStateWithLifecycle()
+    val livePlan by com.phush.hispoti.spotify.AccountPlan.premium.collectAsStateWithLifecycle()
     var switchTo by remember { mutableStateOf<SavedAccount?>(null) }
     var remove by remember { mutableStateOf<SavedAccount?>(null) }
     var addSingle by remember { mutableStateOf(false) }
@@ -177,7 +177,7 @@ fun AccountsList(onLeave: () -> Unit = {}) {
 /** The detail of the "Switch account" row behind the avatar: the other accounts kept, by name. */
 @Composable
 fun switchAccountDetail(): String {
-    val list by MyspotiRuntime.host.accounts.list.collectAsStateWithLifecycle()
+    val list by HispotiRuntime.host.accounts.list.collectAsStateWithLifecycle()
     return list.others.mapNotNull { it.name?.takeIf { n -> n.isNotBlank() } }.joinToString(", ")
         .ifEmpty { stringResource(R.string.accounts_switch_row_detail) }
 }

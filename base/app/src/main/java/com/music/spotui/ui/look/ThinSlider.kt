@@ -1,10 +1,10 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/ThinSlider.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: only the slider and its loading sheen (lines 54-245 and the sheen it draws);
- * the Automix beat pulse, the mix crossfade and the transition window are left out (Myspoti's
+ * the Automix beat pulse, the mix crossfade and the transition window are left out (Hispoti's
  * own AutoMix stretch is drawn by ui/components/AutoMixVisuals.kt).
  */
 package com.music.spotui.ui.look

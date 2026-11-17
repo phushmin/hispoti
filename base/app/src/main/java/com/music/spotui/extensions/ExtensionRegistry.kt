@@ -1,18 +1,18 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.Action
-import app.myspoti.extensions.Area
-import app.myspoti.extensions.Ask
-import app.myspoti.extensions.Change
-import app.myspoti.extensions.Clash
-import app.myspoti.extensions.Hook
-import app.myspoti.extensions.Level
-import app.myspoti.extensions.Manifest
-import app.myspoti.extensions.Mode
-import app.myspoti.extensions.Origin
-import app.myspoti.extensions.Snapshot
-import app.myspoti.extensions.Storage
-import app.myspoti.extensions.mode
+import com.phush.hispoti.extensions.Action
+import com.phush.hispoti.extensions.Area
+import com.phush.hispoti.extensions.Ask
+import com.phush.hispoti.extensions.Change
+import com.phush.hispoti.extensions.Clash
+import com.phush.hispoti.extensions.Hook
+import com.phush.hispoti.extensions.Level
+import com.phush.hispoti.extensions.Manifest
+import com.phush.hispoti.extensions.Mode
+import com.phush.hispoti.extensions.Origin
+import com.phush.hispoti.extensions.Snapshot
+import com.phush.hispoti.extensions.Storage
+import com.phush.hispoti.extensions.mode
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
@@ -68,7 +68,7 @@ data class InstalledExtension(
     /** Its repository answered 404: it keeps running from the copy on the phone, marked "source gone". */
     val sourceGone: Boolean = false,
     /** The `raw.request` writes the user allowed for good, listed with its rights and revocable there. */
-    val rawGrants: List<app.myspoti.extensions.RawGrant> = emptyList(),
+    val rawGrants: List<com.phush.hispoti.extensions.RawGrant> = emptyList(),
 )
 
 /** A version kept on disk to revert to, or waiting in staging. */
@@ -110,7 +110,7 @@ data class Registry(
     }
 
     /**
-     * [items] in the order the source [action] (an [app.myspoti.extensions.Mode.ORDERED] action key)
+     * [items] in the order the source [action] (an [com.phush.hispoti.extensions.Mode.ORDERED] action key)
      * asks them: the user's order for it, else the one made active when sources were exclusive
      * first, then [area]'s order.
      */
@@ -277,7 +277,7 @@ sealed interface InstallPlan {
 }
 
 /**
- * A small JSON map in a file (key → JSON text): an extension's `myspoti.storage`, and its
+ * A small JSON map in a file (key → JSON text): an extension's `hispoti.storage`, and its
  * settings. Kept in memory, written through on every change.
  */
 class FileStore(private val file: File) : Storage {
@@ -343,6 +343,6 @@ internal fun writeAtomically(file: File, text: String) {
     try {
         com.music.spotui.data.writeTextSafely(file, text, sync = false)
     } catch (e: com.music.spotui.data.NotReplacedException) {
-        runCatching { app.myspoti.host.android.Logbook.log("ext: ${e.message}, the old copy kept") }
+        runCatching { com.phush.hispoti.host.android.Logbook.log("ext: ${e.message}, the old copy kept") }
     }
 }

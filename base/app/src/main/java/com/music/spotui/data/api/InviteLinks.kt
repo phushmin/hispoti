@@ -2,8 +2,8 @@ package com.music.spotui.data.api
 
 import android.content.Context
 import android.util.Log
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.entity.ContextPageModel
 import com.music.spotui.data.entity.LibraryEntry
 import kotlinx.coroutines.CoroutineScope
@@ -75,8 +75,8 @@ object InviteLinks {
             // Not an invitation: the item the short link leads to is played, as a direct link is.
             val m = Regex("""spotify\.com/(?:intl-[a-z-]+/)?(track|album|playlist|artist|show|episode)/([A-Za-z0-9]{22})""").find(target) ?: return@launch
             runCatching {
-                MyspotiRuntime.api.ready.first { it }
-                MyspotiRuntime.api.player.play("spotify:${m.groupValues[1]}:${m.groupValues[2]}")
+                HispotiRuntime.api.ready.first { it }
+                HispotiRuntime.api.player.play("spotify:${m.groupValues[1]}:${m.groupValues[2]}")
             }
         }
         return true
@@ -110,7 +110,7 @@ object InviteLinks {
             addedAt = java.time.Instant.now().toString(),
         ))
         LibraryEdits.run(app, edit, write = {
-            MyspotiRuntime.api.playlists.join(invite.uri, invite.token)
+            HispotiRuntime.api.playlists.join(invite.uri, invite.token)
             Api.HomeCache.libraryRoot = null
             Api.HomeCache.folders.clear()
         }, onDone = { ok ->

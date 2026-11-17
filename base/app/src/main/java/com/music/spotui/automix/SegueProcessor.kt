@@ -7,9 +7,9 @@ import androidx.media3.common.audio.BaseAudioProcessor
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.ForwardingAudioSink
-import app.myspoti.automix.segue.LaneSide
-import app.myspoti.automix.segue.SegueDeck
-import app.myspoti.automix.segue.SeguePlan
+import com.phush.hispoti.automix.segue.LaneSide
+import com.phush.hispoti.automix.segue.SegueDeck
+import com.phush.hispoti.automix.segue.SeguePlan
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 

@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.di.LocalPlayer
 import com.music.spotui.ui.look.rememberReduceMotion
 

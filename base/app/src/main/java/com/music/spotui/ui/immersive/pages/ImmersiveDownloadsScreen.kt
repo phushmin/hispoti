@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.SongsModel
 import com.music.spotui.data.offline.OfflineCollections
 import com.music.spotui.data.offline.OfflineDownloader

@@ -57,7 +57,7 @@ import com.music.spotui.di.Graph
 import com.music.spotui.di.SongPlayer
 import com.music.spotui.video.MusicVideoController
 import com.music.spotui.ui.screens.SpotifySeekBar
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import kotlinx.coroutines.delay
 
 /**

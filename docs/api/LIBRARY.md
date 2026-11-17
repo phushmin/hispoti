@@ -121,7 +121,7 @@ carry `extractedColors.colorDark.hex`.
 ```json
 {"addedAt":{"isoString":"2026-10-15T21:14:42.278Z"},"depth":0,"pinnable":true,"pinned":false,
  "playedAt":null,"item":{"__typename":"PlaylistResponseWrapper","_uri":"spotify:playlist:{id}",
- "data":{"__typename":"Playlist","name":"Myspoti capture test","description":"","format":"",
+ "data":{"__typename":"Playlist","name":"Hispoti capture test","description":"","format":"",
  "currentUserCapabilities":{"canEditItems":true,"canView":true},
  "images":{"items":[{"sources":[{"url":"https://i.scdn.co/image/…","width":null,"height":null}]}]},
  "ownerV2":{"data":{"__typename":"User","name":"…","uri":"spotify:user:{user}","username":"{user}"}},
@@ -206,7 +206,7 @@ given track is already in that list. Only playlists the user can edit are listed
  {"curates":true,"pinned":true,"item":{"__typename":"LibraryPseudoPlaylistResponseWrapper",
   "_uri":"spotify:collection:tracks","data":{"name":"…","uri":"spotify:collection:tracks","image":{…}}}},
  {"curates":false,"pinned":false,"item":{"__typename":"PlaylistResponseWrapper",
-  "_uri":"spotify:playlist:{id}","data":{"name":"Myspoti capture test","uri":"spotify:playlist:{id}","images":{…}}}}]}}}}
+  "_uri":"spotify:playlist:{id}","data":{"name":"Hispoti capture test","uri":"spotify:playlist:{id}","images":{…}}}}]}}}}
 ```
 
 ### Liked Songs
@@ -348,7 +348,7 @@ The default name is chosen by the client (localized "My Playlist #N").
 
 ```json
 {"deltas":[{"ops":[{"kind":"UPDATE_LIST_ATTRIBUTES",
-  "updateListAttributes":{"newAttributes":{"values":{"name":"Myspoti capture test"}}}}],
+  "updateListAttributes":{"newAttributes":{"values":{"name":"Hispoti capture test"}}}}],
   "info":{"source":{"client":"WEBPLAYER"}}}]}
 ```
 No base revision was sent. The UI then re-ran `fetchPlaylist` and `libraryV3`.
@@ -559,5 +559,5 @@ playlist's description, cover, access and collaborators are all implemented in
 uri: the same song twice has two. What is still missing:
 
 - `applyCurations` with `CURATE` (adding through the heart sheet), multi-playlist curations
-  (Myspoti saves with `addToLibrary` instead).
+  (Hispoti saves with `addToLibrary` instead).
 - Error responses (rate limit, revision conflict, permission denied).

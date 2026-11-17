@@ -16,9 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import app.myspoti.api.UserRef
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.UserRef
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.ui.immersive.Immersive
 import com.music.spotui.ui.immersive.components.ImmersiveListRow
 import com.music.spotui.ui.immersive.components.ImmersiveMessageState
@@ -42,7 +42,7 @@ fun ImmersiveFollowListScreen(navController: NavController, userId: String, foll
     LaunchedEffect(userId, followers) {
         val uri = "spotify:user:$userId"
         people = runCatching {
-            if (followers) MyspotiRuntime.api.users.followers(uri) else MyspotiRuntime.api.users.following(uri)
+            if (followers) HispotiRuntime.api.users.followers(uri) else HispotiRuntime.api.users.following(uri)
         }.getOrDefault(emptyList())
     }
     val list = people

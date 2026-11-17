@@ -57,18 +57,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
-import app.myspoti.extensions.Catalog
-import app.myspoti.extensions.Category
-import app.myspoti.extensions.Action
-import app.myspoti.extensions.Area
-import app.myspoti.extensions.mode
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.Catalog
+import com.phush.hispoti.extensions.Category
+import com.phush.hispoti.extensions.Action
+import com.phush.hispoti.extensions.Area
+import com.phush.hispoti.extensions.mode
 import com.music.spotui.extensions.actionIcon
 import com.music.spotui.extensions.actionLabel
 import com.music.spotui.extensions.areaIcon
 import com.music.spotui.extensions.areaLabel
-import app.myspoti.extensions.Store
-import app.myspoti.extensions.StoreAction
+import com.phush.hispoti.extensions.Store
+import com.phush.hispoti.extensions.StoreAction
 import com.music.spotui.extensions.ExtensionStore
 import com.music.spotui.extensions.Extensions
 import com.music.spotui.extensions.InstalledExtension
@@ -146,17 +146,17 @@ fun ExtensionsScreen(navController: NavController) {
                 }
             }
             // Discovered on GitHub: by score, then the most recently updated; the hidden ones behind "Show all".
-            val github = repos[app.myspoti.extensions.Discovery.SOURCE]
+            val github = repos[com.phush.hispoti.extensions.Discovery.SOURCE]
             if (github != null) {
                 GitHubHeader(github, onRefresh = { ExtensionStore.discover(force = true) })
                 discovered.filter { Store.matches(it.item, query, category) }.forEach { r ->
                     val entry = r.item
                     shown++
-                    StoreRow(app.myspoti.extensions.Discovery.SOURCE, entry, Store.action(entry, installedCodes[entry.id], appVersion), entry.id in busy, registry,
+                    StoreRow(com.phush.hispoti.extensions.Discovery.SOURCE, entry, Store.action(entry, installedCodes[entry.id], appVersion), entry.id in busy, registry,
                         onOpen = { navController.navigate(rowRoute(entry.id, entry.id in installedCodes)) },
-                        onInstall = { scope.launch { installFromStore(ctx, app.myspoti.extensions.Discovery.SOURCE, entry) } },
+                        onInstall = { scope.launch { installFromStore(ctx, com.phush.hispoti.extensions.Discovery.SOURCE, entry) } },
                         onInstalled = { navController.navigate(installedRoute(entry.id)) },
-                        rating = r.rating, hidden = app.myspoti.extensions.Ranking.hidden(r, blocks, System.currentTimeMillis()) != null)
+                        rating = r.rating, hidden = com.phush.hispoti.extensions.Ranking.hidden(r, blocks, System.currentTimeMillis()) != null)
                 }
                 val hidden = remember(repos, ratings, blocks) { ExtensionStore.hiddenCount() }
                 if (hidden > 0 || showAll) TextButton(onClick = { showAll = !showAll }, modifier = Modifier.padding(horizontal = 12.dp)) {
@@ -214,7 +214,7 @@ fun ExtensionsScreen(navController: NavController) {
         scope.launch {
             // A GitHub repository's address: its newest release (or default branch), kept on the phone and updated from there.
             // (GitHub, GitLab or Codeberg; `gitlab:group/name` and `codeberg:owner/name` work too.)
-            val gitHub = app.myspoti.extensions.GitHubRepo.parse(url)?.takeIf { !url.endsWith(".zip") }
+            val gitHub = com.phush.hispoti.extensions.GitHubRepo.parse(url)?.takeIf { !url.endsWith(".zip") }
             runCatching {
                 if (gitHub != null) com.music.spotui.extensions.ExtensionUpdates.fromGitHub(gitHub)
                 else Extensions.downloadPackage(url).let { (zip, p) -> com.music.spotui.extensions.ExtensionUpdates.Fetched(zip, p, null) }
@@ -364,11 +364,11 @@ private fun GitHubHeader(repo: ExtensionStore.Repo, onRefresh: () -> Unit) {
     }
 }
 
-/** "★ 4.2 · 35 votes" (a Bayesian score: see [app.myspoti.extensions.Ranking]); greyed when hidden behind "Show all". */
+/** "★ 4.2 · 35 votes" (a Bayesian score: see [com.phush.hispoti.extensions.Ranking]); greyed when hidden behind "Show all". */
 @Composable
-internal fun RatingLine(rating: app.myspoti.extensions.Rating?, hidden: Boolean = false) {
+internal fun RatingLine(rating: com.phush.hispoti.extensions.Rating?, hidden: Boolean = false) {
     val text = if (rating == null || rating.votes == 0) stringResource(R.string.extension_rating_none)
-        else stringResource(R.string.extension_rating, "%.1f".format(app.myspoti.extensions.Ranking.stars(rating)), rating.votes)
+        else stringResource(R.string.extension_rating, "%.1f".format(com.phush.hispoti.extensions.Ranking.stars(rating)), rating.votes)
     Text(text, color = if (hidden) Warning else AppMuted, fontSize = 11.sp, maxLines = 1)
 }
 
@@ -376,7 +376,7 @@ internal fun RatingLine(rating: app.myspoti.extensions.Rating?, hidden: Boolean 
 @Composable
 private fun StoreRow(
     repo: String, e: Catalog.Entry, action: StoreAction, busy: Boolean, registry: com.music.spotui.extensions.Registry,
-    onOpen: () -> Unit, onInstall: () -> Unit, onInstalled: () -> Unit, rating: app.myspoti.extensions.Rating? = null, hidden: Boolean = false,
+    onOpen: () -> Unit, onInstall: () -> Unit, onInstalled: () -> Unit, rating: com.phush.hispoti.extensions.Rating? = null, hidden: Boolean = false,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -401,7 +401,7 @@ private fun StoreRow(
 
 @Composable
 internal fun incompatibleLine(e: Catalog.Entry): String =
-    if (e.apiVersion > app.myspoti.extensions.API_VERSION) stringResource(R.string.extensions_requires_api, e.apiVersion)
+    if (e.apiVersion > com.phush.hispoti.extensions.API_VERSION) stringResource(R.string.extensions_requires_api, e.apiVersion)
     else stringResource(R.string.extensions_requires, e.minAppVersion.orEmpty())
 
 /** "Incompatible with X (installed)": the entry, or an installed extension, lists the other in conflictsWith or replaces. */
@@ -420,7 +420,7 @@ internal fun incompatibleWith(e: Catalog.Entry, registry: com.music.spotui.exten
  */
 @Composable
 private fun AreaSection(
-    area: Area, list: List<InstalledExtension>, errors: Map<String, String>, statuses: Map<String, app.myspoti.extensions.ExtensionStatus>, updates: Set<String>, enable: (String, Boolean) -> Unit, onOpen: (String) -> Unit) {
+    area: Area, list: List<InstalledExtension>, errors: Map<String, String>, statuses: Map<String, com.phush.hispoti.extensions.ExtensionStatus>, updates: Set<String>, enable: (String, Boolean) -> Unit, onOpen: (String) -> Unit) {
     val activity by Extensions.activity.state.collectAsState()
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 4.dp)) {
         Icon(areaIcon(area), null, tint = AppAccent, modifier = Modifier.size(20.dp))
@@ -428,7 +428,7 @@ private fun AreaSection(
         Text(stringResource(areaLabel(area)), color = AppText, fontSize = 17.sp, fontWeight = FontWeight.Bold)
     }
     // The exclusive actions of this area: who acts now.
-    val exclusive = Action.entries.filter { it.area == area && it.mode == app.myspoti.extensions.Mode.EXCLUSIVE }
+    val exclusive = Action.entries.filter { it.area == area && it.mode == com.phush.hispoti.extensions.Mode.EXCLUSIVE }
     list.forEachIndexed { i, e ->
         val m = remember(e.id, e.sha256) { Extensions.manifest(e.id) }
         InstalledRow(e, errors[e.id], statuses[e.id], e.id in updates, enable, onOpen = { onOpen(e.id) }) {
@@ -473,7 +473,7 @@ private fun AreaSection(
 
 /** An installed row: icon (a dot when it failed), name, version, its state or description, its action icons, the switch; [extra] under it. */
 @Composable
-private fun InstalledRow(e: InstalledExtension, error: String?, status: app.myspoti.extensions.ExtensionStatus?, update: Boolean, enable: (String, Boolean) -> Unit, onOpen: () -> Unit, extra: @Composable () -> Unit = {}) {
+private fun InstalledRow(e: InstalledExtension, error: String?, status: com.phush.hispoti.extensions.ExtensionStatus?, update: Boolean, enable: (String, Boolean) -> Unit, onOpen: () -> Unit, extra: @Composable () -> Unit = {}) {
     val pkg = remember(e.id, e.sha256) { Extensions.pkg(e.id) }
     val m = pkg?.manifest
     val state = stateLine(e, error, status)
@@ -543,7 +543,7 @@ private fun InstallButtons(onRepo: (() -> Unit)?, onFile: () -> Unit, onUrl: () 
 @Composable
 internal fun GuideLink(modifier: Modifier = Modifier, label: @Composable (String) -> Unit) {
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-    Box(modifier.clip(RoundedCornerShape(8.dp)).clickable { runCatching { uriHandler.openUri("https://github.com/kota-zo/myspoti/blob/main/docs/extensions/GUIDE.md") } }.padding(vertical = 6.dp)) {
+    Box(modifier.clip(RoundedCornerShape(8.dp)).clickable { runCatching { uriHandler.openUri("https://github.com/kota-zo/hispoti/blob/main/docs/extensions/GUIDE.md") } }.padding(vertical = 6.dp)) {
         label(stringResource(R.string.extensions_guide))
     }
 }

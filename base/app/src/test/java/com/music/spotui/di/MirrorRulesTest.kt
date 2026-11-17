@@ -240,7 +240,7 @@ class MirrorRulesTest {
         assertTrue(MirrorRules.backHere(playingHere = true, handedAway = true, moved = false, intended = false, on = true))
         // Resumed or skipped from another device while the engine plays here.
         assertTrue(MirrorRules.backHere(playingHere = true, handedAway = false, moved = true, intended = false, on = true))
-        // Myspoti's own play, nothing moved, or the setting off: the engine plays on.
+        // Hispoti's own play, nothing moved, or the setting off: the engine plays on.
         assertFalse(MirrorRules.backHere(playingHere = true, handedAway = true, moved = true, intended = true, on = true))
         assertFalse(MirrorRules.backHere(playingHere = true, handedAway = false, moved = false, intended = false, on = true))
         assertFalse(MirrorRules.backHere(playingHere = true, handedAway = true, moved = true, intended = false, on = false))

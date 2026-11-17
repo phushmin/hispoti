@@ -1,10 +1,10 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/playback/EqualizerProcessor.kt at b690dc1.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: the trapezoidal state-variable sections (shelves at both ends, bells between),
- * their coefficients and the gliding of a change are BitChord's; the bands are Myspoti's ten
+ * their coefficients and the gliding of a change are BitChord's; the bands are Hispoti's ten
  * (31 Hz to 16 kHz), the tone controls, balance and loudness stage are left out, the float
  * path and an exact copy when the curve is flat are added, and the limiter is a small one of
  * our own.

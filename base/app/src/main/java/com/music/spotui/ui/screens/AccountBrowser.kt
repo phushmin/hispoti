@@ -30,7 +30,7 @@ class AccountBrowser : ComponentActivity() {
         super.onCreate(savedInstanceState)
         web = WebView(this).apply {
             // The active account's WebView profile, before anything else: its sign-in is the one shared.
-            val host = app.myspoti.host.android.MyspotiRuntime.host
+            val host = com.phush.hispoti.host.android.HispotiRuntime.host
             host.useProfile(this)
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true

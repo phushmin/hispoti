@@ -15,7 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.radio.RadioFavoritesStore
 import com.music.spotui.radio.RadioPlayer
 import com.music.spotui.radio.RadioStation

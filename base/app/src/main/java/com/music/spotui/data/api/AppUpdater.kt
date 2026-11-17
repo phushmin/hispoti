@@ -29,7 +29,7 @@ object AppUpdater {
         data class Downloading(val progress: Float) : State
         /** Handed to the system installer, waiting for the user's confirmation. */
         data object Installing : State
-        /** Android needs "Install unknown apps" allowed for Myspoti first. */
+        /** Android needs "Install unknown apps" allowed for Hispoti first. */
         data object NeedsPermission : State
         data class Failed(val message: String) : State
     }
@@ -37,7 +37,7 @@ object AppUpdater {
     private val _state = MutableStateFlow<State>(State.Idle)
     val state: StateFlow<State> = _state
 
-    private const val ACTION = "app.myspoti.UPDATE_STATUS"
+    private const val ACTION = "com.phush.hispoti.UPDATE_STATUS"
     private val http by lazy {
         OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build()
     }
@@ -45,7 +45,7 @@ object AppUpdater {
     /** Android lets this app install packages (the "Install unknown apps" switch). */
     fun canInstall(context: Context): Boolean = context.packageManager.canRequestPackageInstalls()
 
-    /** The system page with Myspoti's "Install unknown apps" switch. */
+    /** The system page with Hispoti's "Install unknown apps" switch. */
     fun openInstallSettings(context: Context) {
         context.startActivity(
             Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}"))
@@ -58,7 +58,7 @@ object AppUpdater {
         val app = context.applicationContext
         if (!canInstall(app)) { _state.value = State.NeedsPermission; return }
         _state.value = State.Downloading(-1f)
-        val apk = File(File(app.cacheDir, "updates"), "myspoti-${release.version}.apk")
+        val apk = File(File(app.cacheDir, "updates"), "hispoti-${release.version}.apk")
         val result = runCatching {
             download(release, apk)
             install(app, apk)
@@ -120,7 +120,7 @@ object AppUpdater {
         var committed = false
         try {
             installer.openSession(id).use { session ->
-                session.openWrite("myspoti.apk", 0, apk.length()).use { out ->
+                session.openWrite("hispoti.apk", 0, apk.length()).use { out ->
                     apk.inputStream().use { it.copyTo(out) }
                     session.fsync(out)
                 }

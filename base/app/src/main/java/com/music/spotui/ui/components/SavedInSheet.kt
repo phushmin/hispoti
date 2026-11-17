@@ -61,7 +61,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import androidx.compose.ui.res.pluralStringResource
 import com.music.spotui.data.api.SpotifySync
 import com.music.spotui.data.entity.SongsModel

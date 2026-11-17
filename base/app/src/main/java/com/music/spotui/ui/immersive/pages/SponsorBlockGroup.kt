@@ -3,7 +3,7 @@ package com.music.spotui.ui.immersive.pages
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.preferences.SponsorBlockPref
 
 /** The Podcasts group of the Immersive settings: SponsorBlock and the parts it skips (see [com.music.spotui.podcast.SponsorSkip]). */

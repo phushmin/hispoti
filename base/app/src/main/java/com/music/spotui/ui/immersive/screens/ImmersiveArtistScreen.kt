@@ -1,6 +1,6 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
- * app/src/main/java/com/music/bitchord/ui/screens/DetailScreen.kt at edc1e6f. Modified for Myspoti, 2026-10.
+ * app/src/main/java/com/music/bitchord/ui/screens/DetailScreen.kt at edc1e6f. Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.screens
 
@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.entity.AlbumsModel
 import com.music.spotui.data.entity.ArtistOverviewModel

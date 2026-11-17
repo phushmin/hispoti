@@ -1,8 +1,8 @@
 package com.music.spotui.extensions
 
 import android.net.Uri
-import app.myspoti.extensions.AudioStream
-import app.myspoti.extensions.TrackInfo
+import com.phush.hispoti.extensions.AudioStream
+import com.phush.hispoti.extensions.TrackInfo
 import com.music.spotui.data.entity.SongsModel
 import com.music.spotui.data.local.LocalTrack
 import com.music.spotui.data.offline.OfflineStore
@@ -16,13 +16,13 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * The `audio-source` hook: a list's songs play in Myspoti's own player, like downloads, from
+ * The `audio-source` hook: a list's songs play in Hispoti's own player, like downloads, from
  * where an extension says their audio is (docs/extensions/API.md §3). Each song is a
- * `myspoti-ext://track/<id>?…` item; the player's data source ([resolve]) asks the extensions
+ * `hispoti-ext://track/<id>?…` item; the player's data source ([resolve]) asks the extensions
  * when it opens it, on its loading thread. A song no extension has audio for is played by Spotify.
  */
 object ExtensionAudio {
-    const val SCHEME = "myspoti-ext"
+    const val SCHEME = "hispoti-ext"
     /**
      * An answer is reused for seeks and replays a while, then asked again (addresses expire): at
      * most this long, less when the extension says when it expires ([AudioStream.expiresInMs]).
@@ -214,7 +214,7 @@ object ExtensionAudio {
         known[trackId]?.stream?.let { if (it.manifest != null) "dash" else "url ${it.mimeType ?: "untyped"}" }
 
     /**
-     * For the player's data source: the audio of a `myspoti-ext:` item, or null. Blocks.
+     * For the player's data source: the audio of a `hispoti-ext:` item, or null. Blocks.
      * [again]: the answer kept is dropped and the extensions are asked anew (its address was refused).
      * [ahead]: asked before the song plays (the extension is told so).
      */
@@ -288,14 +288,14 @@ object ExtensionAudio {
                 cached ?: withTimeoutOrNull(Extensions.PICK_AUDIO_MS + 1_000) { ask!!.await() }
             } finally { picking.decrementAndGet() } ?: run {
                 if (ask != null && !ask.isCompleted) {
-                    app.myspoti.host.android.Logbook.log("audio: no extension audio for ${picked.title} within ${(Extensions.PICK_AUDIO_MS + 1_000) / 1000} s: Spotify plays it, the extension's answer is still awaited")
+                    com.phush.hispoti.host.android.Logbook.log("audio: no extension audio for ${picked.title} within ${(Extensions.PICK_AUDIO_MS + 1_000) / 1000} s: Spotify plays it, the extension's answer is still awaited")
                     awaited.add(picked.spotifyTrackId)
                     late.launch {
                         val s = try { runCatching { ask.await() }.getOrNull() } finally { awaited.remove(picked.spotifyTrackId) } ?: return@launch
                         keep(picked.spotifyTrackId, s)
                         withContext(Dispatchers.Main) { com.music.spotui.di.SongPlayer.extensionAnsweredLate(picked.spotifyTrackId) }
                     }
-                } else app.myspoti.host.android.Logbook.log("audio: no extension had ${picked.title}: Spotify plays it")
+                } else com.phush.hispoti.host.android.Logbook.log("audio: no extension had ${picked.title}: Spotify plays it")
                 return false
             }
             keep(picked.spotifyTrackId, first)
@@ -303,7 +303,7 @@ object ExtensionAudio {
         // A newer tap answered meanwhile: nothing to build. The queue of a list of thousands (Liked
         // Songs) is built off the main thread: built on it, it held the screen until an ANR (#.money0).
         if (!withContext(Dispatchers.Main) { isLatest() }) {
-            app.myspoti.host.android.Logbook.log("audio: ${picked.title} answered after a newer pick, not played")
+            com.phush.hispoti.host.android.Logbook.log("audio: ${picked.title} answered after a newer pick, not played")
             return true
         }
         val (list, at) = withContext(Dispatchers.Default) { AudioRoute.queue(songs, picked) }
@@ -311,7 +311,7 @@ object ExtensionAudio {
         return withContext(Dispatchers.Main) {
             isLatest().also {
                 if (it) LocalPlayer.play(tracks, at, shuffle = shuffle, context = context, contextUri = contextUri, startMs = startMs, continues = true)
-                else app.myspoti.host.android.Logbook.log("audio: ${picked.title} answered after a newer pick, not played")
+                else com.phush.hispoti.host.android.Logbook.log("audio: ${picked.title} answered after a newer pick, not played")
             }
         }
     }
@@ -334,7 +334,7 @@ object ExtensionAudio {
         isLatest: () -> Boolean = { true }, shown: (SongsModel) -> Unit = {}, startMs: Long = 0L,
     ): Boolean {
         val list = AudioRoute.songsFor(trackId, songs) { lookup(trackId) }
-            ?: run { app.myspoti.host.android.Logbook.log("audio: $trackId not found on Spotify, the extensions are not asked"); return false }
+            ?: run { com.phush.hispoti.host.android.Logbook.log("audio: $trackId not found on Spotify, the extensions are not asked"); return false }
         val picked = list.first { it.spotifyTrackId == trackId }
         if (songs?.any { it.spotifyTrackId == trackId } != true) shown(picked)
         return playList(list, picked, context, shuffle, contextUri, isLatest, startMs)
@@ -363,7 +363,7 @@ object ExtensionAudio {
     /** The song's title, artists, album and length from Spotify, for a play that knows only its uri. */
     private suspend fun lookup(trackId: String): SongsModel? = runCatching {
         kotlinx.coroutines.withTimeout(LOOKUP_MS) {
-            val api = app.myspoti.host.android.MyspotiRuntime.api
+            val api = com.phush.hispoti.host.android.HispotiRuntime.api
             api.ready.first { it }
             com.music.spotui.di.Graph.api.songOf(api.catalog.track("spotify:track:$trackId"))
         }

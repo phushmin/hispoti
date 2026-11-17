@@ -1,8 +1,8 @@
 package com.music.spotui.data.api
 
-import app.myspoti.api.TimeRange
-import app.myspoti.api.TopContent
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.TimeRange
+import com.phush.hispoti.api.TopContent
+import com.phush.hispoti.host.android.HispotiRuntime
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -21,7 +21,7 @@ object TopStats {
     suspend fun get(range: TimeRange, force: Boolean = false): TopContent = lock.withLock {
         val now = System.currentTimeMillis()
         cache[range]?.takeIf { !force && now - it.first < TTL_MS }?.second
-            ?: MyspotiRuntime.api.users.top(range, LIMIT).also { cache[range] = now to it }
+            ?: HispotiRuntime.api.users.top(range, LIMIT).also { cache[range] = now to it }
     }
 
     /** What is cached, without asking Spotify. */

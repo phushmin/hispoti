@@ -1,6 +1,6 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
- * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/components/SearchField.kt at edc1e6f. Modified for Myspoti, 2026-10.
+ * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/components/SearchField.kt at edc1e6f. Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.components
 
@@ -38,7 +38,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.immersive.Immersive
 
 /**

@@ -105,7 +105,7 @@ object LocalPlaylists {
             change()
             if (::file.isInitialized) {
                 runCatching { com.music.spotui.data.writeTextSafely(file, write()) }
-                    .onFailure { app.myspoti.host.android.Logbook.log("local playlists not saved: ${it.message}") }
+                    .onFailure { com.phush.hispoti.host.android.Logbook.log("local playlists not saved: ${it.message}") }
             }
         }
     }

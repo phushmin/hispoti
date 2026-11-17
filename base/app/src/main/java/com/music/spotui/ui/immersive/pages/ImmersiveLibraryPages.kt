@@ -28,7 +28,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.LibraryEdits
 import com.music.spotui.data.api.LibraryFolders
 import com.music.spotui.data.api.Response

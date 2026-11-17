@@ -52,7 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.components.pressable
 import com.music.spotui.ui.theme.AppAccent
 import com.music.spotui.ui.theme.AppBackground
@@ -68,7 +68,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * First screen of a signed-out app: what Myspoti is, then Spotify's own login page
+ * First screen of a signed-out app: what Hispoti is, then Spotify's own login page
  * (shown by the engine once [onLogin] is tapped). The logo, the name, what the app adds and
  * the button rise into place one after the other, over a soft green light that drifts.
  */
@@ -107,7 +107,7 @@ fun WelcomeScreen(onLogin: () -> Unit) {
                         .background(tone(0xFF181818)),
                 )
                 Spacer(Modifier.height(28.dp))
-                Text("Myspoti", color = AppText, fontFamily = AppSans, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp,
+                Text("Hispoti", color = AppText, fontFamily = AppSans, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp,
                     modifier = Modifier.rise(1))
                 Spacer(Modifier.height(12.dp))
                 Box(Modifier.rise(2)) { Features() }
@@ -164,7 +164,7 @@ internal fun Glow(modifier: Modifier = Modifier, alpha: Float = 0.30f) {
     }
 }
 
-/** "Your music," then what Myspoti adds to it, one feature after the other. */
+/** "Your music," then what Hispoti adds to it, one feature after the other. */
 @Composable
 private fun Features() {
     val features = listOf(

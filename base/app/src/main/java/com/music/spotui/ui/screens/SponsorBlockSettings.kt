@@ -3,7 +3,7 @@ package com.music.spotui.ui.screens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.preferences.SponsorBlockPref
 
 /** The Podcasts group of the settings: SponsorBlock and the parts it skips (see [com.music.spotui.podcast.SponsorSkip]). */

@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 

@@ -67,9 +67,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.api.PlaylistAccess
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.PlaylistAccess
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -120,15 +120,15 @@ fun PlaylistOptionsSheet(
     var mergingInto by remember { mutableStateOf(false) }
     LaunchedEffect(page.uri, mine) {
         if (mine) {
-            access = runCatching { MyspotiRuntime.api.playlists.access(page.uri) }.getOrNull()
-            published = runCatching { MyspotiRuntime.api.playlists.published(page.uri) }.getOrNull()
+            access = runCatching { HispotiRuntime.api.playlists.access(page.uri) }.getOrNull()
+            published = runCatching { HispotiRuntime.api.playlists.published(page.uri) }.getOrNull()
         }
     }
 
     // Taps are sent one at a time, in order (SpotifySync); a refused one puts back what Spotify really has.
     fun restore() = scope.launch {
-        access = runCatching { MyspotiRuntime.api.playlists.access(page.uri) }.getOrNull()
-        published = runCatching { MyspotiRuntime.api.playlists.published(page.uri) }.getOrNull()
+        access = runCatching { HispotiRuntime.api.playlists.access(page.uri) }.getOrNull()
+        published = runCatching { HispotiRuntime.api.playlists.published(page.uri) }.getOrNull()
         android.widget.Toast.makeText(context, R.string.playlist_change_refused, android.widget.Toast.LENGTH_SHORT).show()
     }
 
@@ -173,7 +173,7 @@ fun PlaylistOptionsSheet(
                 OptionRow(Icons.Outlined.Share, stringResource(R.string.blend_invite_more)) {
                     scope.launch {
                         val link = BlendInfo.recent[page.uri]?.group?.link
-                            ?: runCatching { MyspotiRuntime.api.blends.group(page.uri).link }.getOrNull()
+                            ?: runCatching { HispotiRuntime.api.blends.group(page.uri).link }.getOrNull()
                         if (link == null) android.widget.Toast.makeText(context, R.string.blend_failed, android.widget.Toast.LENGTH_SHORT).show()
                         else { BlendInfo.share(context, link); onDismiss() }
                     }
@@ -187,7 +187,7 @@ fun PlaylistOptionsSheet(
                 OptionRow(Icons.Outlined.PersonAdd, stringResource(R.string.playlist_invite_collaborators)) {
                     if (access != PlaylistAccess.COLLABORATIVE) setAccess(PlaylistAccess.COLLABORATIVE)
                     scope.launch {
-                        val link = runCatching { MyspotiRuntime.api.playlists.collaboratorInvite(page.uri) }.getOrNull()
+                        val link = runCatching { HispotiRuntime.api.playlists.collaboratorInvite(page.uri) }.getOrNull()
                         if (link == null) { android.widget.Toast.makeText(context, R.string.playlist_invite_failed, android.widget.Toast.LENGTH_SHORT).show(); return@launch }
                         val send = android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain")
                             .putExtra(android.content.Intent.EXTRA_TEXT, context.getString(R.string.playlist_invite_message, page.name, link))
@@ -230,7 +230,7 @@ fun PlaylistOptionsSheet(
             }
             // Entries from extensions (menu.items), after the app's own.
             com.music.spotui.extensions.ExtensionMenuEntries(
-                if (page.type == "album") app.myspoti.extensions.Surface.ALBUM_MENU else app.myspoti.extensions.Surface.PLAYLIST_MENU,
+                if (page.type == "album") com.phush.hispoti.extensions.Surface.ALBUM_MENU else com.phush.hispoti.extensions.Surface.PLAYLIST_MENU,
                 page.uri, page.name, page.ownerName, onDone = onDismiss,
             )
         }
@@ -245,11 +245,11 @@ fun PlaylistOptionsSheet(
         val renamed = if (name != page.name) com.music.spotui.data.api.LibraryEdits.Rename(page.uri, name) else null
         onDismiss()
         com.music.spotui.data.api.LibraryEdits.run(context, renamed, write = {
-            if (name != page.name) MyspotiRuntime.api.playlists.rename(page.uri, name)
-            if (description != page.description) MyspotiRuntime.api.playlists.setDescription(page.uri, description)
+            if (name != page.name) HispotiRuntime.api.playlists.rename(page.uri, name)
+            if (description != page.description) HispotiRuntime.api.playlists.setDescription(page.uri, description)
             when (cover) {
-                is CoverChange.New -> MyspotiRuntime.api.playlists.setCover(page.uri, cover.jpeg)
-                CoverChange.Remove -> MyspotiRuntime.api.playlists.setCover(page.uri, null)
+                is CoverChange.New -> HispotiRuntime.api.playlists.setCover(page.uri, cover.jpeg)
+                CoverChange.Remove -> HispotiRuntime.api.playlists.setCover(page.uri, null)
                 CoverChange.Keep -> {}
             }
         }, onDone = { ok ->
@@ -266,7 +266,7 @@ fun PlaylistOptionsSheet(
         if (name == page.name) return@NameDialog
         onEdited(name, page.description)
         com.music.spotui.data.api.LibraryEdits.run(context, com.music.spotui.data.api.LibraryEdits.Rename(page.uri, name),
-            write = { MyspotiRuntime.api.blends.rename(page.uri, name) },
+            write = { HispotiRuntime.api.blends.rename(page.uri, name) },
             onDone = { ok -> if (!ok) onChanged() })
     }
 
@@ -281,7 +281,7 @@ fun PlaylistOptionsSheet(
                 // The Blend leaves the library and the page closes now; a refusal brings it back.
                 BlendInfo.recent.remove(page.uri)
                 com.music.spotui.data.api.LibraryEdits.run(context, com.music.spotui.data.api.LibraryEdits.Remove(page.uri),
-                    write = { MyspotiRuntime.api.blends.leave(page.uri) })
+                    write = { HispotiRuntime.api.blends.leave(page.uri) })
                 onDismiss(); onDeleted()
             }) { Text(stringResource(R.string.blend_leave_button), color = AppDestructive) }
         },
@@ -319,7 +319,7 @@ fun PlaylistOptionsSheet(
                 leavingPlaylist = false
                 // The page closes now (as in the Web Player); a refusal says so, and the library is read again.
                 com.music.spotui.data.api.LibraryEdits.run(context, null,
-                    write = { MyspotiRuntime.api.playlists.leave(page.uri) },
+                    write = { HispotiRuntime.api.playlists.leave(page.uri) },
                     onDone = { ok -> if (ok) com.music.spotui.data.api.LibraryEdits.reloadSoon() })
                 onDismiss(); onDeleted()
             }) { Text(stringResource(R.string.playlist_leave_button), color = AppDestructive) }
@@ -336,7 +336,7 @@ fun PlaylistOptionsSheet(
                 deleting = false
                 // The playlist leaves the library and the page closes now; a refusal brings it back.
                 com.music.spotui.data.api.LibraryEdits.run(context, com.music.spotui.data.api.LibraryEdits.Remove(page.uri),
-                    write = { MyspotiRuntime.api.playlists.delete(page.uri) })
+                    write = { HispotiRuntime.api.playlists.delete(page.uri) })
                 onDismiss(); onDeleted()
             }) { Text(stringResource(R.string.actions_picker_delete), color = AppDestructive) }
         },

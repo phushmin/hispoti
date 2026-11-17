@@ -52,12 +52,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.api.FriendActivity
-import app.myspoti.api.TimeRange
-import app.myspoti.api.TopContent
-import app.myspoti.api.best
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.FriendActivity
+import com.phush.hispoti.api.TimeRange
+import com.phush.hispoti.api.TopContent
+import com.phush.hispoti.api.best
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -265,7 +265,7 @@ fun FriendActivityScreen(navController: NavController) {
     var attempt by remember { mutableIntStateOf(0) }
     var state by remember { mutableStateOf<Result<List<FriendActivity>>?>(null) }
     LaunchedEffect(attempt) {
-        state = runCatching { MyspotiRuntime.api.users.friendActivity() }
+        state = runCatching { HispotiRuntime.api.users.friendActivity() }
     }
     val now = remember(state) { System.currentTimeMillis() }
     Column(Modifier.fillMaxSize().background(AppBackground).statusBarsPadding()) {

@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import app.myspoti.api.best
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.best
+import com.phush.hispoti.host.android.HispotiRuntime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -38,12 +38,12 @@ object ProfileCache {
     fun ensure(context: Context) {
         if (name != null) return
         if (!fetching.compareAndSet(false, true)) return
-        MyspotiRuntime.scope.launch {
+        HispotiRuntime.scope.launch {
             try {
                 while (true) {
                     val requestGeneration = generation.get()
-                    MyspotiRuntime.api.ready.first { it }
-                    val me = runCatching { MyspotiRuntime.api.users.me() }.getOrNull()
+                    HispotiRuntime.api.ready.first { it }
+                    val me = runCatching { HispotiRuntime.api.users.me() }.getOrNull()
                     // The session was lost meanwhile: this profile may be the account before, the next one's is read.
                     if (generation.get() != requestGeneration) continue
                     // No account (an anonymous token): nothing is kept, the next session's is read.
@@ -54,7 +54,7 @@ object ProfileCache {
                     // The accounts kept on the phone: this profile's name and picture, under the opaque key
                     // of its downloads (no id, no e-mail). The same account in another profile is one account.
                     val key = com.music.spotui.data.offline.OfflineAccounts.keyOf(me.username)
-                    val host = MyspotiRuntime.host
+                    val host = HispotiRuntime.host
                     val profile = host.profile
                     var duplicates = emptyList<String>()
                     host.accounts.update { list ->

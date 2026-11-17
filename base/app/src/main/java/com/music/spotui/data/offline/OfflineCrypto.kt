@@ -25,7 +25,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * Downloaded songs are kept encrypted (AES-CTR), so they only play in Myspoti on this
+ * Downloaded songs are kept encrypted (AES-CTR), so they only play in Hispoti on this
  * phone: copied out of the app, a file is noise.
  *
  * The file key is random, and stored wrapped by a key of the Android Keystore that
@@ -36,9 +36,9 @@ object OfflineCrypto {
     private val MAGIC = "MSE1".toByteArray()
     private const val IV_BYTES = 16
     const val HEADER = 4 + IV_BYTES
-    private const val KEYSTORE_ALIAS = "myspoti_offline"
+    private const val KEYSTORE_ALIAS = "hispoti_offline"
     private const val PREFS = "offline_crypto"
-    private const val LOG = app.myspoti.host.android.WebPlayerHost.LOG
+    private const val LOG = com.phush.hispoti.host.android.WebPlayerHost.LOG
 
     @Volatile private var key: SecretKey? = null
 
@@ -159,7 +159,7 @@ object OfflineCrypto {
                 // How its address opened, for the song's play attempt ("Why this source?").
                 val trackId = dataSpec.uri.lastPathSegment
                 val t0 = android.os.SystemClock.elapsedRealtime()
-                var tried: app.myspoti.extensions.AudioStream? = null
+                var tried: com.phush.hispoti.extensions.AudioStream? = null
                 val length = try {
                     com.music.spotui.extensions.AudioRoute.openStream(
                         ask = { again -> com.music.spotui.extensions.ExtensionAudio.resolve(dataSpec.uri, again) },
@@ -178,7 +178,7 @@ object OfflineCrypto {
                 } catch (e: IOException) {
                     val code = generateSequence<Throwable>(e) { it.cause }.take(8).mapNotNull(status).firstOrNull()
                     com.music.spotui.extensions.Extensions.noteAttempt(trackId) {
-                        it.copy(open = app.myspoti.extensions.PlayAttempt.Open(false, android.os.SystemClock.elapsedRealtime() - t0, code, e.message ?: e.javaClass.simpleName, tried?.url?.ifBlank { null }))
+                        it.copy(open = com.phush.hispoti.extensions.PlayAttempt.Open(false, android.os.SystemClock.elapsedRealtime() - t0, code, e.message ?: e.javaClass.simpleName, tried?.url?.ifBlank { null }))
                     }
                     throw e
                 }
@@ -186,7 +186,7 @@ object OfflineCrypto {
                 val code = if (dash == null && dataSpec.position == 0L) net.responseCode.takeIf { it > 0 } else null
                 com.music.spotui.extensions.Extensions.noteAttempt(trackId) {
                     if (it.open?.ok == true && dataSpec.position != 0L) it
-                    else it.copy(open = app.myspoti.extensions.PlayAttempt.Open(true, android.os.SystemClock.elapsedRealtime() - t0, code, null, tried?.url?.ifBlank { null } ?: "dash manifest"))
+                    else it.copy(open = com.phush.hispoti.extensions.PlayAttempt.Open(true, android.os.SystemClock.elapsedRealtime() - t0, code, null, tried?.url?.ifBlank { null } ?: "dash manifest"))
                 }
                 return length
             }
@@ -211,7 +211,7 @@ object OfflineCrypto {
         }
 
         /** The address an extension gave; from its start read ahead when there is one (else as usual). */
-        private fun openUrl(dataSpec: DataSpec, stream: app.myspoti.extensions.AudioStream): Long {
+        private fun openUrl(dataSpec: DataSpec, stream: com.phush.hispoti.extensions.AudioStream): Long {
             active = net
             val spec = dataSpec.buildUpon().setUri(Uri.parse(stream.url))
                 .setHttpRequestHeaders(dataSpec.httpRequestHeaders + stream.headers).build()
@@ -226,7 +226,7 @@ object OfflineCrypto {
                     }
                     override fun read(b: ByteArray, off: Int, len: Int) = net.read(b,off,len)
                 }
-                val decoded = app.myspoti.extensions.PatternedBlowfish.open(input,transform,aligned)
+                val decoded = com.phush.hispoti.extensions.PatternedBlowfish.open(input,transform,aligned)
                 var leftToSkip = skip
                 while (leftToSkip-- > 0) if (decoded.read() < 0) throw java.io.EOFException("transform: seek past end")
                 transformed = decoded
@@ -254,7 +254,7 @@ object OfflineCrypto {
             }
         }
 
-        private fun openDash(dataSpec: DataSpec, stream: app.myspoti.extensions.AudioStream): Long {
+        private fun openDash(dataSpec: DataSpec, stream: com.phush.hispoti.extensions.AudioStream): Long {
             val live = DashLive.open(stream.manifest!!, stream.headers, OfflineDownloader.DownloadUa)
             if (dataSpec.position > live.length) throw IOException("position past the end")
             transferInitializing(dataSpec)

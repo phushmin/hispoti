@@ -2,7 +2,7 @@
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/screens/LibraryScreen.kt and
  * app/src/main/java/com/music/bitchord/ui/screens/LibraryPhoneParts.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.screens
 
@@ -84,7 +84,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.Api
 import com.music.spotui.data.api.ProfileCache
 import com.music.spotui.data.api.Response

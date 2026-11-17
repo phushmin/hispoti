@@ -1,9 +1,9 @@
 package com.music.spotui.data.api
 
-import app.myspoti.api.LibraryFilter
-import app.myspoti.api.MediaKind
-import app.myspoti.api.best
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.LibraryFilter
+import com.phush.hispoti.api.MediaKind
+import com.phush.hispoti.api.best
+import com.phush.hispoti.host.android.HispotiRuntime
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -90,7 +90,7 @@ object EditablePlaylists {
 
     /** The user's own and collaborative playlists, in library order, folders flattened. */
     suspend fun load(): List<EditablePlaylist> =
-        runCatching { MyspotiRuntime.api.playlists.editable() }.getOrDefault(emptyList()).map {
+        runCatching { HispotiRuntime.api.playlists.editable() }.getOrDefault(emptyList()).map {
             EditablePlaylist(it.uri.substringAfterLast(':'), it.name, it.trackCount, it.images.best(160)?.url)
         }
 
@@ -109,7 +109,7 @@ object EditablePlaylists {
 
     /** Playlist uri → cover, as the library shows them, folders included. */
     private suspend fun libraryCovers(): Map<String, String> {
-        val api = MyspotiRuntime.api
+        val api = HispotiRuntime.api
         val out = HashMap<String, String>()
         suspend fun walk(folderUri: String?, depth: Int) {
             var offset = 0
@@ -135,9 +135,9 @@ object EditablePlaylists {
      * the library has them). Falls back to [load] when the library cannot be read.
      */
     suspend fun level(folderUri: String?): List<EditablePlaylist> {
-        val api = MyspotiRuntime.api
+        val api = HispotiRuntime.api
         val editable = runCatching { api.playlists.editable() }.getOrNull()?.associateBy { it.uri } ?: return cachedLevel(folderUri) ?: load()
-        val items = ArrayList<app.myspoti.api.LibraryItem>()
+        val items = ArrayList<com.phush.hispoti.api.LibraryItem>()
         val read = runCatching {
             var offset = 0
             repeat(40) {

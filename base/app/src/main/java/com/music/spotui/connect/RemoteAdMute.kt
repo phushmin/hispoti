@@ -1,8 +1,8 @@
 package com.music.spotui.connect
 
-import app.myspoti.host.android.Logbook
-import app.myspoti.host.android.MyspotiRuntime
-import app.myspoti.spotify.AccountPlan
+import com.phush.hispoti.host.android.Logbook
+import com.phush.hispoti.host.android.HispotiRuntime
+import com.phush.hispoti.spotify.AccountPlan
 import com.music.spotui.di.Graph
 import com.music.spotui.di.SongPlayer
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
  *
  * What an ad muter does with a desktop client is done here with the device's volume, through
  * the same Connect volume command as the player's volume bar: set to 0 when an ad comes on the
- * device picked in Myspoti, and the level it had set back once the break is over. Nothing is
+ * device picked in Hispoti, and the level it had set back once the break is over. Nothing is
  * skipped and no event is sent: the ad plays to its end, unheard.
  *
  * Guards: the user's own volume change during the break ends the mute (their level stands); a
@@ -43,7 +43,7 @@ object RemoteAdMute {
     internal object Rules {
         /**
          * Whether the ad now on is muted: an [ad] on the device that plays ([elsewhere], [activeId]),
-         * which is the one picked in Myspoti ([chosenId]), with a [level] above 0 (a device with a
+         * which is the one picked in Hispoti ([chosenId]), with a [level] above 0 (a device with a
          * fixed volume reports none, or a negative one), outside a Jam joined as a member, and not
          * a device whose muted ad never ended ([setAside]).
          */
@@ -97,8 +97,8 @@ object RemoteAdMute {
         }
         scope.launch {
             // The engine may start after the player is attached.
-            while (!MyspotiRuntime.isStarted) delay(1_000)
-            val player = MyspotiRuntime.spotify.player
+            while (!HispotiRuntime.isStarted) delay(1_000)
+            val player = HispotiRuntime.spotify.player
             combine(player.adPlaying, player.playsElsewhere) { ad, elsewhere -> ad to elsewhere }
                 .collectLatest { (ad, elsewhere) -> runCatching { onChange(ad, elsewhere) } }
         }
@@ -120,7 +120,7 @@ object RemoteAdMute {
     private suspend fun onChange(ad: Boolean, elsewhere: Boolean) {
         // Premium: Spotify sends no ads to this account, so nothing is muted here (AccountPlan).
         if (AccountPlan.isPremium) return
-        val api = MyspotiRuntime.api
+        val api = HispotiRuntime.api
         muted?.let { m ->
             if (ad) { holdUntilTooLong(m); return }
             restore(m, "break over")
@@ -168,7 +168,7 @@ object RemoteAdMute {
     private suspend fun restore(m: Muted, why: String) = withContext(NonCancellable) {
         if (muted !== m) return@withContext
         muted = null
-        val api = MyspotiRuntime.api
+        val api = HispotiRuntime.api
         runCatching { api.devices.refresh() }
         val activeId = api.devices.devices.value.firstOrNull { it.active }?.id
         if (activeId != m.deviceId) {

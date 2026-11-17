@@ -34,7 +34,7 @@ object PagePrefetch {
      */
     fun start() {
         scope.launch {
-            if (kotlinx.coroutines.withTimeoutOrNull(60_000) { app.myspoti.host.android.MyspotiRuntime.api.ready.first { it } } == null) return@launch
+            if (kotlinx.coroutines.withTimeoutOrNull(60_000) { com.phush.hispoti.host.android.HispotiRuntime.api.ready.first { it } } == null) return@launch
             val root = Api.HomeCache.libraryRoot ?: ScreenCache.libraryRoot.read() ?: return@launch
             schedule(root)
         }
@@ -61,7 +61,7 @@ object PagePrefetch {
                 }.getOrNull()
                 val kept = (page as? Response.Success)?.data?.takeIf { it.tracks.isNotEmpty() && it.tracks.size <= MAX_TRACKS }
                 kept?.let { ScreenCache.page(id).write(it) }
-                android.util.Log.d("Myspoti", "prefetch playlist ${id.take(6)}…: ${kept?.tracks?.size?.let { "$it songs kept on storage" } ?: "not kept"}")
+                android.util.Log.d("Hispoti", "prefetch playlist ${id.take(6)}…: ${kept?.tracks?.size?.let { "$it songs kept on storage" } ?: "not kept"}")
                 delay(1_500) // one after the other, gently
             }
             ScreenCache.prunePages(KEEP)

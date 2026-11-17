@@ -1,6 +1,6 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
- * app/src/main/java/com/music/bitchord/ui/screens/DetailScreen.kt at edc1e6f. Modified for Myspoti, 2026-10.
+ * app/src/main/java/com/music/bitchord/ui/screens/DetailScreen.kt at edc1e6f. Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.screens
 
@@ -91,8 +91,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.entity.ContextPageModel
 import com.music.spotui.data.entity.SongsModel
@@ -286,7 +286,7 @@ private fun ImmersiveContextContent(navController: NavController, vm: ContextVie
             androidx.compose.material3.TextButton(onClick = {
                 leaveAsk = false
                 com.music.spotui.data.api.LibraryEdits.run(context, null,
-                    write = { app.myspoti.host.android.MyspotiRuntime.api.playlists.leave(p.uri) },
+                    write = { com.phush.hispoti.host.android.HispotiRuntime.api.playlists.leave(p.uri) },
                     onDone = { ok -> if (ok) com.music.spotui.data.api.LibraryEdits.reloadSoon() })
                 navController.navigateUp()
             }) { Text(stringResource(R.string.playlist_leave_button), color = Immersive.Destructive) }
@@ -678,7 +678,7 @@ private fun ContextHeader(
     onToggleSaved: () -> Unit,
     onToggleSmart: () -> Unit,
     onAskRemoveDownloads: () -> Unit,
-    members: List<app.myspoti.api.PlaylistMember> = emptyList(),
+    members: List<com.phush.hispoti.api.PlaylistMember> = emptyList(),
     onMembers: () -> Unit = {},
     /** Whether the songs' handles are out; null: the songs cannot be moved here (no "Move" button). */
     moving: Boolean? = null,
@@ -939,9 +939,9 @@ private fun SortMenu(open: Boolean, sort: TrackOrder, onDismiss: () -> Unit, onS
 /** "More like this" under an album: the catalogue's similar albums, from its first song. */
 @Composable
 private fun SimilarAlbums(navController: NavController, firstTrackId: String, albumUri: String) {
-    val albums by produceState(emptyList<app.myspoti.api.Album>(), firstTrackId) {
+    val albums by produceState(emptyList<com.phush.hispoti.api.Album>(), firstTrackId) {
         if (firstTrackId.isBlank()) return@produceState
-        value = runCatching { MyspotiRuntime.api.catalog.similarAlbums("spotify:track:$firstTrackId", 12) }
+        value = runCatching { HispotiRuntime.api.catalog.similarAlbums("spotify:track:$firstTrackId", 12) }
             .getOrDefault(emptyList()).filter { it.uri != albumUri }
     }
     if (albums.isEmpty()) return

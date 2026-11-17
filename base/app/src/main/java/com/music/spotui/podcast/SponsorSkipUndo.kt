@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.theme.AppAccent
 import com.music.spotui.ui.theme.AppText
 import com.music.spotui.ui.theme.tone

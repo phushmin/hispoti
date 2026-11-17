@@ -1,6 +1,6 @@
 # Source transforms and racing (experimental)
 
-Feature-detect exact strings in `myspoti.features`; never infer these from an app version.
+Feature-detect exact strings in `hispoti.features`; never infer these from an app version.
 
 ## `download.transform` and `audio.transform`
 
@@ -29,9 +29,9 @@ Do not return an encrypted file without the appropriate feature. A normal clear 
 ## `sources.race`
 
 ```js
-myspoti.provide('download-source', function (query) {
+hispoti.provide('download-source', function (query) {
   if (!query.source) {
-    return myspoti.sources.race('download-source', query, ['one', 'two']);
+    return hispoti.sources.race('download-source', query, ['one', 'two']);
   }
   return resolveOnly(query.source, query);
 });

@@ -51,15 +51,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.api.MediaKind
-import app.myspoti.api.RecentEntry
-import app.myspoti.api.RecentGroup
-import app.myspoti.api.RecentItem
-import app.myspoti.api.RecentSection
-import app.myspoti.api.best
-import app.myspoti.api.groupRecents
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.MediaKind
+import com.phush.hispoti.api.RecentEntry
+import com.phush.hispoti.api.RecentGroup
+import com.phush.hispoti.api.RecentItem
+import com.phush.hispoti.api.RecentSection
+import com.phush.hispoti.api.best
+import com.phush.hispoti.api.groupRecents
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
@@ -91,7 +91,7 @@ private const val LIKED_URI = "spotify:collection:tracks"
 private const val YOUR_EPISODES_URI = "spotify:collection:your-episodes"
 
 /**
- * "Récents", from Spotify's own list for the account (see [app.myspoti.api.Recents]): the plays of
+ * "Récents", from Spotify's own list for the account (see [com.phush.hispoti.api.Recents]): the plays of
  * every device, grouped by context the way the official page groups them — one row per album,
  * playlist, artist or show, dated, with the plays behind an expand chevron.
  */
@@ -107,7 +107,7 @@ fun RecentlyPlayedScreen(navController: NavController) {
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
-        runCatching { MyspotiRuntime.api.recents.recentEntries(0, PAGE) }
+        runCatching { HispotiRuntime.api.recents.recentEntries(0, PAGE) }
             .onSuccess { page ->
                 entries = page.items
                 nextOffset = page.nextOffset
@@ -125,7 +125,7 @@ fun RecentlyPlayedScreen(navController: NavController) {
         val offset = nextOffset ?: return@LaunchedEffect
         if (!atEnd || loadingMore) return@LaunchedEffect
         loadingMore = true
-        runCatching { MyspotiRuntime.api.recents.recentEntries(offset, PAGE) }
+        runCatching { HispotiRuntime.api.recents.recentEntries(offset, PAGE) }
             .onSuccess { page ->
                 entries = entries.orEmpty() + page.items
                 nextOffset = page.nextOffset

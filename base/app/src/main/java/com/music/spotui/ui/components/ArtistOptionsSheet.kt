@@ -37,7 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import kotlinx.coroutines.launch
 
 /**
@@ -56,7 +56,7 @@ fun ArtistOptionsSheet(artistId: String, artistName: String, artistImage: String
     val banned by produceState<Boolean?>(null, uri) {
         if (artistId.isBlank()) return@produceState
         value = runCatching {
-            app.myspoti.host.android.MyspotiRuntime.api.extras.isArtistBanned(listOf(uri)).single()
+            com.phush.hispoti.host.android.HispotiRuntime.api.extras.isArtistBanned(listOf(uri)).single()
         }.getOrNull()
     }
     LookSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = tone(0xFF282828)) {
@@ -79,8 +79,8 @@ fun ArtistOptionsSheet(artistId: String, artistName: String, artistImage: String
             ) {
                 // The button shows the action it will do, so the flip is derived from the state.
                 val keepOut = banned != true
-                app.myspoti.host.android.MyspotiRuntime.scope.launch {
-                    runCatching { app.myspoti.host.android.MyspotiRuntime.api.extras.setArtistBanned(uri, keepOut) }
+                com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
+                    runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.extras.setArtistBanned(uri, keepOut) }
                 }
                 Toast.makeText(
                     context,
@@ -90,7 +90,7 @@ fun ArtistOptionsSheet(artistId: String, artistName: String, artistImage: String
                 com.music.spotui.di.Haptics.confirm()
                 onDismiss()
             }
-            com.music.spotui.extensions.ExtensionMenuEntries(app.myspoti.extensions.Surface.ARTIST_MENU, if (artistId.isBlank()) "" else uri, artistName, onDone = onDismiss)
+            com.music.spotui.extensions.ExtensionMenuEntries(com.phush.hispoti.extensions.Surface.ARTIST_MENU, if (artistId.isBlank()) "" else uri, artistName, onDone = onDismiss)
             Spacer(Modifier.height(12.dp))
         }
     }

@@ -1,7 +1,7 @@
 package com.music.spotui.data.api
 
 import android.content.Context
-import app.myspoti.engine.BuildConfig
+import com.phush.hispoti.engine.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -124,23 +124,23 @@ object UpdateChecker {
 
     /**
      * The release's APK download link for this app's channel and this phone. A release carries
-     * `Myspoti-<version>-ARMv8.apk`, `-ARMv7.apk`, `-universal.apk` and `-TV.apk` (betas:
-     * `Myspoti-Beta-<version>-...`), and the first of [abis] (the phone's, most preferred first)
+     * `Hispoti-<version>-ARMv8.apk`, `-ARMv7.apk`, `-universal.apk` and `-TV.apk` (betas:
+     * `Hispoti-Beta-<version>-...`), and the first of [abis] (the phone's, most preferred first)
      * that has one wins, so a 64-bit phone that also runs armeabi-v7a takes ARMv8. The names of
-     * 2.3.x and before come next (older releases): `myspoti-<beta|stable>-<version>-<abi>.apk`, then one APK without an ABI, `myspoti-<beta|stable>-<version>.apk`
-     * or `myspoti-<version>.apk`. Only this channel's APK: a release carrying both must not hand a
+     * 2.3.x and before come next (older releases): `hispoti-<beta|stable>-<version>-<abi>.apk`, then one APK without an ABI, `hispoti-<beta|stable>-<version>.apk`
+     * or `hispoti-<version>.apk`. Only this channel's APK: a release carrying both must not hand a
      * phone the other channel's build (a different package, it could not update this one), and a
      * name that matches none (or no APK for this phone's ABIs) gives no link.
      */
     internal fun apkAsset(release: JSONObject, beta: Boolean = isBeta, abis: List<String> = deviceAbis): String {
         val assets = release.optJSONArray("assets") ?: return ""
         val version = release.optString("tag_name").removePrefix("v")
-        val named = "${if (beta) "Myspoti-Beta" else "Myspoti"}-$version"
-        val channel = "myspoti-${if (beta) "beta" else "stable"}-$version"
+        val named = "${if (beta) "Hispoti-Beta" else "Hispoti"}-$version"
+        val channel = "hispoti-${if (beta) "beta" else "stable"}-$version"
         val byName = (0 until assets.length()).map { assets.getJSONObject(it) }.associateBy { it.optString("name") }
         val ours = abis.filter { it in RELEASE_ABIS }
         val want = ours.map { "$named-${RELEASE_ABIS.getValue(it)}.apk" } + ours.map { "$channel-$it.apk" } +
-            listOf("$channel.apk", "myspoti-$version.apk")
+            listOf("$channel.apk", "hispoti-$version.apk")
         return want.firstNotNullOfOrNull { byName[it] }?.optString("browser_download_url").orEmpty()
     }
 

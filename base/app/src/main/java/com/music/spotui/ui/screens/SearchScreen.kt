@@ -73,7 +73,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.entity.SearchResults
 import com.music.spotui.data.entity.SongsModel
@@ -166,17 +166,17 @@ fun SumUpSearchScreen(
     // separate type sections — matches how most music apps present search.
     val mixed = remember(results, filter) { filterSearchResults(results, filter) }
     // Profiles are searched only when their chip is on (Spotify keeps them out of Top).
-    val profiles by androidx.compose.runtime.produceState(emptyList<app.myspoti.api.MediaCard>(), text, filter) {
+    val profiles by androidx.compose.runtime.produceState(emptyList<com.phush.hispoti.api.MediaCard>(), text, filter) {
         value = emptyList()
         if (filter != SearchFilter.Profiles || text.isBlank()) return@produceState
         kotlinx.coroutines.delay(250)
-        value = runCatching { app.myspoti.host.android.MyspotiRuntime.api.search.users(text.trim(), limit = 30).items }.getOrDefault(emptyList())
+        value = runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.search.users(text.trim(), limit = 30).items }.getOrDefault(emptyList())
     }
     val suggestions by androidx.compose.runtime.produceState(emptyList<String>(), text) {
         value = emptyList()
         if (text.isBlank()) return@produceState
         kotlinx.coroutines.delay(300)
-        value = runCatching { app.myspoti.host.android.MyspotiRuntime.api.search.suggestions(text.trim(), 6) }.getOrDefault(emptyList())
+        value = runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.search.suggestions(text.trim(), 6) }.getOrDefault(emptyList())
             .filter { !it.equals(text.trim(), ignoreCase = true) }
     }
 
@@ -392,7 +392,7 @@ fun SumUpSearchScreen(
             // What extensions add for this search (search.provide), under Spotify's results.
             if (filter != SearchFilter.Profiles) item {
                 com.music.spotui.extensions.ExtensionBlocks(
-                    app.myspoti.extensions.Hook.SEARCH, app.myspoti.extensions.Surface.SEARCH,
+                    com.phush.hispoti.extensions.Hook.SEARCH, com.phush.hispoti.extensions.Surface.SEARCH,
                     kotlinx.serialization.json.buildJsonObject { put("query", kotlinx.serialization.json.JsonPrimitive(text.trim())) }.toString(),
                     delayMs = 400,
                 )
@@ -770,7 +770,7 @@ fun BrowseAllSection(onCategoryClick: (genre: String, title: String) -> Unit) {
     val newReleases = stringResource(R.string.browse_new_releases)
     // Spotify's real categories (the Web Player's "Browse all"), New releases first.
     val tiles by androidx.compose.runtime.produceState(initialValue = emptyList<BrowseTile>()) {
-        val categories = runCatching { app.myspoti.host.android.MyspotiRuntime.api.home.categories() }.getOrDefault(emptyList())
+        val categories = runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.home.categories() }.getOrDefault(emptyList())
         value = listOf(BrowseTile(NEW_RELEASES_GENRE, newReleases, Color(0xFFE8115B), "")) +
             categories.filter { com.music.spotui.data.api.Features.PODCASTS || !it.title.contains("odcast", ignoreCase = true) }.map { c ->
                 val color = runCatching { Color(android.graphics.Color.parseColor(c.color ?: "#333333")) }.getOrDefault(tone(0xFF333333))
@@ -975,6 +975,6 @@ private fun SearchProfileRow(name: String, image: String?, onClick: () -> Unit) 
 
 /** Spotify's own recent searches, cleared with the app's list. */
 private fun clearSpotifyRecents() {
-    val runtime = app.myspoti.host.android.MyspotiRuntime
+    val runtime = com.phush.hispoti.host.android.HispotiRuntime
     runtime.scope.launch { runCatching { runtime.api.search.clearRecent() } }
 }

@@ -3,8 +3,8 @@ package com.music.spotui.di
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import app.myspoti.host.android.MyspotiRuntime
-import app.myspoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.entity.ContextPageModel
 import com.music.spotui.data.entity.SongsModel
@@ -19,9 +19,9 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Myspoti shuffle (an option, [AppShufflePref]). Reported (5 people): Spotify's shuffle plays the
+ * Hispoti shuffle (an option, [AppShufflePref]). Reported (5 people): Spotify's shuffle plays the
  * same ~15 songs of a 40-song list again and again, and songs heard already before the rest. With
- * the option and shuffle on, a list played on Spotify plays in an order Myspoti draws once
+ * the option and shuffle on, a list played on Spotify plays in an order Hispoti draws once
  * ([ShuffleOrder]): every song of the list once, the one picked first, before the list starts
  * over. The order goes to the page as a sorted list's does (the list played as that order, see
  * player-bridge.js), with Spotify's shuffle off, and stays while the list plays: a skip goes on in
@@ -43,7 +43,7 @@ object AppShuffle {
     /** Bumped by every play and by the end of the shuffle: a list loaded for an older one plays nothing. */
     private val gen = AtomicInteger()
 
-    /** The list played in Myspoti's order (null: none). */
+    /** The list played in Hispoti's order (null: none). */
     @Volatile private var list: String? = null
     /** Its track uris in that order, [at]: the song playing. */
     private var order: List<String> = emptyList()
@@ -70,19 +70,19 @@ object AppShuffle {
     private class Noted(val uri: String, val tracks: List<SongsModel>, val plain: List<String>?, val complete: Boolean)
     @Volatile private var noted: Noted? = null
 
-    /** Myspoti's order may play [contextUri] now. */
+    /** Hispoti's order may play [contextUri] now. */
     private fun usable(contextUri: String): Boolean =
         AppShufflePref.on && contextUri.isNotBlank() && contextUri !in imposed && SmartShuffle.on.value != contextUri &&
             // Another device plays: the page only commands it, and the order is the page's own.
             SongPlayer.activeDevice.value == null
 
-    /** A list Myspoti reads in full: a playlist, an album, Liked Songs. */
+    /** A list Hispoti reads in full: a playlist, an album, Liked Songs. */
     private fun dealable(contextUri: String): Boolean =
         contextUri.startsWith("spotify:playlist:") || contextUri.startsWith("spotify:album:") || contextUri.contains(":collection")
 
     /**
      * [song] picked in [p] (ContextViewModel, on Spotify), [plain] the order the list plays in
-     * without shuffle. True: it plays in Myspoti's order (shuffle on, the option on); false: the
+     * without shuffle. True: it plays in Hispoti's order (shuffle on, the option on); false: the
      * caller plays it as before.
      */
     fun play(p: ContextPageModel, song: SongsModel, plain: List<String>?): Boolean {
@@ -93,7 +93,7 @@ object AppShuffle {
         if (p.complete) return start(p.uri, p.tracks, first, plain)
         // The list is still loading: every page of it first, so all its songs are dealt.
         val g = gen.incrementAndGet()
-        MyspotiRuntime.scope.launch {
+        HispotiRuntime.scope.launch {
             val all = load(p.uri)?.takeIf { l -> l.any { it.spotifyTrackId == song.spotifyTrackId } } ?: p.tracks
             main.post { if (g == gen.get()) start(p.uri, all, first, plain) }
         }
@@ -120,7 +120,7 @@ object AppShuffle {
             whenPlaying {
                 val now = SongPlayer.nowPlaying.value
                 if (now.contextUri != was || !now.uri.startsWith(TRACK)) return@whenPlaying false
-                app.myspoti.host.android.Logbook.log("shuffle: Myspoti's off, $was back in its order")
+                com.phush.hispoti.host.android.Logbook.log("shuffle: Hispoti's off, $was back in its order")
                 SongPlayer.playSong(now.uri, contextUri = was, order = back, positionMs = SongPlayer.getCurrentPosition(), askExtensions = false)
                 true
             }
@@ -130,7 +130,7 @@ object AppShuffle {
         val g = gen.incrementAndGet()
         synchronized(this) { list = ctx; order = emptyList(); at = -1; plain = noted?.takeIf { it.uri == ctx }?.plain; landed = true; startedAt = SystemClock.elapsedRealtime(); retried = false; due = null }
         Graph.currentSongState.shuffle.value = true
-        MyspotiRuntime.scope.launch {
+        HispotiRuntime.scope.launch {
             val tracks = load(ctx)
             main.post {
                 if (g != gen.get()) return@post
@@ -196,7 +196,7 @@ object AppShuffle {
             dealt
         }
         val song = songs.getValue(dealt[from])
-        app.myspoti.host.android.Logbook.log("shuffle: Myspoti's order for $uri, ${dealt.size} songs, playing at ${from + 1}")
+        com.phush.hispoti.host.android.Logbook.log("shuffle: Hispoti's order for $uri, ${dealt.size} songs, playing at ${from + 1}")
         val state = Graph.currentSongState
         // Spotify's shuffle would mix the order again.
         SongPlayer.setPageShuffle(false)
@@ -208,7 +208,7 @@ object AppShuffle {
 
     /**
      * A state of the page (SongPlayer.applyState) on [contextUri] and the song [uri]; [trusted]: its
-     * [shuffle] is not an older state than the last shuffle asked for. True: Myspoti's order plays
+     * [shuffle] is not an older state than the last shuffle asked for. True: Hispoti's order plays
      * the list (the player shows shuffle on).
      */
     fun onPage(contextUri: String, uri: String, shuffle: Boolean, trusted: Boolean): Boolean {
@@ -245,8 +245,8 @@ object AppShuffle {
         }
         if (restore) SongPlayer.setPageShuffle(true)
         told?.let { l ->
-            app.myspoti.host.android.Logbook.log("shuffle: Spotify keeps its own shuffle on $l, Myspoti's order left")
-            main.post { android.widget.Toast.makeText(Graph.app, Graph.app.getString(R.string.myspoti_shuffle_imposed), android.widget.Toast.LENGTH_LONG).show() }
+            com.phush.hispoti.host.android.Logbook.log("shuffle: Spotify keeps its own shuffle on $l, Hispoti's order left")
+            main.post { android.widget.Toast.makeText(Graph.app, Graph.app.getString(R.string.hispoti_shuffle_imposed), android.widget.Toast.LENGTH_LONG).show() }
         }
         return mine
     }
@@ -255,7 +255,7 @@ object AppShuffle {
     fun unshuffled(contextUri: String, sent: List<String>?): List<String>? =
         synchronized(this) { if (list == contextUri && sent != null && sent == order) plain else sent }
 
-    /** The option turned off: a list playing in Myspoti's order goes on in Spotify's shuffle. */
+    /** The option turned off: a list playing in Hispoti's order goes on in Spotify's shuffle. */
     fun forget() {
         val was = list
         clear()

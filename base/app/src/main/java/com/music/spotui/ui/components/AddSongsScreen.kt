@@ -61,8 +61,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -104,7 +104,7 @@ fun AddSongsScreen(page: ContextPageModel, onClose: (added: Boolean) -> Unit) {
         suggestions = null
         val skip = (inList + added + seen).map { "spotify:track:$it" }
         val got = withContext(Dispatchers.IO) {
-            runCatching { MyspotiRuntime.api.playlists.recommended(page.uri, limit = SUGGESTIONS, skip = skip) }
+            runCatching { HispotiRuntime.api.playlists.recommended(page.uri, limit = SUGGESTIONS, skip = skip) }
                 .getOrDefault(emptyList()).map(Graph.api::songOf)
         }.filter { it.spotifyTrackId !in inList }
         got.forEach { seen += it.spotifyTrackId }

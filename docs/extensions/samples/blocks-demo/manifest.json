@@ -1,9 +1,9 @@
 {
-  "id": "app.myspoti.samples.blocks",
+  "id": "com.phush.hispoti.samples.blocks",
   "name": "Blocks demo (sample)",
   "version": "1.0.0",
   "versionCode": 1,
-  "author": "Myspoti",
+  "author": "Hispoti",
   "description": "A sample that adds one block of each kind: a Home section, a search result, a menu entry, a player button, a line under the credits and a small page.",
   "category": "player",
   "actions": [

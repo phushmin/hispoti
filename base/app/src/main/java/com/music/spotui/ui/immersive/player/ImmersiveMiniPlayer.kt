@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/components/MiniPlayer.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: the 56dp capsule (radius 28) with cover, credits, play/pause and next, a swipe along
  * it to change track and a pull up to open the player. The dock and the
@@ -52,7 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage

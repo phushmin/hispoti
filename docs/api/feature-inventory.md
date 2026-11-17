@@ -127,7 +127,7 @@ as a page service (`service: Name.method`, through the bridge) or an HTTP endpoi
 | Followers list and following list of a user | needs capture | no operation or endpoint captured |
 | Top artists and tracks (per time range) | exposed | `userTopContent`; `AffinityInput.timeRange` is `SHORT_TERM` (~4 weeks), `MID_TERM` (~6 months), `LONG_TERM` (~1 year), `MEDIUM_TERM` is refused; `sortBy` `AFFINITY`/`PLAY_COUNT`/`LAST_PLAYED`; ranks and `totalCount` only, no play counts |
 | Friend activity | exposed (spclient) | the Web Player's `BuddyFeedAPI` is a stub (`isSupported: false`), but the desktop feed's `GET presence-view/v1/buddylist` (guc-spclient, then spclient.wg) answers the page token on both hosts (200, checked 2026-10-23): `friends[] {timestamp, user{uri,name,imageUrl}, track{uri,name,imageUrl,album,artist,context{uri,name,index}}}`; "now" = played within 15 min |
-| Minutes listened, play counts, top-listener / early-fan badges | not exposed | the Web Player's listening-stats route only shows an "open the app" modal, and `queryArtistOverview` has no per-user fan data; Myspoti counts minutes on the phone (Recap) and shows "your #N artist" from `userTopContent` |
+| Minutes listened, play counts, top-listener / early-fan badges | not exposed | the Web Player's listening-stats route only shows an "open the app" modal, and `queryArtistOverview` has no per-user fan data; Hispoti counts minutes on the phone (Recap) and shows "your #N artist" from `userTopContent` |
 | Private session | not possible | the Web Player reports `isSupported: false`; `setPrivateSession` throws |
 | Comments and reactions on entities | needs capture | `getCommentsForEntity`, `addComment`, `addCommentReaction` and others (not wired) |
 

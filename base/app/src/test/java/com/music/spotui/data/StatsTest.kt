@@ -1,6 +1,6 @@
 package com.music.spotui.data
 
-import app.myspoti.api.TimeRange
+import com.phush.hispoti.api.TimeRange
 import com.music.spotui.data.api.TopStats
 import com.music.spotui.data.local.ListenHistory
 import org.junit.Assert.assertEquals

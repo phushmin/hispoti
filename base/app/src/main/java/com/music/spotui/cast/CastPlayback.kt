@@ -14,7 +14,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 /**
- * Myspoti's own player on a Cast device: the songs [LocalPlayer] plays (extension streams,
+ * Hispoti's own player on a Cast device: the songs [LocalPlayer] plays (extension streams,
  * downloads, the phone's files) go to the Default Media Receiver of the chosen device, fetched
  * from the phone's [CastServer]. Spotify's songs are not cast here: Spotify Connect does that.
  *
@@ -83,7 +83,7 @@ object CastPlayback {
 
     // ── Calls from the app (main thread) ──
 
-    /** Sends the songs to [d] (only Myspoti's own player: [LocalPlayer] must be playing). */
+    /** Sends the songs to [d] (only Hispoti's own player: [LocalPlayer] must be playing). */
     fun start(d: CastDevice) {
         if (!LocalPlayer.active.value) { log("not cast: a Spotify song plays (Spotify Connect casts those)"); return }
         if (device.value?.id == d.id) return
@@ -318,7 +318,7 @@ object CastPlayback {
 
     private fun coverUrl(t: LocalTrack): String? {
         val art = t.artUri.toString().takeIf { it.isNotBlank() } ?: return null
-        val large = runCatching { app.myspoti.host.android.Covers.large(art) }.getOrDefault(art)
+        val large = runCatching { com.phush.hispoti.host.android.Covers.large(art) }.getOrDefault(art)
         if (large.startsWith("https://") || large.startsWith("http://")) return large
         val u = Uri.parse(large)
         return if (u.scheme == "content" || u.scheme == "file" || u.scheme == "android.resource")
@@ -374,7 +374,7 @@ object CastPlayback {
         main.post {
             if (gen != generation || !active) return@post
             if (failures < 3) LocalPlayer.next()
-            else { wantPlaying = false; LocalPlayer.castChanged(); toast(app.myspoti.engine.R.string.cast_failed) }
+            else { wantPlaying = false; LocalPlayer.castChanged(); toast(com.phush.hispoti.engine.R.string.cast_failed) }
         }
     }
 
@@ -413,7 +413,7 @@ object CastPlayback {
         if (gen != generation) return
         if (++reconnects > 4) {
             log("could not connect again: back on the phone")
-            main.post { if (gen == generation) { toast(app.myspoti.engine.R.string.cast_lost); stop(back = true) } }
+            main.post { if (gen == generation) { toast(com.phush.hispoti.engine.R.string.cast_lost); stop(back = true) } }
             return
         }
         val delay = longArrayOf(1, 2, 4, 8)[reconnects - 1]
@@ -426,7 +426,7 @@ object CastPlayback {
         teardown(stopApp = false)
         main.post {
             if (gen != generation) return@post
-            toast(app.myspoti.engine.R.string.cast_failed)
+            toast(com.phush.hispoti.engine.R.string.cast_failed)
             stop(back = true)
         }
     }
@@ -466,9 +466,9 @@ object CastPlayback {
         runCatching {
             if (on) {
                 if (wifiLock == null) wifiLock = (Graph.app.applicationContext.getSystemService(Context.WIFI_SERVICE) as android.net.wifi.WifiManager)
-                    .createWifiLock(android.net.wifi.WifiManager.WIFI_MODE_FULL_HIGH_PERF, "myspoti:cast").apply { setReferenceCounted(false) }
+                    .createWifiLock(android.net.wifi.WifiManager.WIFI_MODE_FULL_HIGH_PERF, "hispoti:cast").apply { setReferenceCounted(false) }
                 if (wakeLock == null) wakeLock = (Graph.app.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager)
-                    .newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "myspoti:cast").apply { setReferenceCounted(false) }
+                    .newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "hispoti:cast").apply { setReferenceCounted(false) }
                 wifiLock?.acquire(); wakeLock?.acquire(6 * 60 * 60 * 1000L)
             } else {
                 wifiLock?.takeIf { it.isHeld }?.release(); wakeLock?.takeIf { it.isHeld }?.release()
@@ -483,5 +483,5 @@ object CastPlayback {
 
     private fun now() = android.os.SystemClock.elapsedRealtime()
 
-    private fun log(line: String) = app.myspoti.host.android.Logbook.log("cast: $line")
+    private fun log(line: String) = com.phush.hispoti.host.android.Logbook.log("cast: $line")
 }

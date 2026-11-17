@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/components/GlassNavBar.kt at edc1e6f
- * (and app/src/main/java/com/music/bitchord/ui/components/FloatingBottomBar.kt). Modified for Myspoti, 2026-10.
+ * (and app/src/main/java/com/music/bitchord/ui/components/FloatingBottomBar.kt). Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.shell
 

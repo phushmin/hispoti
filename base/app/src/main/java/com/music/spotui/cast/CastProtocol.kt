@@ -4,7 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * The JSON messages Myspoti sends a Cast device and reads from it (CastV2 namespaces), for the
+ * The JSON messages Hispoti sends a Cast device and reads from it (CastV2 namespaces), for the
  * Default Media Receiver (no registration needed, plays what an address gives).
  */
 object CastProtocol {
@@ -22,7 +22,7 @@ object CastProtocol {
     const val GROUP_MODEL = "Google Cast Group"
 
     fun type(t: String) = JSONObject().put("type", t)
-    fun connect() = type("CONNECT").put("userAgent", "Myspoti").put("origin", JSONObject())
+    fun connect() = type("CONNECT").put("userAgent", "Hispoti").put("origin", JSONObject())
     fun launch(requestId: Int, appId: String = DEFAULT_MEDIA_RECEIVER) = type("LAUNCH").put("appId", appId).put("requestId", requestId)
     fun stopApp(requestId: Int, sessionId: String) = type("STOP").put("sessionId", sessionId).put("requestId", requestId)
     fun setVolume(requestId: Int, level: Double) =

@@ -1,7 +1,7 @@
 package com.music.spotui.ui.navigation
 
 import androidx.annotation.DrawableRes
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 
 sealed class Routes(
     @DrawableRes val icon : Int = 0,

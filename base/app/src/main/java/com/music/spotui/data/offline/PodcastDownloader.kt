@@ -120,15 +120,15 @@ object PodcastDownloader {
         val req = Request.of(song)
         // "Downloads" off in Settings means no downloads at all, podcasts included.
         if (!isDownloadsEnabled(Graph.app)) {
-            toast(app.myspoti.engine.R.string.downloads_off_toast)
+            toast(com.phush.hispoti.engine.R.string.downloads_off_toast)
             return
         }
         // Spotify itself marks some episodes unplayable (region, removed, paywall).
         if (!song.playable) {
-            toast(app.myspoti.engine.R.string.podcast_download_unavailable)
+            toast(com.phush.hispoti.engine.R.string.podcast_download_unavailable)
             return
         }
-        if (com.music.spotui.data.DataSaver.metered) toast(app.myspoti.engine.R.string.download_on_mobile_data)
+        if (com.music.spotui.data.DataSaver.metered) toast(com.phush.hispoti.engine.R.string.download_on_mobile_data)
         enqueueAll(listOf(req))
     }
 
@@ -219,7 +219,7 @@ object PodcastDownloader {
                 OfflineStatus.Unavailable
             } catch (t: Throwable) {
                 Log.w(TAG, "${r.title} failed", t)
-                toast(app.myspoti.engine.R.string.podcast_download_failed)
+                toast(com.phush.hispoti.engine.R.string.podcast_download_failed)
                 OfflineStatus.Failed
             }
             synchronized(pending) { pending.remove(r.trackId); savePending() }
@@ -233,20 +233,20 @@ object PodcastDownloader {
     private suspend fun download(r: Request): OfflineTrack {
         val episodeId = r.trackId.removePrefix(EPISODE_PREFIX)
         // Resolved here and not at queue time: a signed publisher URL is only good for hours.
-        val audio = app.myspoti.host.android.MyspotiRuntime.api.podcasts.audioUrl("spotify:episode:$episodeId")
+        val audio = com.phush.hispoti.host.android.HispotiRuntime.api.podcasts.audioUrl("spotify:episode:$episodeId")
         if (audio.passthrough.equals("NONE", ignoreCase = true)) {
             // Spotify-exclusive show: its only copy is Widevine-encrypted. Refuse, never try DRM.
-            throw Unavailable(app.myspoti.engine.R.string.podcast_download_protected, "no publisher file (passthrough NONE, ${audio.format})")
+            throw Unavailable(com.phush.hispoti.engine.R.string.podcast_download_protected, "no publisher file (passthrough NONE, ${audio.format})")
         }
         val url = audio.url?.takeIf { it.startsWith("http") }
-            ?: throw Unavailable(app.myspoti.engine.R.string.podcast_download_unavailable, "passthrough ${audio.passthrough} without a url")
+            ?: throw Unavailable(com.phush.hispoti.engine.R.string.podcast_download_unavailable, "passthrough ${audio.passthrough} without a url")
         Log.i(TAG, "${r.title}: publisher file (passthrough ${audio.passthrough}, ${audio.format})")
 
         // What the server says it is before a byte is fetched: an expired link answers with a
         // login page or an error page, and that must not end up in the index as an episode.
         val probe = probe(url)
         if (!contentTypeOk(probe.type)) {
-            throw Unavailable(app.myspoti.engine.R.string.podcast_download_unavailable, "the server sent ${probe.type}, not audio")
+            throw Unavailable(com.phush.hispoti.engine.R.string.podcast_download_unavailable, "the server sent ${probe.type}, not audio")
         }
 
         val base = safeName(r.trackId)
@@ -268,10 +268,10 @@ object PodcastDownloader {
             }
             currentCoroutineContext().ensureActive()
 
-            if (tmp.length() <= MIN_BYTES) throw Unavailable(app.myspoti.engine.R.string.podcast_download_failed, "only ${tmp.length()} bytes")
+            if (tmp.length() <= MIN_BYTES) throw Unavailable(com.phush.hispoti.engine.R.string.podcast_download_failed, "only ${tmp.length()} bytes")
             val head = readHead(tmp)
             if (!audioMagicOk(head)) {
-                throw Unavailable(app.myspoti.engine.R.string.podcast_download_failed, "not an audio file (starts with ${hex(head, 4)})")
+                throw Unavailable(com.phush.hispoti.engine.R.string.podcast_download_failed, "not an audio file (starts with ${hex(head, 4)})")
             }
             out = File(OfflineStore.audioDir, "$base.${audioExtension(url, head)}")
             if (out.exists()) out.delete()
@@ -283,7 +283,7 @@ object PodcastDownloader {
         // Complete on disk from here on: "stop" must not leave a file outside the index
         // (it would be swept as a stray at the next start).
         return withContext(NonCancellable) {
-            // Kept encrypted, like every download: it only plays in Myspoti, on this phone.
+            // Kept encrypted, like every download: it only plays in Hispoti, on this phone.
             runInterruptible(Dispatchers.IO) { OfflineCrypto.encryptInPlace(Graph.app, out) }
             val cover = runCatching {
                 val c = File(OfflineStore.coverDir, "$base.jpg")

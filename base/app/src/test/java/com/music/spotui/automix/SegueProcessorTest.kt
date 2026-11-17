@@ -3,15 +3,15 @@ package com.music.spotui.automix
 
 import androidx.media3.common.C
 import androidx.media3.common.audio.AudioProcessor
-import app.myspoti.automix.segue.Clock
-import app.myspoti.automix.segue.KnotForm
-import app.myspoti.automix.segue.LaneSide
-import app.myspoti.automix.segue.PulseState
-import app.myspoti.automix.segue.SegueFormat
-import app.myspoti.automix.segue.SeguePlan
-import app.myspoti.automix.segue.SegueUnit
-import app.myspoti.automix.segue.Target
-import app.myspoti.automix.segue.UnitKind
+import com.phush.hispoti.automix.segue.Clock
+import com.phush.hispoti.automix.segue.KnotForm
+import com.phush.hispoti.automix.segue.LaneSide
+import com.phush.hispoti.automix.segue.PulseState
+import com.phush.hispoti.automix.segue.SegueFormat
+import com.phush.hispoti.automix.segue.SeguePlan
+import com.phush.hispoti.automix.segue.SegueUnit
+import com.phush.hispoti.automix.segue.Target
+import com.phush.hispoti.automix.segue.UnitKind
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

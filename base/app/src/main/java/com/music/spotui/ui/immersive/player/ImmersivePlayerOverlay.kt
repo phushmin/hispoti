@@ -2,7 +2,7 @@
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/player/PlayerSheetMotion.kt and
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/PlayerDock.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: only the sheet's motion is kept: it opens and closes on one critically damped spring
  * (stiffness 195) and a pull down carries the finger's speed into it. The Material sheet window,

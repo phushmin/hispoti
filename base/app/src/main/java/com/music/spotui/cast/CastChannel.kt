@@ -28,8 +28,8 @@ class CastChannel(
     private val onMessage: (CastMessage, JSONObject) -> Unit,
     private val onClosed: (Throwable?) -> Unit,
 ) {
-    /** The id Myspoti speaks under on this connection. */
-    val sender = "sender-myspoti-" + Integer.toHexString(java.security.SecureRandom().nextInt())
+    /** The id Hispoti speaks under on this connection. */
+    val sender = "sender-hispoti-" + Integer.toHexString(java.security.SecureRandom().nextInt())
     private lateinit var socket: SSLSocket
     private lateinit var out: BufferedOutputStream
     @Volatile private var closed = false
@@ -93,7 +93,7 @@ class CastChannel(
         }
     }
 
-    /** Closes the connection; [onClosed] hears it once ([why] null: asked by Myspoti). */
+    /** Closes the connection; [onClosed] hears it once ([why] null: asked by Hispoti). */
     fun close(why: Throwable? = null) {
         if (closed) return
         closed = true

@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.preferences.Look
 import com.music.spotui.data.preferences.LookPref
 

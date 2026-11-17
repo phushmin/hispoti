@@ -1,20 +1,20 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.Archive
-import app.myspoti.extensions.BlockList
-import app.myspoti.extensions.Catalog
-import app.myspoti.extensions.CodeDiff
-import app.myspoti.extensions.RepoIds
-import app.myspoti.extensions.ExtensionException
-import app.myspoti.extensions.ExtensionPackage
-import app.myspoti.extensions.GitHub
-import app.myspoti.extensions.Discovery
-import app.myspoti.extensions.GitHubRepo
-import app.myspoti.extensions.Manifest
-import app.myspoti.extensions.Origin
-import app.myspoti.extensions.Snapshot
-import app.myspoti.extensions.UpdateGate
-import app.myspoti.host.android.Logbook
+import com.phush.hispoti.extensions.Archive
+import com.phush.hispoti.extensions.BlockList
+import com.phush.hispoti.extensions.Catalog
+import com.phush.hispoti.extensions.CodeDiff
+import com.phush.hispoti.extensions.RepoIds
+import com.phush.hispoti.extensions.ExtensionException
+import com.phush.hispoti.extensions.ExtensionPackage
+import com.phush.hispoti.extensions.GitHub
+import com.phush.hispoti.extensions.Discovery
+import com.phush.hispoti.extensions.GitHubRepo
+import com.phush.hispoti.extensions.Manifest
+import com.phush.hispoti.extensions.Origin
+import com.phush.hispoti.extensions.Snapshot
+import com.phush.hispoti.extensions.UpdateGate
+import com.phush.hispoti.host.android.Logbook
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,7 +67,7 @@ object ExtensionUpdates {
         c.connectTimeout = 15_000; c.readTimeout = 20_000; c.useCaches = false
         c.instanceFollowRedirects = follow
         c.requestMethod = method
-        c.setRequestProperty("User-Agent", "Myspoti-Extensions/1")
+        c.setRequestProperty("User-Agent", "Hispoti-Extensions/1")
         c.setRequestProperty("Cache-Control", "no-cache"); c.setRequestProperty("Pragma", "no-cache")
         accept?.let { c.setRequestProperty("Accept", it) }
         token?.let { c.setRequestProperty("Authorization", "Bearer $it") }
@@ -115,7 +115,7 @@ object ExtensionUpdates {
 
     /** The numeric ids the host gives [repo] and its owner (null when the host does not answer: nothing is pinned then). */
     internal fun identity(repo: GitHubRepo): RepoIds? = runCatching {
-        val a = get(Discovery.identityUrl(repo), MAX_TEXT, accept = if (repo.host == app.myspoti.extensions.CodeHost.GITHUB) "application/vnd.github+json" else null)
+        val a = get(Discovery.identityUrl(repo), MAX_TEXT, accept = if (repo.host == com.phush.hispoti.extensions.CodeHost.GITHUB) "application/vnd.github+json" else null)
         if (a.status in 200..299) a.body?.decodeToString()?.let { Discovery.parseIdentity(repo.host, it) } else null
     }.getOrNull()
 
@@ -221,7 +221,7 @@ object ExtensionUpdates {
         if (!manual && m.versionCode == e.declinedVersionCode && (e.declinedSha == null || e.declinedSha == f.pkg.sha256)) return Result.DECLINED
         if (blocked(m.id, f.pkg.sha256) != null) return Result.BLOCKED
         if (!Catalog.Entry(m.id, m.name, m.version, m.versionCode, m.apiVersion, m.author, url = "", sha256 = "", minAppVersion = m.minAppVersion)
-                .compatible(app.myspoti.engine.BuildConfig.VERSION_NAME)) return Result.INCOMPATIBLE
+                .compatible(com.phush.hispoti.engine.BuildConfig.VERSION_NAME)) return Result.INCOMPATIBLE
         val running = Extensions.pkg(id)
         var accepted = e.accepted ?: Extensions.manifest(id)?.let { Snapshot.of(it, origin.repo) } ?: return Result.FAILED
         // Installs from before the code and the repository were pinned: pinned now, from what runs and what the host says, without asking.
@@ -349,7 +349,7 @@ object ExtensionUpdates {
         val bytes = runCatching { File(folder, "previous.zip").readBytes() }.getOrElse { throw ExtensionException("the previous version is missing") }
         val p = ExtensionPackage.read(bytes)
         if (p.sha256 != prev.sha256) throw ExtensionException("the previous version changed on the phone")
-        blocked(id, p.sha256)?.let { throw ExtensionException("blocked by Myspoti: ${it.reason.ifBlank { "no reason given" }}") }
+        blocked(id, p.sha256)?.let { throw ExtensionException("blocked by Hispoti: ${it.reason.ifBlank { "no reason given" }}") }
         val refused = Extensions.manifest(id)?.let { Grants.refused(e, it) }.orEmpty()
         Extensions.stop(id)
         val current = File(folder, "package.zip").readBytes()
@@ -387,7 +387,7 @@ object ExtensionUpdates {
             writeAtomically(f, if (a.status == 404) "{}" else text)
         }
         Extensions.registry.value.extensions.forEach { e ->
-            blocked(e.id, e.sha256)?.let { b -> if (e.enabled) Extensions.disable(e.id, "blocked by Myspoti: ${b.reason.ifBlank { "no reason given" }}") }
+            blocked(e.id, e.sha256)?.let { b -> if (e.enabled) Extensions.disable(e.id, "blocked by Hispoti: ${b.reason.ifBlank { "no reason given" }}") }
         }
     }
 

@@ -1,6 +1,6 @@
 package com.music.spotui.data.api
 
-import app.myspoti.extensions.Romanize
+import com.phush.hispoti.extensions.Romanize
 import com.music.spotui.data.entity.Lyrics
 
 /**

@@ -32,10 +32,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.api.MergePlan
-import app.myspoti.api.PlaylistMerge
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.MergePlan
+import com.phush.hispoti.api.PlaylistMerge
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.api.EditablePlaylist
 import com.music.spotui.data.api.EditablePlaylists
 import com.music.spotui.data.api.SpotifySync
@@ -79,7 +79,7 @@ fun AddCollectionToPlaylistSheet(sourceUri: String, title: String, onDismiss: ()
         if (reading) return
         reading = true
         scope.launch {
-            val plan = runCatching { PlaylistMerge.plan(MyspotiRuntime.api, "spotify:playlist:${target.id}", sourceUri) }.getOrNull()
+            val plan = runCatching { PlaylistMerge.plan(HispotiRuntime.api, "spotify:playlist:${target.id}", sourceUri) }.getOrNull()
             reading = false
             when {
                 plan == null -> { say(context.getString(R.string.playlist_change_refused)); onDismiss() }

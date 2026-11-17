@@ -2,7 +2,7 @@
 package com.music.spotui.automix
 
 import android.media.audiofx.DynamicsProcessing
-import app.myspoti.automix.Features
+import com.phush.hispoti.automix.Features
 
 /**
  * A player's three-band EQ for the mixes (low under 180 Hz, mid, high over 2.5 kHz), as Android's

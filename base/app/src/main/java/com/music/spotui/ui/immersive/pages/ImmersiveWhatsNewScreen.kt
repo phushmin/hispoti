@@ -42,9 +42,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import app.myspoti.api.WhatsNewContent
-import app.myspoti.api.WhatsNewItem
-import app.myspoti.engine.R
+import com.phush.hispoti.api.WhatsNewContent
+import com.phush.hispoti.api.WhatsNewItem
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.components.FastScrollbar
 import com.music.spotui.ui.immersive.Immersive
 import com.music.spotui.ui.immersive.components.ImmersiveCover

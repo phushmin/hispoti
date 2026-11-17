@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import app.myspoti.extensions.ExtensionPackage
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.extensions.ExtensionPackage
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.entity.ContextPageModel
 import com.music.spotui.di.Graph
@@ -31,7 +31,7 @@ import java.io.File
 
 /**
  * The command line's door (`adb shell am broadcast -a <package>.CLI -p <package> --es cmd … --es args64 …
- * --es req <id>`), see docs/cli.md and tools/myspoti-cli. Only the adb shell may send it (DUMP), the
+ * --es req <id>`), see docs/cli.md and tools/hispoti-cli. Only the adb shell may send it (DUMP), the
  * manifest turns it on in debug and beta builds only, and it answers nothing elsewhere. The reply goes
  * to `<external files>/cli/<req>.json` and, cut, to logcat under [TAG].
  */
@@ -58,7 +58,7 @@ class CliReceiver : BroadcastReceiver() {
                 tmp.renameTo(File(dir, "$req.json"))
             }.onFailure { Log.w(TAG, "$req: reply not written: $it") }
             Log.i(TAG, "$req $cmd ${reply.take(3500)}")
-            // 1: the receiver answered (an absent or disabled one leaves 0), how tools/myspoti-cli tells them apart.
+            // 1: the receiver answered (an absent or disabled one leaves 0), how tools/hispoti-cli tells them apart.
             pending.resultCode = 1
             pending.resultData = if (reply.length < 1000) reply else null
             pending.finish()
@@ -68,16 +68,16 @@ class CliReceiver : BroadcastReceiver() {
     private suspend fun run(ctx: Context, c: CliCommand): JsonElement = when (c) {
         CliCommand.Status -> {
           // What the page streams now (bitrate, codec): one bridge call, for the mirror's quality check.
-          val audio = withContext(Dispatchers.Main) { if (MyspotiRuntime.isStarted) MyspotiRuntime.spotify.player.audioInfo() else 0 to "" }
+          val audio = withContext(Dispatchers.Main) { if (HispotiRuntime.isStarted) HispotiRuntime.spotify.player.audioInfo() else 0 to "" }
           onMain {
             val np = SongPlayer.nowPlaying.value
             buildJsonObject {
                 put("package", ctx.packageName)
-                put("version", app.myspoti.engine.BuildConfig.VERSION_NAME)
-                put("versionCode", app.myspoti.engine.BuildConfig.VERSION_CODE)
-                put("debug", app.myspoti.engine.BuildConfig.DEBUG)
+                put("version", com.phush.hispoti.engine.BuildConfig.VERSION_NAME)
+                put("versionCode", com.phush.hispoti.engine.BuildConfig.VERSION_CODE)
+                put("debug", com.phush.hispoti.engine.BuildConfig.DEBUG)
                 put("beta", com.music.spotui.data.api.UpdateChecker.isBeta)
-                put("signedIn", ctx.getSharedPreferences("myspoti_prefs", Context.MODE_PRIVATE).getBoolean("LoggedIn", false))
+                put("signedIn", ctx.getSharedPreferences("hispoti_prefs", Context.MODE_PRIVATE).getBoolean("LoggedIn", false))
                 put("playing", SongPlayer.isPlaying())
                 put("uri", np.uri)
                 put("context", np.contextUri)
@@ -105,8 +105,8 @@ class CliReceiver : BroadcastReceiver() {
                     put("on", m.on); put("running", m.running); put("handedAway", m.handedAway); put("landed", m.landed)
                     m.uri?.let { put("uri", it) }; m.paused?.let { put("paused", it) }
                     m.webPositionMs?.let { put("webPositionMs", it) }; m.failedUri?.let { put("failedUri", it) }
-                    if (MyspotiRuntime.isStarted) {
-                        val page = MyspotiRuntime.spotify.player
+                    if (HispotiRuntime.isStarted) {
+                        val page = HispotiRuntime.spotify.player
                         val s = page.state.value
                         put("pageUri", s?.item?.uri ?: "")
                         put("pagePaused", s?.isPaused ?: true)
@@ -181,7 +181,7 @@ class CliReceiver : BroadcastReceiver() {
         }
         is CliCommand.ExtWhy -> {
             // Debug builds only: a beta's receiver answers that it is off here (the CLI's exit code 5).
-            if (!app.myspoti.engine.BuildConfig.DEBUG) throw CliError(DISABLED)
+            if (!com.phush.hispoti.engine.BuildConfig.DEBUG) throw CliError(DISABLED)
             // The song playing now: what the decoder reports, read on the player's thread.
             onMain {
                 val t = com.music.spotui.di.LocalPlayer.current()?.uri?.takeIf { it.scheme == com.music.spotui.extensions.ExtensionAudio.SCHEME }
@@ -220,9 +220,9 @@ class CliReceiver : BroadcastReceiver() {
             c.on?.let { com.music.spotui.automix.AutoMix.changeSegue(it) }
             JsonPrimitive(com.music.spotui.automix.AutoMix.segue)
         }
-        is CliCommand.JamJoin -> jamJson(MyspotiRuntime.api.jam.join(c.token))
-        CliCommand.JamStatus -> { MyspotiRuntime.api.jam.refresh(); jamJson(MyspotiRuntime.api.jam.session.value) }
-        CliCommand.JamLeave -> { MyspotiRuntime.api.jam.leave(); JsonNull }
+        is CliCommand.JamJoin -> jamJson(HispotiRuntime.api.jam.join(c.token))
+        CliCommand.JamStatus -> { HispotiRuntime.api.jam.refresh(); jamJson(HispotiRuntime.api.jam.session.value) }
+        CliCommand.JamLeave -> { HispotiRuntime.api.jam.leave(); JsonNull }
         CliCommand.AutoMixStatus -> onMain {
             buildJsonObject {
                 put("state", com.music.spotui.di.LocalPlayer.autoMixState())
@@ -280,7 +280,7 @@ class CliReceiver : BroadcastReceiver() {
         return read
     }
 
-    private fun jamJson(s: app.myspoti.api.JamSession?): JsonElement = if (s == null) JsonNull else buildJsonObject {
+    private fun jamJson(s: com.phush.hispoti.api.JamSession?): JsonElement = if (s == null) JsonNull else buildJsonObject {
         put("id", s.id); put("token", s.joinToken ?: ""); put("host", s.isHost); put("queueOnly", s.queueOnly); put("listensHere", s.listensHere)
         put("members", JsonArray(s.members.map { m -> JsonPrimitive(m.name + if (m.host) " (host)" else "") }))
     }
@@ -288,16 +288,16 @@ class CliReceiver : BroadcastReceiver() {
     private suspend fun <T> onMain(block: () -> T): T = withContext(Dispatchers.Main) { block() }
 
     companion object {
-        const val TAG = "MyspotiCli"
+        const val TAG = "HispotiCli"
 
-        /** The error of a command this build does not have (tools/myspoti-cli exits with 5 on it). */
+        /** The error of a command this build does not have (tools/hispoti-cli exits with 5 on it). */
         const val DISABLED = "disabled in this build"
 
         /** How long `play` waits for its context's songs (Android Auto's own wait), within the CLI's 40 s. */
         private const val READ_MS = 15_000L
 
         /** Debug and beta builds; the manifest leaves the receiver off in the others too. */
-        val enabled: Boolean get() = app.myspoti.engine.BuildConfig.DEBUG || com.music.spotui.data.api.UpdateChecker.isBeta
+        val enabled: Boolean get() = com.phush.hispoti.engine.BuildConfig.DEBUG || com.music.spotui.data.api.UpdateChecker.isBeta
 
         private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

@@ -22,7 +22,7 @@ object HomeSubChips {
     fun parentOf(facet: String): String? =
         if (facet in byParent) facet else byParent.entries.firstOrNull { e -> e.value.any { it.first == facet } }?.key
 
-    fun learn(chips: List<app.myspoti.api.HomeChip>) {
+    fun learn(chips: List<com.phush.hispoti.api.HomeChip>) {
         val found = chips.filter { it.subChips.isNotEmpty() }.associate { c -> c.id to c.subChips.map { it.id to it.label } }
         if (found.isEmpty()) return
         android.os.Handler(android.os.Looper.getMainLooper()).post { found.forEach { (k, v) -> if (byParent[k] != v) byParent[k] = v } }

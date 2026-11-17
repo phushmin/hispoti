@@ -5,8 +5,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.entity.ContextPageModel
 import com.music.spotui.data.entity.HomeItem
@@ -15,9 +15,9 @@ import com.music.spotui.data.offline.LocalPlayPlan
 import com.music.spotui.data.offline.OfflineCollections
 import com.music.spotui.data.offline.OfflineStore
 import com.music.spotui.data.offline.OfflineTrack
-import app.myspoti.api.MediaKind
-import app.myspoti.api.best
-import app.myspoti.api.groupRecents
+import com.phush.hispoti.api.MediaKind
+import com.phush.hispoti.api.best
+import com.phush.hispoti.api.groupRecents
 import com.music.spotui.data.DataSaver
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -204,7 +204,7 @@ object AutoBrowser {
 
     /** The account's recents (all devices): playlists, albums, artists and Liked Songs, as a group. */
     private suspend fun recentItems(context: Context): List<MediaItem> {
-        val entries = withTimeoutOrNull(TIMEOUT_MS) { MyspotiRuntime.api.recents.recentEntries(0, 50).items } ?: return emptyList()
+        val entries = withTimeoutOrNull(TIMEOUT_MS) { HispotiRuntime.api.recents.recentEntries(0, 50).items } ?: return emptyList()
         val title = context.getString(R.string.aa_recent)
         val seen = HashSet<String>()
         return groupRecents(entries).flatMap { it.groups }.filter { it.music }.mapNotNull { g ->
@@ -303,12 +303,12 @@ object AutoBrowser {
         return out
     }
 
-    /** Voice search ("play X on Myspoti"): the best matching track. */
+    /** Voice search ("play X on Hispoti"): the best matching track. */
     suspend fun playFromSearch(query: String): Boolean {
         // A cold start asks before the page is up: waiting gives the answer, returning at
         // once would tell the driver nothing matched.
         if (!awaitPlayer()) {
-            android.util.Log.w("Myspoti", "voice search dropped: the player page is not ready")
+            android.util.Log.w("Hispoti", "voice search dropped: the player page is not ready")
             return false
         }
         val song = (firstResult { Graph.api.searchEverything(query) })?.songs?.firstOrNull() ?: return false
@@ -316,10 +316,10 @@ object AutoBrowser {
         return true
     }
 
-    /** [MyspotiRuntime.api.ready], waited for (bounded) — the page loads after the car connects. */
+    /** [HispotiRuntime.api.ready], waited for (bounded) — the page loads after the car connects. */
     private suspend fun awaitPlayer(): Boolean =
-        MyspotiRuntime.api.ready.value ||
-            withTimeoutOrNull(READY_WAIT_MS) { MyspotiRuntime.api.ready.first { it } } != null
+        HispotiRuntime.api.ready.value ||
+            withTimeoutOrNull(READY_WAIT_MS) { HispotiRuntime.api.ready.first { it } } != null
 
     // ── Playing ──
 
@@ -452,7 +452,7 @@ object AutoBrowser {
  */
 class ArtworkProvider : android.content.ContentProvider() {
     companion object {
-        private val AUTHORITY = app.myspoti.engine.BuildConfig.APPLICATION_ID + ".artwork"
+        private val AUTHORITY = com.phush.hispoti.engine.BuildConfig.APPLICATION_ID + ".artwork"
         private val allowedHosts = setOf("i.scdn.co", "mosaic.scdn.co", "image-cdn-ak.spotifycdn.com", "image-cdn-fa.spotifycdn.com", "thisis-images.spotifycdn.com", "seeded-session-images.scdn.co", "pickasso.spotifycdn.com")
 
         /** A downloaded song's cover: its file (the car is offline), else the CDN image. */

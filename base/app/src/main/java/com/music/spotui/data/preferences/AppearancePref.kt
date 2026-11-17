@@ -57,7 +57,7 @@ object DynamicColorPref {
 }
 
 /**
- * "App font": Myspoti's own fonts (Manrope in the Classic look, Inter in the Immersive one, the
+ * "App font": Hispoti's own fonts (Manrope in the Classic look, Inter in the Immersive one, the
  * default) or the phone's system font. No font is bundled for it: the system one is the phone's.
  */
 object AppFontPref {

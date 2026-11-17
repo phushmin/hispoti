@@ -3,7 +3,7 @@
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/PlayerLyrics.kt at edc1e6f
  * (SweptLyricLine, its drawing helpers and the constants they use) and
  * sharedUi/src/androidMain/kotlin/com/music/bitchord/ui/player/PlayerPlatformUi.android.kt
- * (clipShiftedDown). Modified for Myspoti, 2026-10.
+ * (clipShiftedDown). Modified for Hispoti, 2026-10.
  *
  * Changes: public so the Immersive screens can draw it; drawn from SweptLine (see
  * SweptLyricModel.kt); the translation particles are left out.

@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
-import app.myspoti.engine.R
-import app.myspoti.host.android.Logbook
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.Logbook
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.ui.screens.shareDiagnosticReport
 import com.music.spotui.ui.theme.AppAccent
 import com.music.spotui.ui.theme.AppSans
@@ -40,7 +40,7 @@ import com.music.spotui.ui.theme.AppText
  * with no log at all). What the page shows is noted first, then the usual share sheet.
  */
 fun sendLoginReport(context: android.content.Context) {
-    MyspotiRuntime.host.noteLoginPage {
+    HispotiRuntime.host.noteLoginPage {
         val file = runCatching { Logbook.export(context) }.getOrNull()
         if (file != null) shareDiagnosticReport(context, file)
         else android.widget.Toast.makeText(context, context.getString(R.string.diagnostic_export_failed), android.widget.Toast.LENGTH_SHORT).show()
@@ -83,7 +83,7 @@ fun LoginHelpDialog(onClose: () -> Unit) {
         },
         dismissButton = {
             // A half-finished flow is what Spotify answers "Oops! Something went wrong" to: from nothing.
-            TextButton(onClick = { onClose(); MyspotiRuntime.host.retryLogin() }) {
+            TextButton(onClick = { onClose(); HispotiRuntime.host.retryLogin() }) {
                 Text(stringResource(R.string.login_help_restart), color = AppText)
             }
         },

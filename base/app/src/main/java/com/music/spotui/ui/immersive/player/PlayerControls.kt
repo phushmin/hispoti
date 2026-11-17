@@ -2,7 +2,7 @@
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/PlayerControls.kt and
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/theme/ArtworkPalette.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: the scrubber, transport, volume row, round glyph discs and the bottom row. Quality
  * badges, Automix, lossless, the output/party capsule and the autoplay toggle are left out;
@@ -74,7 +74,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.di.Haptics
 import com.music.spotui.ui.immersive.Immersive
 import com.music.spotui.ui.look.MeshPalette

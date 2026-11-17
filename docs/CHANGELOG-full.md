@@ -1,4 +1,4 @@
-# Myspoti — detailed changelog
+# Hispoti — detailed changelog
 
 Every change, release by release. The short version is in [CHANGELOG.md](../CHANGELOG.md), which the app and the GitHub releases show.
 
@@ -7,14 +7,14 @@ Every change, release by release. The short version is in [CHANGELOG.md](../CHAN
 - **AutoMix**: two decks, a whole-song analysis, and plan-based transitions on by default for the beat blend style, with a switch in Settings (see `docs/automix/`). The largest speed change of a locked mix is 9.5 %. The mixes' EQ is applied, the player's page is kept on a cold start, and the analyses wait for it.
 - **What's New** page behind a bell on Home (PR #162, andreiP4). **`lyrics-romanize` hook** for extensions (PR #165, Illumye), and romanizations set apart from translations (PR #166, Illumye).
 - **Tab bar**: keeps its glass while the tabs change (PR #176, noNameDS09). Classic search hint in the theme's muted colour (PR #170, Ashishranjan980).
-- **Fixes from Discord**: Myspoti shuffle's new order waits for the next song; music paused during a phone call; no "Advertisement" label on extension and local songs; Next on another device stays there; shuffle in the media session; playlist pickers kept across restarts.
+- **Fixes from Discord**: Hispoti shuffle's new order waits for the next song; music paused during a phone call; no "Advertisement" label on extension and local songs; Next on another device stays there; shuffle in the media session; playlist pickers kept across restarts.
 - **Friend activity** in more languages (from PR #126, Raitofod). TV: Ko-fi and GitHub Sponsors as QR codes.
 - Everything else in the short changelog's 2.4.0 section.
 
 ## 2.3.0
 
 - **Repeat**: four modes again (off, all, the song for good, the song once), on Spotify, extension, downloaded and device songs; the mode chosen on an extension song is kept.
-- **Myspoti shuffle** (opt-in): the whole list drawn once (Fisher-Yates, every page loaded first), the tapped song first, the order sent to the page with Spotify's shuffle off; songs tapped or queued go next; a free account that imposes Spotify's shuffle keeps it, with a notice.
+- **Hispoti shuffle** (opt-in): the whole list drawn once (Fisher-Yates, every page loaded first), the tapped song first, the order sent to the page with Spotify's shuffle off; songs tapped or queued go next; a free account that imposes Spotify's shuffle keeps it, with a notice.
 - **Equalizer** (10 bands, preamp, 14 presets, a limiter), speed 0.5-2x and skip silence for everything ExoPlayer plays; byte-exact bypass when off or flat; filters adapted from BitChord (GPL-3.0, see THIRD_PARTY_NOTICES.md). Away from 1x the muted Spotify mirror pauses.
 - **Stats for nerds**: codec, container, sample rate, bit depth, channels, bitrate, file size, buffer, output device and processing for local playback; device, mirror, requested quality and what the page announces for Spotify.
 - **Extension settings in Playback and Downloads**: manifest `section`, `role: "quality"` and `perNetwork` (API.md section 2, feature `settings.section`, `setting` event with `network: true`, runner `--network cell` and `--set key@cell=`); the first source of each order shows its settings, an extension above Spotify hides Spotify's quality rows.
@@ -28,7 +28,7 @@ Every change, release by release. The short version is in [CHANGELOG.md](../CHAN
 - **Background and Cast**: power section and screen-off probes in the diagnostic, failed foreground starts logged, a Samsung "Never sleeping apps" hint, the idle 3 s loop sleeps when nothing plays; Chromecast plays Spotify songs through Spotify's receiver; Cast discovery can no longer stay stuck.
 - **Code audit fixes**: no file purge when the downloads index comes from its backup (unlisted files kept in recovered/), a failed restore of an account's downloads is retried instead of stamped, extension packages and caches written safely, encryption migration and account moves under one lock, sign-out cancels pending transports, bridge calls to a gone page fail at once, stale relay replies ignored, the legacy JS bridge requires a per-page token, https-only navigation, tokens and e-mails masked in logs, Cast covers capped at 5 MB and slow headers timed out, updates pick only their own channel's APK and clean up after a failure. Characterization tests for ads, reloads, the queue sync and the mirror.
 - **Support reminders** every 8 to 12 days, drawn per person.
-- **Releases**: betas tagged in strict semver above the last stable (`tools/check_tag.py`), APKs named `myspoti-beta-*` and `myspoti-stable-*`; Obtainium setup in the README. CONTRIBUTING.md added. Then one APK per ABI, built twice with `-Pabis` under the same versionCode, `myspoti-<beta|stable>-<version>-arm64-v8a.apk` and `-armeabi-v7a.apk` (no x86, no universal APK); the update check takes the first of the phone's `Build.SUPPORTED_ABIS` that has one, an older release's APK without an ABI as before, and no APK for the phone opens the release page; the Discord post links arm64-v8a; Obtainium filters per ABI in the README.
+- **Releases**: betas tagged in strict semver above the last stable (`tools/check_tag.py`), APKs named `hispoti-beta-*` and `hispoti-stable-*`; Obtainium setup in the README. CONTRIBUTING.md added. Then one APK per ABI, built twice with `-Pabis` under the same versionCode, `hispoti-<beta|stable>-<version>-arm64-v8a.apk` and `-armeabi-v7a.apk` (no x86, no universal APK); the update check takes the first of the phone's `Build.SUPPORTED_ABIS` that has one, an older release's APK without an ABI as before, and no APK for the phone opens the release page; the Discord post links arm64-v8a; Obtainium filters per ABI in the README.
 - **Translations**: Brazilian Portuguese (`values-pt-rBR`), and every new string in 10 languages.
 
 ## 2.2.0
@@ -67,7 +67,7 @@ Stable release of the 2.0.2 betas (see [CHANGELOG.md](../CHANGELOG.md) for their
 
 ## 2.0.1
 
-- **402 `COMMAND_FAILED` on every play** (free accounts: Xiaomi Redmi 13 / Indonesia, Samsung A32 / Belarus, issue #55): the same accounts play in Spotui, which sends the Connect commands from the page itself, while Myspoti relays them through OkHttp. A relayed play or transfer answered 402 is now sent once more with the page's own `fetch`; if that one is accepted, the page's commands keep going that way, and only while something plays (checked 10 s later: a command sent from the page can be acknowledged and never delivered). Both refused: the refusal steps run as before. The diagnostic logs the retry's status and whether the page's way was kept.
+- **402 `COMMAND_FAILED` on every play** (free accounts: Xiaomi Redmi 13 / Indonesia, Samsung A32 / Belarus, issue #55): the same accounts play in Spotui, which sends the Connect commands from the page itself, while Hispoti relays them through OkHttp. A relayed play or transfer answered 402 is now sent once more with the page's own `fetch`; if that one is accepted, the page's commands keep going that way, and only while something plays (checked 10 s later: a command sent from the page can be acknowledged and never delivered). Both refused: the refusal steps run as before. The diagnostic logs the retry's status and whether the page's way was kept.
 
 ## Unreleased
 
@@ -97,13 +97,13 @@ Stable release of the 2.0.2 betas (see [CHANGELOG.md](../CHANGELOG.md) for their
   - The skip fade is 3 short steps without a read before them (~0.2 s → ~0.07 s).
   - The hidden page is parked on the settings page (`/preferences`, ~260 nodes): on the home page each song change redrew ~7000 nodes and ~190 images and held the main thread ~1 s. A real Web Player page, so that any reload still boots the player; the host's own reloads load the player's URL.
 - **Debug builds**: `tools/playback_test.py` drives the phone through 14 playback scenarios (debug-only `TestControlReceiver`), and track-playback responses carrying an ad are kept in `cache/ad-samples`.
-- **GitHub Sponsors**: support Myspoti on GitHub Sponsors too, next to Ko-fi (About, Support Myspoti); the About sheet opens in full.
+- **GitHub Sponsors**: support Hispoti on GitHub Sponsors too, next to Ko-fi (About, Support Hispoti); the About sheet opens in full.
 - **Long playlists open and scroll faster**: the list is filtered and sorted again only when the search, the sort or a like changes (not at every recomposition), and rows keep their identity across sorts and filters.
 - **Notification and lock screen no longer churn**: only a real change (song, play/pause, buffering, heart, shuffle) reaches the media session and the notification; the position is extrapolated by the system in between.
 - **Skips a little faster and less work while music plays**: a fade is one call to the page instead of three (the ramp runs in the page while the command is on its way), the volume check comes with the media read instead of polling every 6 s, and the watcher looks every 4 s instead of 2 s when nothing plays.
 - **Hearts (liked states) are asked once**: a page and its prefetch share the same request, and what Spotify confirmed less than a minute ago is not asked again (opening a playlist asked the whole list twice, then again for each page of tracks).
 - **Far fewer calls to the player page**: "ready" is announced once per page load (twice meant every listener of it ran twice: state, token, quality, volume), the web token is fetched once and shared, and the Connect device list is read at most every 6 s in the page instead of every 2 s.
-- **Myspoti's icon in the notification** and in Samsung's Now Bar, instead of a generic music note.
+- **Hispoti's icon in the notification** and in Samsung's Now Bar, instead of a generic music note.
 - **Ads that get through are silent**: they are muted on the page itself, no longer through a Spotify Connect volume command that some accounts refuse (the ad was heard). The song after the ad no longer stays paused.
 - **Previous no longer pauses**: "previous" in the middle of a song restarts it and keeps playing (the skip fade left the sound at zero, and Android's WebView pauses silent media in the background).
 - **Music comes back after a page reload**: when the player page reloads (frozen page, low memory, WebView restart) the song goes on where it was instead of staying paused; a frozen page is caught in a few seconds.
@@ -112,7 +112,7 @@ Stable release of the 2.0.2 betas (see [CHANGELOG.md](../CHANGELOG.md) for their
 - **Shorter silence on ad breaks** (free accounts): about 4 s less.
 - **Skips are about three times faster**: the next song is heard ~0.8 s after the tap instead of ~2.5 s (the next song is loaded ahead, the first tap is sent at once, a shorter fade, and the hidden Spotify page no longer redraws its home screen at every song).
 - **Cover back to its full size** in the player.
-- **Myspoti's buttons play on this phone again** when another device (the Spotify app on the same account, for instance) took playback without being picked in Myspoti: the music comes back here first, instead of driving that device (where skips, previous and volume were refused).
+- **Hispoti's buttons play on this phone again** when another device (the Spotify app on the same account, for instance) took playback without being picked in Hispoti: the music comes back here first, instead of driving that device (where skips, previous and volume were refused).
 - **Faster artist pages and playlists**: an artist seen in the last minutes opens at once (and its releases page too), the discography and a playlist's first songs are asked for together with the page, and your liked songs load once per session instead of on every artist page.
 - **Your liked songs by an artist** come first on its page, above the popular tracks, and open their own page (as in Spotify), where play and shuffle play only them.
 - **Hearts right on long lists**: liked songs of a long playlist (or of an artist's liked songs) no longer show without their heart; the check goes by batches of 50, and an incomplete answer is never kept as "not liked".
@@ -155,14 +155,14 @@ Stable release of the 2.0.2 betas (see [CHANGELOG.md](../CHANGELOG.md) for their
 
 ## 2.0.0-beta.5
 
-- **Downloads are encrypted**: a downloaded song only plays in Myspoti, on the phone that downloaded it. Songs downloaded before are encrypted in the background.
+- **Downloads are encrypted**: a downloaded song only plays in Hispoti, on the phone that downloaded it. Songs downloaded before are encrypted in the background.
 - **The queue of downloaded songs is the real one**: it shows what plays next; moving, removing or skipping songs works offline.
-- **Downloaded songs stay on the phone**: they are no longer reported to Spotify, so playing one never makes the Web Player start the album over it. They count in Myspoti's own Recap.
+- **Downloaded songs stay on the phone**: they are no longer reported to Spotify, so playing one never makes the Web Player start the album over it. They count in Hispoti's own Recap.
 - **Downloads say when the SpotiFLAC verification is missing**, with a banner that opens it.
 - **Updates install in the app**, with a progress bar; the update picks this release's own APK and keeps Android's install confirmation.
 - **Jam QR scan no longer crashes** (the scanner's library lost its constructors in release builds).
-- **Shorter debug logs**: the copied logs keep Myspoti's own lines and crashes only; release (non-beta) builds drop debug logs entirely.
-- **Security**: the artwork provider only serves Spotify CDN images over https (another app could read Myspoti's private files through it); only Android Auto, Assistant, System UI, car and watch apps may browse the media library; Spotify links must be real Spotify hosts; logout also clears the listen history, the download sessions and the Web Player storage.
+- **Shorter debug logs**: the copied logs keep Hispoti's own lines and crashes only; release (non-beta) builds drop debug logs entirely.
+- **Security**: the artwork provider only serves Spotify CDN images over https (another app could read Hispoti's private files through it); only Android Auto, Assistant, System UI, car and watch apps may browse the media library; Spotify links must be real Spotify hosts; logout also clears the listen history, the download sessions and the Web Player storage.
 - **Reliability**: Android Auto's Liked Songs no longer come back empty; library and playlist pages no longer repeat rows; a bridge timeout is reported as an error, not a silent cancel; the newest player state is kept when the app is busy; the SpotiFLAC verification survives a rotation; the Web Player bundles are not downloaded again on every start; disk work left the main thread.
 - **Shuffle-play without a list** queues the shuffled songs (up to 50).
 - **Music videos** are only looked up when the video is on or the player is showing.
@@ -187,22 +187,22 @@ Stable release of the 2.0.2 betas (see [CHANGELOG.md](../CHANGELOG.md) for their
 
 A new engine, written from scratch, and a cleaner app on top of it.
 
-- **Lossless downloads**: the offline downloads are now FLAC. Myspoti finds the same recording on a lossless service (Tidal, Qobuz or Amazon) by the track's ISRC and takes it as it is served, never re-encoded — 16-bit CD quality, **24-bit hi-res when it exists**, or AAC re-encoded on the phone to keep them small (in Settings). Tidal (and Qobuz) come through the same signed servers as SpotiFLAC Mobile's extensions, three songs at a time and three segments per song; the smallest quality takes Tidal's own AAC as it is served. A one-off verification in Settings turns them on. A track with no lossless recording anywhere is marked unavailable.
+- **Lossless downloads**: the offline downloads are now FLAC. Hispoti finds the same recording on a lossless service (Tidal, Qobuz or Amazon) by the track's ISRC and takes it as it is served, never re-encoded — 16-bit CD quality, **24-bit hi-res when it exists**, or AAC re-encoded on the phone to keep them small (in Settings). Tidal (and Qobuz) come through the same signed servers as SpotiFLAC Mobile's extensions, three songs at a time and three segments per song; the smallest quality takes Tidal's own AAC as it is served. A one-off verification in Settings turns them on. A track with no lossless recording anywhere is marked unavailable.
 - **Sound quality, chosen at the start**: a first step after sign-in picks the streaming quality (Automatic, Low 24 kbit/s, Normal 96, High 160) and the download quality (off, smallest AAC 96 kbit/s, FLAC CD, FLAC hi-res). Both stay in the new **Settings** page.
 - **Connect shows your headphones**: with Bluetooth or wired headphones, their name replaces "This phone", a "This phone" row sends the sound back to the speaker, and a Bluetooth button opens the pairing settings. The quality badge opens a small page with what plays now (codec and bitrate) and the setting.
 - **Downloads ask their quality** if you want ("Ask each time"): once for a whole playlist, kept for its new songs.
 - **Liked Songs update at once** after a like or an unlike, without reloading the whole list.
 - **No more "bop" between two songs** on the phone's speaker: the sound output stays awake across the change.
-- **Downloads are encrypted**: a downloaded song only plays in Myspoti, on the phone that downloaded it. Songs downloaded before are encrypted in the background.
+- **Downloads are encrypted**: a downloaded song only plays in Hispoti, on the phone that downloaded it. Songs downloaded before are encrypted in the background.
 - **The queue of downloaded songs is the real one**: it shows what plays next, and moving, removing or skipping songs works offline.
-- **Downloaded songs stay on the phone**: they are no longer reported to Spotify, so playing one never makes the Web Player start the album over it. They count in Myspoti's own Recap.
+- **Downloaded songs stay on the phone**: they are no longer reported to Spotify, so playing one never makes the Web Player start the album over it. They count in Hispoti's own Recap.
 - **Downloads say when the SpotiFLAC verification is missing**, with a banner that opens it.
-- **Shorter debug logs**: the copied logs keep Myspoti's own lines and crashes only.
-- **Updates install in the app**: "Update" downloads the new version with a progress bar and hands it to Android's installer; no trip to GitHub. The first time, Android asks to allow installs from Myspoti.
+- **Shorter debug logs**: the copied logs keep Hispoti's own lines and crashes only.
+- **Updates install in the app**: "Update" downloads the new version with a progress bar and hands it to Android's installer; no trip to GitHub. The first time, Android asks to allow installs from Hispoti.
 - **Haptics work again**: buttons, likes and the debug icon vibrate.
 - **Solid bottom bar** as an option in Settings, Display.
 - **Settings page**: sound quality, downloads, data and battery, display and language, in one place (profile menu or Library's account menu).
-- **Italian**: Myspoti's own texts are translated too.
+- **Italian**: Hispoti's own texts are translated too.
 - **Headphones unplugged or Bluetooth gone**: the music pauses instead of moving to the phone's speaker.
 - **Stuck ads**: an ad that blocks the player is skipped twice, then the player reloads, so the music does not stop for good.
 
@@ -222,7 +222,7 @@ A new engine, written from scratch, and a cleaner app on top of it.
 - **Folders in Local Files**: choose the folders shown; WhatsApp, Telegram, recordings and ringtones start hidden.
 - **Lock screen and Now Bar**: play / pause in the middle (like, previous, play, next, shuffle) and a centred app icon.
 - **New icon**: one green wave line, on the launcher, the launch screen and the status bar.
-- **Beta and release install side by side**: betas are "Myspoti Beta", releases "Myspoti", each with its own updates.
+- **Beta and release install side by side**: betas are "Hispoti Beta", releases "Hispoti", each with its own updates.
 - **Music no longer stops after a few songs**: when the player gets stuck between two songs, the next one starts by itself, and the player reloads if that is not enough.
 - **Smart shuffle** in playlists and Liked Songs (tap shuffle twice): the list shuffled, with a Spotify recommendation every three songs.
 - **Sort by plays in that order**: a sorted playlist plays and queues in the order shown; **date added** joins the sort options.
@@ -245,7 +245,7 @@ A new engine, written from scratch, and a cleaner app on top of it.
 
 ## 1.1.1
 
-- **Data saver** (profile menu): on mobile data Myspoti uses no data at all. Only downloaded songs and Local Files play, downloads wait for Wi-Fi, and the Spotify player comes back on its own on Wi-Fi.
+- **Data saver** (profile menu): on mobile data Hispoti uses no data at all. Only downloaded songs and Local Files play, downloads wait for Wi-Fi, and the Spotify player comes back on its own on Wi-Fi.
 - **Find in a list**: search inside Liked Songs, a playlist or Local Files (title, artist or album).
 - **Your Library**: moving a playlist (hold, then drag) works, in the list and in the grid; the drag stopped as soon as it started.
 - **Settings** open in full, so the list scrolls without moving the sheet.
@@ -254,7 +254,7 @@ A new engine, written from scratch, and a cleaner app on top of it.
 
 - **Downloads**: download a song (from its menu), an album, a playlist or Liked Songs, and listen without a connection, from **Downloaded** in Your Library or from the album or playlist page.
   - The audio comes from YouTube Music, as YouTube serves it (no re-encoding). Each song is checked against the original recording; when none matches, the song is marked as not downloadable instead of saving the wrong one.
-  - Files stay inside Myspoti. A downloaded album or playlist stays in step: songs added to it are downloaded, songs that left it (a renewed Blend, a removed song) are deleted, unless another downloaded list or your own download keeps them.
+  - Files stay inside Hispoti. A downloaded album or playlist stays in step: songs added to it are downloaded, songs that left it (a renewed Blend, a removed song) are deleted, unless another downloaded list or your own download keeps them.
   - Once a list is downloaded, its button becomes a bin. In Downloaded, swipe a song from right to left to remove it, or remove everything from the profile menu.
 - **Folders**: Your Library shows your Spotify folders and opens them level by level. The + at the top creates a playlist, a folder (a real Spotify folder) or a playlist on this device; a folder can be renamed.
 - **Sort and reorder Your Library**: sort by custom order, alphabetical or creator; hold a playlist, then drag it to move it (kept on this phone). Liked Songs, Local Files and Downloaded stay on top.
@@ -267,13 +267,13 @@ A new engine, written from scratch, and a cleaner app on top of it.
 - **Search**: playlists in the results, and filters for songs, artists, albums and playlists.
 - **Podcasts and audiobooks are hidden for now**; they will come back in a later version.
 - **Artist pages**: the whole discography, not only the releases Spotify highlights.
-- **Language**: French on a French phone, English on any other, with no more mixed languages. **App language** in the profile menu picks another one (Spotify's labels are translated, Myspoti's own texts stay in English).
+- **Language**: French on a French phone, English on any other, with no more mixed languages. **App language** in the profile menu picks another one (Spotify's labels are translated, Hispoti's own texts stay in English).
 - **Steadier and lighter player**: the hidden Spotify player stays on a tested version kept on the phone, so a Spotify website update can no longer break the app overnight, and it no longer loads covers, Canvas loops and fonts nobody sees (about half the memory and a quarter of the requests at startup).
 - **Restart the player** in the profile menu, for when the music stops responding.
-- **Battery saver**: Myspoti's own saver is independent of Android's (which already lowers the screen rate) and only follows its switch. The AMOLED theme is its own choice too, and returning to the app no longer looks up a music video for nothing.
+- **Battery saver**: Hispoti's own saver is independent of Android's (which already lowers the screen rate) and only follows its switch. The AMOLED theme is its own choice too, and returning to the app no longer looks up a music video for nothing.
 - **Crossfade**: no background work when it is off, and the setting is kept when the player reloads.
 - **About** in the profile menu: the version, the [Discord server](https://discord.gg/jXKnGVFnGS) and the source code.
-- **Support Myspoti**: Myspoti is free and has no ads; you can now support it on Ko-fi from the profile menu or About. A short reminder appears a day after installing this version, then every 2 weeks; "No thanks" closes it, and nothing is locked behind a donation.
+- **Support Hispoti**: Hispoti is free and has no ads; you can now support it on Ko-fi from the profile menu or About. A short reminder appears a day after installing this version, then every 2 weeks; "No thanks" closes it, and nothing is locked behind a donation.
 - New versions are checked every 3 hours instead of once a day.
 - Your Library still opens Local Files and Downloaded without a connection, and the notification shows the cover of local and downloaded songs.
 
@@ -293,7 +293,7 @@ A new engine, written from scratch, and a cleaner app on top of it.
   - Swiping the app away no longer pauses a Connect device.
   - A Connect session closed by the system no longer pulls playback back to the phone.
 - **Crossfade** (Settings, 0–12 s): the end of a track fades out and the next one fades in.
-- **Background playback**: Myspoti asks once to lift battery optimization, so music and Connect keep going with the screen off. Also in Settings.
+- **Background playback**: Hispoti asks once to lift battery optimization, so music and Connect keep going with the screen off. Also in Settings.
 - **Android Auto** works again: Liked Songs, playlists, albums, artists, search and voice play.
 - **Android 10 and 11** are supported.
 - The update window matches the app's style.
@@ -301,7 +301,7 @@ A new engine, written from scratch, and a cleaner app on top of it.
 ## 1.0.2
 
 - New welcome screen before signing in, and a new crash screen.
-- Every screen follows the phone's language (official labels in 73 languages, English and French for Myspoti's own texts).
+- Every screen follows the phone's language (official labels in 73 languages, English and French for Hispoti's own texts).
 - New icons, new notification icon, older screens removed.
 
 ## 1.0.1

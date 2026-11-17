@@ -35,9 +35,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
-import app.myspoti.extensions.Action
-import app.myspoti.extensions.Area
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.Action
+import com.phush.hispoti.extensions.Area
 import com.music.spotui.extensions.Extensions
 import com.music.spotui.extensions.InstalledExtension
 import com.music.spotui.extensions.SPOTIFY_SOURCE
@@ -119,8 +119,8 @@ private fun Rank(n: Int, look: SourceLook) =
 
 @Composable
 private fun SourceRow(
-    e: InstalledExtension, i: Int, action: Action, error: String?, status: app.myspoti.extensions.ExtensionStatus?,
-    last: app.myspoti.extensions.ActivityLog.Entry?, below: Boolean, look: SourceLook, rowPadding: Modifier, arrows: @Composable () -> Unit, onOpen: () -> Unit,
+    e: InstalledExtension, i: Int, action: Action, error: String?, status: com.phush.hispoti.extensions.ExtensionStatus?,
+    last: com.phush.hispoti.extensions.ActivityLog.Entry?, below: Boolean, look: SourceLook, rowPadding: Modifier, arrows: @Composable () -> Unit, onOpen: () -> Unit,
 ) {
     var open by rememberSaveable(e.id, action.key) { mutableStateOf(false) }
     val pkg = remember(e.id, e.sha256) { Extensions.pkg(e.id) }

@@ -1,9 +1,9 @@
 package com.music.spotui.connect
 
 import android.content.Context
-import app.myspoti.host.android.Logbook
-import app.myspoti.host.android.MyspotiRuntime
-import app.myspoti.spotify.bridge.LogMask
+import com.phush.hispoti.host.android.Logbook
+import com.phush.hispoti.host.android.HispotiRuntime
+import com.phush.hispoti.spotify.bridge.LogMask
 import com.music.spotui.di.Graph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -91,7 +91,7 @@ object ConnectCode {
         private suspend fun subject(s: Strategy): Subject? = when (s) {
             Strategy.DESKTOP_REFRESH -> refreshed(account)
             Strategy.DEVICEAUTH_DESKTOP -> deviceAuth("desktop", CodeExchange.DESKTOP_CLIENT_ID, controllerId)?.let { Subject(it, CodeExchange.DESKTOP_CLIENT_ID, CodeExchange.DESKTOP_USER_AGENT) }
-            Strategy.WEB_WEB -> webToken()?.let { (token, client) -> Subject(token, client, MyspotiRuntime.host.userAgent, web = true) }
+            Strategy.WEB_WEB -> webToken()?.let { (token, client) -> Subject(token, client, HispotiRuntime.host.userAgent, web = true) }
             Strategy.WEB_DESKTOP -> webToken()?.let { (token, _) -> Subject(token, CodeExchange.DESKTOP_CLIENT_ID, CodeExchange.DESKTOP_USER_AGENT) }
             Strategy.DEVICEAUTH_DEVICE -> deviceAuth("device", info.clientId, info.deviceId)?.let { Subject(it, CodeExchange.DESKTOP_CLIENT_ID, CodeExchange.DESKTOP_USER_AGENT) }
             Strategy.DESKTOP_CONSENT -> consented(account, deviceName)
@@ -146,7 +146,7 @@ object ConnectCode {
     /** A token Spotify's device-auth issues for [clientId], as the accesstoken login gets one (through the account's own path). */
     private suspend fun deviceAuth(which: String, clientId: String, deviceId: String): String? {
         if (clientId.isBlank()) return null
-        val auth = MyspotiRuntime.spotify.raw.request("POST", "https://spclient.wg.spotify.com/device-auth/v1/refresh",
+        val auth = HispotiRuntime.spotify.raw.request("POST", "https://spclient.wg.spotify.com/device-auth/v1/refresh",
             JSONObject().put("clientId", clientId).put("deviceId", deviceId).toString().toByteArray(),
             mapOf("content-type" to "text/plain;charset=UTF-8"))
         log("device-auth $which: HTTP ${auth.status}")
@@ -155,7 +155,7 @@ object ConnectCode {
 
     /** The Web Player's token and its client id, from the page; null for an anonymous one. */
     private suspend fun webToken(): Pair<String, String>? {
-        val t = MyspotiRuntime.spotify.bridge.call("token.get").jsonObject
+        val t = HispotiRuntime.spotify.bridge.call("token.get").jsonObject
         if (t["isAnonymous"]?.jsonPrimitive?.contentOrNull == "true") return null
         val token = t["accessToken"]?.jsonPrimitive?.contentOrNull ?: return null
         val client = t["clientId"]?.jsonPrimitive?.contentOrNull ?: return null

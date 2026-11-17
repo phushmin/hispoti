@@ -38,11 +38,11 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.api.ArtistRef
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.ArtistRef
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.navigation.artistRoute
 import kotlinx.coroutines.launch
 
@@ -65,7 +65,7 @@ object ArtistChooser {
     suspend fun artistsOf(trackId: String, fallbackNames: String): List<ArtistRef> {
         synchronized(known) { known[trackId] }?.let { return it }
         val found = if (trackId.isBlank()) null else runCatching {
-            MyspotiRuntime.api.catalog.track("spotify:track:$trackId").artists
+            HispotiRuntime.api.catalog.track("spotify:track:$trackId").artists
         }.getOrNull()?.filter { it.name.isNotBlank() }?.takeIf { it.isNotEmpty() }
         if (found != null) synchronized(known) { known[trackId] = found }
         return found ?: fallbackNames.split(",").map { it.trim() }.filter { it.isNotEmpty() }.map { ArtistRef("", it) }
@@ -74,7 +74,7 @@ object ArtistChooser {
     /** Looks a song's artists up before anyone asks (the playing song). */
     fun prefetch(trackId: String) {
         if (trackId.isBlank() || synchronized(known) { trackId in known }) return
-        MyspotiRuntime.scope.launch { artistsOf(trackId, "") }
+        HispotiRuntime.scope.launch { artistsOf(trackId, "") }
     }
 
     /** Opens the one artist, or the sheet to pick among several. */
@@ -88,7 +88,7 @@ object ArtistChooser {
 
     /** [go] for a song, its artists looked up first. */
     fun goForTrack(trackId: String, fallbackNames: String, navigate: (String) -> Unit) {
-        MyspotiRuntime.scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+        HispotiRuntime.scope.launch(kotlinx.coroutines.Dispatchers.Main) {
             go(artistsOf(trackId, fallbackNames), navigate)
         }
     }
@@ -110,7 +110,7 @@ fun ArtistChooserHost() {
                 // The picture comes in after the name: the sheet opens at once.
                 val picture by produceState<String?>(null, a.uri) {
                     value = if (a.uri.isBlank()) null
-                        else runCatching { MyspotiRuntime.api.catalog.artist(a.uri).images.minByOrNull { it.width ?: Int.MAX_VALUE }?.url }.getOrNull()
+                        else runCatching { HispotiRuntime.api.catalog.artist(a.uri).images.minByOrNull { it.width ?: Int.MAX_VALUE }?.url }.getOrNull()
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

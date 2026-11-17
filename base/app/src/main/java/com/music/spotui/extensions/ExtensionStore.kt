@@ -1,14 +1,14 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.Catalog
-import app.myspoti.extensions.Discovery
-import app.myspoti.extensions.ExtensionException
-import app.myspoti.extensions.GitHubAuth
-import app.myspoti.extensions.CodeHost
-import app.myspoti.extensions.Manifest
-import app.myspoti.extensions.Rating
-import app.myspoti.extensions.Ranking
-import app.myspoti.extensions.Store
+import com.phush.hispoti.extensions.Catalog
+import com.phush.hispoti.extensions.Discovery
+import com.phush.hispoti.extensions.ExtensionException
+import com.phush.hispoti.extensions.GitHubAuth
+import com.phush.hispoti.extensions.CodeHost
+import com.phush.hispoti.extensions.Manifest
+import com.phush.hispoti.extensions.Rating
+import com.phush.hispoti.extensions.Ranking
+import com.phush.hispoti.extensions.Store
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -35,7 +35,7 @@ object ExtensionStore {
      * The official repository: always read, shown only once it lists an extension (never
      * removable). Each extension in it is reviewed (one pull request per extension).
      */
-    const val OFFICIAL_REPO = "https://raw.githubusercontent.com/kota-zo/myspoti-extensions/main/index.json"
+    const val OFFICIAL_REPO = "https://raw.githubusercontent.com/kota-zo/hispoti-extensions/main/index.json"
 
     /** One repository's index: [catalog] once read, [error] if it could not be. */
     data class Repo(val url: String, val catalog: Catalog? = null, val error: String? = null, val loading: Boolean = false)
@@ -90,7 +90,7 @@ object ExtensionStore {
     val ratings = MutableStateFlow<Map<String, Rating>>(emptyMap())
 
     /** Per repository slug, the ids the hosts' searches gave it: compared with those pinned at install ([identityChanged]). */
-    val identities = MutableStateFlow<Map<String, app.myspoti.extensions.RepoIds>>(emptyMap())
+    val identities = MutableStateFlow<Map<String, com.phush.hispoti.extensions.RepoIds>>(emptyMap())
 
     /** Whether the discovery shows another repository or owner id under the slug [e] was installed from. */
     fun identityChanged(e: InstalledExtension): Boolean {

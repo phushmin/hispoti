@@ -41,7 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.preferences.Look
 import com.music.spotui.data.preferences.LookPref
 import com.music.spotui.ui.theme.AppBackground

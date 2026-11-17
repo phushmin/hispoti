@@ -18,7 +18,7 @@ import kotlinx.coroutines.isActive
 @Composable
 fun rememberFrameClock(running: Boolean, fps: Int = 60): State<Long> {
     val clock = remember { mutableLongStateOf(0L) }
-    val energy by app.myspoti.power.EnergySettings.state.collectAsStateWithLifecycle()
+    val energy by com.phush.hispoti.power.EnergySettings.state.collectAsStateWithLifecycle()
     val requestedFps = fps.coerceIn(1, 120)
     val effectiveFps = minOf(requestedFps, energy.policy.progressFps.coerceIn(1, 120))
     val lifecycle = LocalLifecycleOwner.current.lifecycle

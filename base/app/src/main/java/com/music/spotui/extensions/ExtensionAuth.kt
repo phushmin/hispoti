@@ -47,9 +47,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.webkit.ProfileStore
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
-import app.myspoti.engine.R
-import app.myspoti.extensions.AuthRequest
-import app.myspoti.extensions.AuthResult
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.AuthRequest
+import com.phush.hispoti.extensions.AuthResult
 import com.music.spotui.ui.theme.AppMuted
 import com.music.spotui.ui.theme.AppText
 import com.music.spotui.ui.theme.tone
@@ -173,7 +173,7 @@ private fun AuthPage(current: ExtensionAuth.Open) {
 private fun authView(ctx: android.content.Context, o: ExtensionAuth.Open, onHost: (String) -> Unit): WebView {
     val view = WebView(ctx)
     // The sign-in page in the app's language when its site offers it (the WebView's own header
-    // follows the phone, not a language picked in Myspoti).
+    // follows the phone, not a language picked in Hispoti).
     val language = mapOf("Accept-Language" to Extensions.language().let { if (it.contains('-')) "$it,${it.substringBefore('-')};q=0.9" else it } + ",en;q=0.5")
     // Before anything else touches it: this view's cookies and storage are the extension's profile.
     val profile = ExtensionAuth.profile(o.extensionId)

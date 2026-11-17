@@ -2,10 +2,10 @@
  * Adapted from Apple Music TV (https://github.com/JObersi10/apple-music-tv), GPL-3.0,
  * android/app/src/main/java/com/applemusicktv/ui/components/TopNavBar.kt, AlbumCard.kt,
  * SpotlightCards.kt (GradientCard) and Skeleton.kt at 7e5c594.
- * Modified for Myspoti, 2026-11.
+ * Modified for Hispoti, 2026-11.
  *
  * Changes: built on Compose foundation instead of androidx.tv (no new library on weak TVs): the
- * focus scale, white halo and hairline border of tv-material's Card are drawn by hand. Myspoti's
+ * focus scale, white halo and hairline border of tv-material's Card are drawn by hand. Hispoti's
  * accent, Material icons (no SF Symbols), Glide for the covers, no motion artwork, no beat-reactive
  * bars, no settings tab.
  */

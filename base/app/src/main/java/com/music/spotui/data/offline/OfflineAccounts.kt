@@ -1,7 +1,7 @@
 package com.music.spotui.data.offline
 
 import android.content.Context
-import app.myspoti.host.android.Logbook
+import com.phush.hispoti.host.android.Logbook
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

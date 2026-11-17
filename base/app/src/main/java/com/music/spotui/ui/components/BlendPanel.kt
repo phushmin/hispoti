@@ -47,10 +47,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.api.BlendGroup
-import app.myspoti.api.BlendStory
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.BlendGroup
+import com.phush.hispoti.api.BlendStory
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -129,7 +129,7 @@ data class BlendInfo(val story: BlendStory?, val group: BlendGroup?) {
             })
 
         suspend fun load(uri: String): BlendInfo? = coroutineScope {
-            val blends = MyspotiRuntime.api.blends
+            val blends = HispotiRuntime.api.blends
             val story = async { runCatching { blends.story(uri) }.getOrNull() }
             val group = async { runCatching { blends.group(uri) }.getOrNull() }
             BlendInfo(story.await(), group.await())

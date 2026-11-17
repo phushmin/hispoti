@@ -1,7 +1,7 @@
 package com.music.spotui.cli
 
-import app.myspoti.extensions.Hook
-import app.myspoti.extensions.Setting
+import com.phush.hispoti.extensions.Hook
+import com.phush.hispoti.extensions.Setting
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
@@ -27,8 +27,8 @@ class CliTest {
 
     @Test fun parsesEachCommand() {
         assertEquals(CliCommand.Status, CliParser.parse("status", emptyList()))
-        assertEquals(CliCommand.ExtInstall("/sdcard/Android/data/app.myspoti.dev/files/cli/in/x.zip"),
-            CliParser.parse("ext.install", listOf("/sdcard/Android/data/app.myspoti.dev/files/cli/in/x.zip")))
+        assertEquals(CliCommand.ExtInstall("/sdcard/Android/data/com.phush.hispoti.dev/files/cli/in/x.zip"),
+            CliParser.parse("ext.install", listOf("/sdcard/Android/data/com.phush.hispoti.dev/files/cli/in/x.zip")))
         assertEquals(CliCommand.ExtEnable("my.ext", false), CliParser.parse("ext.disable", listOf("my.ext")))
         assertEquals(CliCommand.ExtSetting("my.ext", "quality", "\"high\""), CliParser.parse("ext.setting", listOf("my.ext", "quality", "high")))
         assertEquals(CliCommand.ExtSetting("my.ext", "on", "true"), CliParser.parse("ext.setting", listOf("my.ext", "on", "true")))

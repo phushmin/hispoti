@@ -42,7 +42,7 @@ class OfflineDownloaderTest {
     }
 
     @Test fun filesAreTriedByFitToTheQualityThenRecordingThenOrder() {
-        fun f(format: String, bits: Int? = null, isrc: Boolean = false) = app.myspoti.extensions.DownloadFile(
+        fun f(format: String, bits: Int? = null, isrc: Boolean = false) = com.phush.hispoti.extensions.DownloadFile(
             url = "https://example.com/x.$format", manifest = null, headers = emptyMap(), format = format, bitDepth = bits,
             sampleRate = null, sizeHint = null, provider = null, isrcMatched = isrc)
         val first = listOf(f("m4a"), f("flac", 24))

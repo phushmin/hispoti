@@ -1,10 +1,10 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/MeshGradient.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: the artwork is loaded with Glide and quantised with androidx Palette, as the rest
- * of Myspoti does (di/Palette); "reduce animation" is the system's animator scale; the motion
+ * of Hispoti does (di/Palette); "reduce animation" is the system's animator scale; the motion
  * artwork frame, the watch export and BitChord's own welcome palettes are left out.
  */
 package com.music.spotui.ui.look

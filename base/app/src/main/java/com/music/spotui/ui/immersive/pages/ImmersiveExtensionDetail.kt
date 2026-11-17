@@ -39,11 +39,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
-import app.myspoti.extensions.Category
-import app.myspoti.extensions.Setting
-import app.myspoti.extensions.Store
-import app.myspoti.extensions.StoreAction
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.Category
+import com.phush.hispoti.extensions.Setting
+import com.phush.hispoti.extensions.Store
+import com.phush.hispoti.extensions.StoreAction
 import com.music.spotui.extensions.ExtensionStore
 import com.music.spotui.extensions.ExtensionUpdates
 import com.music.spotui.extensions.Extensions
@@ -200,7 +200,7 @@ fun ImmersiveExtensionEntryScreen(navController: NavController, id: String) {
             }
             row {
                 ImmersiveGroupRow(stringResource(R.string.extension_report), chevron = true, onClick = {
-                    openLink(ctx, app.myspoti.extensions.GitHub.reportUrl(e.id, e.version, e.repo, e.sha256.ifBlank { null }))
+                    openLink(ctx, com.phush.hispoti.extensions.GitHub.reportUrl(e.id, e.version, e.repo, e.sha256.ifBlank { null }))
                 })
             }
         }
@@ -350,7 +350,7 @@ fun ImmersiveExtensionScreen(navController: NavController, id: String) {
             row { ImmersiveGroupRow(stringResource(R.string.extension_update_file), chevron = true, onClick = pickFile) }
             row {
                 ImmersiveGroupRow(stringResource(R.string.extension_report), chevron = true, onClick = {
-                    openLink(ctx, app.myspoti.extensions.GitHub.reportUrl(e.id, e.version, e.origin?.repo, e.sha256))
+                    openLink(ctx, com.phush.hispoti.extensions.GitHub.reportUrl(e.id, e.version, e.origin?.repo, e.sha256))
                 })
             }
             row { ImmersiveGroupRow(stringResource(R.string.extension_uninstall), destructive = true, onClick = { uninstall = true }) }

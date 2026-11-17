@@ -5,7 +5,7 @@ import android.net.Uri
 import android.os.SystemClock
 import android.util.Log
 import android.util.AtomicFile
-import app.myspoti.power.EnergySettings
+import com.phush.hispoti.power.EnergySettings
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.media3.common.MediaItem
@@ -18,8 +18,8 @@ import androidx.media3.exoplayer.dash.DashMediaSource
 import androidx.media3.exoplayer.dash.manifest.DashManifestParser
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import com.music.spotui.di.Graph
-import app.myspoti.host.android.Logbook
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.host.android.Logbook
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.di.SongPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -385,7 +385,7 @@ object MusicVideoController {
                 // YouTube files as an ordinary video can be it (Bu$hi's "6 O'clock").
                 val spotifyHasVideo = async(Dispatchers.IO) {
                     kotlinx.coroutines.withTimeoutOrNull(4_000) {
-                        runCatching { MyspotiRuntime.api.catalog.track("spotify:track:$trackId").hasVideo }.getOrNull()
+                        runCatching { HispotiRuntime.api.catalog.track("spotify:track:$trackId").hasVideo }.getOrNull()
                     } ?: false
                 }
                 val candidates = withContext(Dispatchers.IO) {
@@ -848,7 +848,7 @@ object MusicVideoController {
         Logbook.log(if (on) "clip sound: the clip is heard, the song plays on unheard" else "clip sound: the song is heard")
         // Applied in order, the last wish wins (a quick on/off never leaves the song unheard).
         hushWanted = on
-        scope.launch(Dispatchers.IO) { hushLock.withLock { MyspotiRuntime.spotify.player.setHushed(hushWanted) } }
+        scope.launch(Dispatchers.IO) { hushLock.withLock { HispotiRuntime.spotify.player.setHushed(hushWanted) } }
     }
 
     /**

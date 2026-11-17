@@ -45,10 +45,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.api.UserProfile
-import app.myspoti.api.best
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.UserProfile
+import com.phush.hispoti.api.best
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
@@ -78,10 +78,10 @@ fun ProfileScreen(navController: NavController, userId: String, userName: String
     var attempt by remember(userId) { mutableStateOf(0) }
     LaunchedEffect(userId, attempt) {
         failed = false
-        runCatching { MyspotiRuntime.api.users.profile(uri) }
+        runCatching { HispotiRuntime.api.users.profile(uri) }
             .onSuccess { profile = it }.onFailure { failed = true }
-        if (!me) following = runCatching { MyspotiRuntime.api.users.isFollowing(listOf(uri)).single() }.getOrNull()
-        if (!me) blocked = runCatching { MyspotiRuntime.api.users.isBlocked(uri) }.getOrNull()
+        if (!me) following = runCatching { HispotiRuntime.api.users.isFollowing(listOf(uri)).single() }.getOrNull()
+        if (!me) blocked = runCatching { HispotiRuntime.api.users.isBlocked(uri) }.getOrNull()
     }
     val p = profile
     if (blockAsk) {
@@ -96,7 +96,7 @@ fun ProfileScreen(navController: NavController, userId: String, userName: String
                     blockAsk = false
                     com.music.spotui.di.Haptics.confirm()
                     scope.launch {
-                        runCatching { MyspotiRuntime.api.users.blockUser(uri) }
+                        runCatching { HispotiRuntime.api.users.blockUser(uri) }
                             .onSuccess { blocked = true; following = false }
                             .onFailure { android.widget.Toast.makeText(context, R.string.profile_block_failed, android.widget.Toast.LENGTH_SHORT).show() }
                     }
@@ -132,7 +132,7 @@ fun ProfileScreen(navController: NavController, userId: String, userName: String
                                     menu = false
                                     if (b) scope.launch {
                                         blocked = false
-                                        runCatching { MyspotiRuntime.api.users.unblockUser(uri) }.onFailure {
+                                        runCatching { HispotiRuntime.api.users.unblockUser(uri) }.onFailure {
                                             blocked = true
                                             android.widget.Toast.makeText(context, R.string.profile_block_failed, android.widget.Toast.LENGTH_SHORT).show()
                                         }
@@ -208,7 +208,7 @@ fun ProfileScreen(navController: NavController, userId: String, userName: String
                                 following = !f
                                 scope.launch {
                                     runCatching {
-                                        if (f) MyspotiRuntime.api.users.unfollow(listOf(uri)) else MyspotiRuntime.api.users.follow(listOf(uri))
+                                        if (f) HispotiRuntime.api.users.unfollow(listOf(uri)) else HispotiRuntime.api.users.follow(listOf(uri))
                                     }.onFailure { following = f }
                                 }
                             }

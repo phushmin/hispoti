@@ -1,6 +1,6 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.AudioStream
+import com.phush.hispoti.extensions.AudioStream
 import com.music.spotui.data.entity.SongsModel
 import java.io.IOException
 

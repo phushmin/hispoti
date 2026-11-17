@@ -23,8 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.ui.theme.AppMuted
 import com.music.spotui.ui.theme.AppText
 
@@ -42,7 +42,7 @@ fun LanDeviceRows() {
     }
     // Spotify's consent page, when a Sonos needs it (asked by the login, over the picker).
     DesktopConsentHost()
-    val listed = MyspotiRuntime.spotify.devices.devices.collectAsState().value.filter { !it.local }
+    val listed = HispotiRuntime.spotify.devices.devices.collectAsState().value.filter { !it.local }
     val ids = listed.map { it.id }.toSet()
     val names = listed.map { it.name }.toSet()
     val unlisted = LanDiscovery.devices.filter { !Zeroconf.inConnectList(it.info, ids, names) }

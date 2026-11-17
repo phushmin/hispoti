@@ -1,24 +1,24 @@
-# Driving the app over adb (`tools/myspoti-cli`)
+# Driving the app over adb (`tools/hispoti-cli`)
 
 Debug and beta builds answer a few commands sent over adb, so a test (or an agent) checks a feature
 through the app's own code paths without screenshots or taps. Stable releases leave the receiver
 off in their manifest, and it answers nothing outside debug and beta builds even if turned on.
 
 ```
-tools/myspoti-cli [-p app.myspoti.dev] [-s serial] [-t 40] [--raw] <command> [args…]
+tools/hispoti-cli [-p com.phush.hispoti.dev] [-s serial] [-t 40] [--raw] <command> [args…]
 ```
 
 Each command is one broadcast (`<package>.CLI`, held to the adb shell by the `DUMP` permission).
 The app writes its JSON reply to `/sdcard/Android/data/<package>/files/cli/<request>.json` and to
-logcat under `MyspotiCli`; the script reads it back, prints the `result`, and deletes the file.
+logcat under `HispotiCli`; the script reads it back, prints the `result`, and deletes the file.
 
 Exit codes: `0` ok, `1` the command failed (the app answered an error, on stderr, or no reply in
 time), `2` device unreachable (`adb get-state` is not `device`, or several devices and none named),
 `3` adb failed, `4` the app is not installed (`pm path`), `5` disabled in this build (a stable build
 has no CLI receiver: it leaves the broadcast's result at 0, where the receiver sets 1; `ext.why` is
 debug only). The script always targets one device: `-s` or `ANDROID_SERIAL`, else the only one adb
-lists; with several and none named it refuses. `ADB`, `ANDROID_SERIAL` and `MYSPOTI_PACKAGE` override
-the defaults (the beta is `-p app.myspoti`).
+lists; with several and none named it refuses. `ADB`, `ANDROID_SERIAL` and `HISPOTI_PACKAGE` override
+the defaults (the beta is `-p com.phush.hispoti`).
 
 ## Commands
 
@@ -57,15 +57,15 @@ A sample lyrics extension, from packing to its answer, from the repository root 
 
 ```bash
 cd base && ./gradlew -q :extensions-cli:installDist && cd ..
-base/extensions-cli/build/install/myspoti-ext/bin/myspoti-ext pack docs/extensions/samples/lrclib-lyrics /tmp/myspoti-cli
-tools/myspoti-cli ext.install /tmp/myspoti-cli/app.myspoti.samples.lrclib-*.zip
-tools/myspoti-cli ext.list
-tools/myspoti-cli ext.call app.myspoti.samples.lrclib lyrics '{"title":"Get Lucky","artist":"Daft Punk","durationMs":369000}'
-tools/myspoti-cli ext.log app.myspoti.samples.lrclib 20
-tools/myspoti-cli play spotify:track:69kOkLUCkxIZYexIgSG8rq
-tools/myspoti-cli status
-tools/myspoti-cli ext.disable app.myspoti.samples.lrclib
+base/extensions-cli/build/install/hispoti-ext/bin/hispoti-ext pack docs/extensions/samples/lrclib-lyrics /tmp/hispoti-cli
+tools/hispoti-cli ext.install /tmp/hispoti-cli/com.phush.hispoti.samples.lrclib-*.zip
+tools/hispoti-cli ext.list
+tools/hispoti-cli ext.call com.phush.hispoti.samples.lrclib lyrics '{"title":"Get Lucky","artist":"Daft Punk","durationMs":369000}'
+tools/hispoti-cli ext.log com.phush.hispoti.samples.lrclib 20
+tools/hispoti-cli play spotify:track:69kOkLUCkxIZYexIgSG8rq
+tools/hispoti-cli status
+tools/hispoti-cli ext.disable com.phush.hispoti.samples.lrclib
 ```
 
 In a script, `--raw` prints the whole reply (`{"ok":…,"cmd":…,"result":…}`) and the exit code says
-whether it worked, e.g. `tools/myspoti-cli --raw ext.list | jq '.result[].id'`.
+whether it worked, e.g. `tools/hispoti-cli --raw ext.list | jq '.result[].id'`.

@@ -7,7 +7,7 @@ package com.music.spotui.di
  * A song that follows itself (repeat one, or a queue of one song repeated) is not left to
  * ExoPlayer's own repeat: that plays the song again as a new period of the same item, and with an
  * extension's stream it was seen starting again near the last seek instead of at 0:00 (and earlier
- * on each loop). The player pauses at the song's end instead and Myspoti puts it back at 0:00.
+ * on each loop). The player pauses at the song's end instead and Hispoti puts it back at 0:00.
  *
  * Repeat one loops the song for good, as Spotify's repeat-track does. Repeat once plays the song
  * again one time, then the queue goes on and the mode goes back to off ([atEnd]). A queue of one
@@ -20,14 +20,14 @@ object LocalRepeat {
     const val ONCE = 3
 
     /**
-     * The song pauses at its end for Myspoti to play it again from 0:00 (see the object's note), or,
+     * The song pauses at its end for Hispoti to play it again from 0:00 (see the object's note), or,
      * after repeat once's replay, to go on to the next song ([atEnd]).
      */
     fun loopsSong(mode: Int, items: Int): Boolean = mode == ONE || mode == ONCE || mode == ALL && items == 1
 
     /**
      * The repeat the Web Player is given for [mode]: its repeat-track for both ways of repeating the
-     * song (0 off, 1 the context, 2 the track, as Spotify's Repeat), repeat once being Myspoti's own.
+     * song (0 off, 1 the context, 2 the track, as Spotify's Repeat), repeat once being Hispoti's own.
      */
     fun pageMode(mode: Int): Int = if (mode >= ONCE) ONE else mode.coerceIn(OFF, ONE)
 
@@ -46,7 +46,7 @@ object LocalRepeat {
     enum class End {
         /** The player's own way: the next song, the queue again (repeat all), or the queue's end. */
         NEXT,
-        /** Played again from 0:00 by Myspoti. */
+        /** Played again from 0:00 by Hispoti. */
         REPLAY,
         /** Repeat once and its replay just ended: the mode goes back to off and the queue goes on. */
         ONCE_DONE,

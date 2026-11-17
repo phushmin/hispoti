@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/components/floatingtabbar/GlassSelectionPill.kt at edc1e6f.
- * Modified for Myspoti, 2026-10: the physics ([GlassPillMotion]) is unchanged; the lens that
+ * Modified for Hispoti, 2026-10: the physics ([GlassPillMotion]) is unchanged; the lens that
  * refracts the recorded page ([GlassSelectionPill]) is drawn while Liquid Glass is on, and a
  * plain lifted pill ([LiftedSelectionPill]) stands in for it otherwise.
  */
@@ -517,7 +517,7 @@ internal fun FlatSelectionPill(
  * The lifted pill: the selection fill gives way to a brighter body with a rim and a contact
  * shadow while the pill is picked up, drawn above the bar and free to stand past its edges.
  *
- * Stands in for BitChord's refracting lens (it needs a recorded backdrop that Myspoti does not
+ * Stands in for BitChord's refracting lens (it needs a recorded backdrop that Hispoti does not
  * have). The rim and the shadow are the first things shed on landing, and at the end of that the
  * body is exactly the [fillColor], which is what [FlatSelectionPill] under the tabs draws.
  */

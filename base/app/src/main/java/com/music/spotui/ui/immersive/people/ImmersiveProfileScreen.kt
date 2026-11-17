@@ -43,10 +43,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import app.myspoti.api.UserProfile
-import app.myspoti.api.best
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.UserProfile
+import com.phush.hispoti.api.best
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.di.Haptics
 import com.music.spotui.ui.immersive.Immersive
 import com.music.spotui.ui.immersive.components.ImmersiveButton
@@ -90,10 +90,10 @@ fun ImmersiveProfileScreen(navController: NavController, userId: String, userNam
     var attempt by remember(userId) { mutableStateOf(0) }
     LaunchedEffect(userId, attempt) {
         failed = false
-        runCatching { MyspotiRuntime.api.users.profile(uri) }
+        runCatching { HispotiRuntime.api.users.profile(uri) }
             .onSuccess { profile = it }.onFailure { failed = true }
-        if (!me) following = runCatching { MyspotiRuntime.api.users.isFollowing(listOf(uri)).single() }.getOrNull()
-        if (!me) blocked = runCatching { MyspotiRuntime.api.users.isBlocked(uri) }.getOrNull()
+        if (!me) following = runCatching { HispotiRuntime.api.users.isFollowing(listOf(uri)).single() }.getOrNull()
+        if (!me) blocked = runCatching { HispotiRuntime.api.users.isBlocked(uri) }.getOrNull()
     }
     val p = profile
     val displayName = p?.name?.takeIf { it.isNotBlank() } ?: userName
@@ -182,7 +182,7 @@ fun ImmersiveProfileScreen(navController: NavController, userId: String, userNam
                                         following = !f
                                         scope.launch {
                                             runCatching {
-                                                if (f) MyspotiRuntime.api.users.unfollow(listOf(uri)) else MyspotiRuntime.api.users.follow(listOf(uri))
+                                                if (f) HispotiRuntime.api.users.unfollow(listOf(uri)) else HispotiRuntime.api.users.follow(listOf(uri))
                                             }.onFailure { following = f }
                                         }
                                     },
@@ -235,7 +235,7 @@ fun ImmersiveProfileScreen(navController: NavController, userId: String, userNam
                                     barMenu = false
                                     if (b) scope.launch {
                                         blocked = false
-                                        runCatching { MyspotiRuntime.api.users.unblockUser(uri) }.onFailure {
+                                        runCatching { HispotiRuntime.api.users.unblockUser(uri) }.onFailure {
                                             blocked = true
                                             android.widget.Toast.makeText(context, R.string.profile_block_failed, android.widget.Toast.LENGTH_SHORT).show()
                                         }
@@ -257,7 +257,7 @@ fun ImmersiveProfileScreen(navController: NavController, userId: String, userNam
                 blockAsk = false
                 Haptics.confirm()
                 scope.launch {
-                    runCatching { MyspotiRuntime.api.users.blockUser(uri) }
+                    runCatching { HispotiRuntime.api.users.blockUser(uri) }
                         .onSuccess { blocked = true; following = false }
                         .onFailure { android.widget.Toast.makeText(context, R.string.profile_block_failed, android.widget.Toast.LENGTH_SHORT).show() }
                 }

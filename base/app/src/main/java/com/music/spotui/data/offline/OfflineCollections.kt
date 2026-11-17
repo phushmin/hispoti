@@ -73,8 +73,8 @@ object OfflineCollections {
     /** What the toast says when [trackId] stays on the phone: the downloaded lists (albums, playlists, Liked Songs) that hold it. */
     fun keptMessage(context: Context, trackId: String): String {
         val names = collections.values.filter { trackId in it.trackIds }.mapNotNull { it.name.takeIf(String::isNotBlank) }
-        if (names.isEmpty()) return context.getString(app.myspoti.engine.R.string.download_kept_by_list)
-        return context.getString(app.myspoti.engine.R.string.download_kept_by_named, names.take(3).joinToString(", ") + if (names.size > 3) "…" else "")
+        if (names.isEmpty()) return context.getString(com.phush.hispoti.engine.R.string.download_kept_by_list)
+        return context.getString(com.phush.hispoti.engine.R.string.download_kept_by_named, names.take(3).joinToString(", ") + if (names.size > 3) "…" else "")
     }
 
     @Volatile private var wifiPending = false
@@ -238,7 +238,7 @@ object OfflineCollections {
             JSONObject().put("version", 1).put("lists", lists).put("singles", JSONArray(singles.toList())).toString()
         }
         runCatching { com.music.spotui.data.writeTextSafely(file, text) }
-            .onFailure { app.myspoti.host.android.Logbook.log("offline: downloaded lists not saved: ${it.message}") }
+            .onFailure { com.phush.hispoti.host.android.Logbook.log("offline: downloaded lists not saved: ${it.message}") }
     }
 
     private fun read(text: String) {

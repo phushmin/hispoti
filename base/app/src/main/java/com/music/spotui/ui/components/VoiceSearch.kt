@@ -3,7 +3,7 @@ package com.music.spotui.ui.components
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 
 /**
  * Opens the device's own voice search for music: the exact intent the Google app itself answers

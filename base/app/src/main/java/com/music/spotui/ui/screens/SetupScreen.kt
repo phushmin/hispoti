@@ -76,15 +76,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
-import app.myspoti.power.BatteryExemption
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.power.BatteryExemption
 import com.music.spotui.data.local.LocalMusic
 import com.music.spotui.ui.theme.AppBackground
 import com.music.spotui.ui.immersive.Immersive
 import com.music.spotui.ui.navigation.isImmersive
 
 /**
- * Shown once after signing in: what Myspoti needs from the phone, each with its own button.
+ * Shown once after signing in: what Hispoti needs from the phone, each with its own button.
  * Nothing is required; "Continue" goes on with whatever was allowed.
  */
 object Setup {
@@ -97,7 +97,7 @@ object Setup {
     fun done(context: Context) = prefs(context).edit().putBoolean(KEY, true).apply()
     fun extensionsSeen(context: Context) = prefs(context).getBoolean(EXTENSIONS_KEY, false)
     fun setExtensionsSeen(context: Context) = prefs(context).edit().putBoolean(EXTENSIONS_KEY, true).apply()
-    private fun prefs(context: Context) = context.getSharedPreferences("myspoti_prefs", Context.MODE_PRIVATE)
+    private fun prefs(context: Context) = context.getSharedPreferences("hispoti_prefs", Context.MODE_PRIVATE)
 
     /** A page to open once the app shows (the extensions step's "See the extensions"); taken by [App]. */
     var openAfter: String? = null
@@ -109,7 +109,7 @@ private fun granted(context: Context, permission: String) =
 @Composable
 fun SetupScreen(onDone: () -> Unit) {
     val context = LocalContext.current
-    // How Myspoti works (first setup only), the look, the sound quality, the permissions, then the
+    // How Hispoti works (first setup only), the look, the sound quality, the permissions, then the
     // extensions (last, so the end of the setup leads straight to their page); each skipped when
     // done before an update. Every step after the look is drawn in the look chosen there.
     val needPerms = remember { !Setup.permissionsDone(context) }
@@ -244,7 +244,7 @@ private fun PermissionsStep(onNext: () -> Unit) {
     }
 }
 
-/** Onboarding, step one: how Myspoti streams and saves music (changed later in Settings). */
+/** Onboarding, step one: how Hispoti streams and saves music (changed later in Settings). */
 @Composable
 private fun QualityStep(onNext: () -> Unit) {
     Column(
@@ -259,7 +259,7 @@ private fun QualityStep(onNext: () -> Unit) {
     }
 }
 
-/** First setup, step one: what Myspoti is made of, in three cards. */
+/** First setup, step one: what Hispoti is made of, in three cards. */
 @Composable
 private fun IntroStep(onNext: () -> Unit) {
     Column(

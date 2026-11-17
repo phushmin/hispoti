@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 
 /**
  * Downloads a real release APK and hands it to the package installer. The release is
- * another app id (app.myspoti) than this test build, so the installer must refuse it:
+ * another app id (com.phush.hispoti) than this test build, so the installer must refuse it:
  * that answer proves the download, the session and the status receiver work end to end.
  */
 @RunWith(AndroidJUnit4::class)
@@ -23,7 +23,7 @@ class AppUpdaterTest {
         Thread.sleep(500)
         val release = UpdateChecker.Release(
             "2.0.0-beta.3", "",
-            apkUrl = "https://github.com/kota-zo/myspoti/releases/download/v2.0.0-beta.3/myspoti-2.0.0-beta.3.apk",
+            apkUrl = "https://github.com/kota-zo/hispoti/releases/download/v2.0.0-beta.3/hispoti-2.0.0-beta.3.apk",
         )
         AppUpdater.reset()
         AppUpdater.update(context, release)

@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/screens/HomeScreen.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.screens
 
@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.Features
 import com.music.spotui.data.api.ProfileCache
 import com.music.spotui.data.api.Response
@@ -192,7 +192,7 @@ fun ImmersiveHomeScreen(navController: NavController) {
                     }
                     // Sections from extensions (home.sections), after Spotify's own.
                     item(key = "home:extensions") {
-                        com.music.spotui.extensions.ExtensionBlocks(app.myspoti.extensions.Hook.HOME, app.myspoti.extensions.Surface.HOME, "{}")
+                        com.music.spotui.extensions.ExtensionBlocks(com.phush.hispoti.extensions.Hook.HOME, com.phush.hispoti.extensions.Surface.HOME, "{}")
                     }
                 }
                 home is Response.Loading -> immersiveFeedSkeleton(firstIsHero = true)

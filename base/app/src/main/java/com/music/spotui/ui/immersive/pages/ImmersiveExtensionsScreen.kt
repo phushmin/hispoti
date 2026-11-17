@@ -41,14 +41,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
-import app.myspoti.extensions.Action
-import app.myspoti.extensions.Area
-import app.myspoti.extensions.Catalog
-import app.myspoti.extensions.Category
-import app.myspoti.extensions.Store
-import app.myspoti.extensions.StoreAction
-import app.myspoti.extensions.mode
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.Action
+import com.phush.hispoti.extensions.Area
+import com.phush.hispoti.extensions.Catalog
+import com.phush.hispoti.extensions.Category
+import com.phush.hispoti.extensions.Store
+import com.phush.hispoti.extensions.StoreAction
+import com.phush.hispoti.extensions.mode
 import com.music.spotui.extensions.ExtensionStore
 import com.music.spotui.extensions.Extensions
 import com.music.spotui.extensions.InstalledExtension
@@ -130,7 +130,7 @@ fun ImmersiveExtensionsScreen(navController: NavController) {
     val present = if (tab == 0) (storeSources.flatMap { repos[it]?.catalog?.extensions.orEmpty() } + discovered.map { it.item }).map { it.category() }.toSet()
         else registry.extensions.mapNotNull { Extensions.manifest(it.id)?.category() }.toSet()
     val categories = Category.entries.filter { it in present || it == category }
-    val github = repos[app.myspoti.extensions.Discovery.SOURCE]
+    val github = repos[com.phush.hispoti.extensions.Discovery.SOURCE]
     val githubShown = discovered.filter { Store.matches(it.item, query, category) }
     val hiddenCount = remember(repos, ratings, blocks) { ExtensionStore.hiddenCount() }
     val shown = storeSources.sumOf { url -> repos[url]?.catalog?.extensions?.count { Store.matches(it, query, category) } ?: 0 } +
@@ -190,11 +190,11 @@ fun ImmersiveExtensionsScreen(navController: NavController) {
                     githubShown.forEach { r ->
                         row {
                             val entry = r.item
-                            StoreRow(app.myspoti.extensions.Discovery.SOURCE, entry, Store.action(entry, installedCodes[entry.id], appVersion), entry.id in busy, registry,
+                            StoreRow(com.phush.hispoti.extensions.Discovery.SOURCE, entry, Store.action(entry, installedCodes[entry.id], appVersion), entry.id in busy, registry,
                                 onOpen = { navController.navigate(rowRoute(entry.id, entry.id in installedCodes)) },
-                                onInstall = { scope.launch { installFromStore(ctx, app.myspoti.extensions.Discovery.SOURCE, entry) } },
+                                onInstall = { scope.launch { installFromStore(ctx, com.phush.hispoti.extensions.Discovery.SOURCE, entry) } },
                                 onInstalled = { navController.navigate(installedRoute(entry.id)) },
-                                rating = r.rating, hidden = app.myspoti.extensions.Ranking.hidden(r, blocks, System.currentTimeMillis()) != null)
+                                rating = r.rating, hidden = com.phush.hispoti.extensions.Ranking.hidden(r, blocks, System.currentTimeMillis()) != null)
                         }
                     }
                     if (hiddenCount > 0 || showAll) row {
@@ -259,7 +259,7 @@ fun ImmersiveExtensionsScreen(navController: NavController) {
         scope.launch {
             // A GitHub repository's address: its newest release (or default branch), kept on the phone and updated from there.
             // (GitHub, GitLab or Codeberg; `gitlab:group/name` and `codeberg:owner/name` work too.)
-            val gitHub = app.myspoti.extensions.GitHubRepo.parse(url)?.takeIf { !url.endsWith(".zip") }
+            val gitHub = com.phush.hispoti.extensions.GitHubRepo.parse(url)?.takeIf { !url.endsWith(".zip") }
             runCatching {
                 if (gitHub != null) com.music.spotui.extensions.ExtensionUpdates.fromGitHub(gitHub)
                 else Extensions.downloadPackage(url).let { (zip, p) -> com.music.spotui.extensions.ExtensionUpdates.Fetched(zip, p, null) }
@@ -338,7 +338,7 @@ private fun GitHubHeader(repo: ExtensionStore.Repo, onRefresh: () -> Unit) {
 @Composable
 private fun StoreRow(
     repo: String, e: Catalog.Entry, action: StoreAction, busy: Boolean, registry: Registry,
-    onOpen: () -> Unit, onInstall: () -> Unit, onInstalled: () -> Unit, rating: app.myspoti.extensions.Rating? = null, hidden: Boolean = false,
+    onOpen: () -> Unit, onInstall: () -> Unit, onInstalled: () -> Unit, rating: com.phush.hispoti.extensions.Rating? = null, hidden: Boolean = false,
 ) {
     ImmersiveExtRow(
         onClick = onOpen,
@@ -363,11 +363,11 @@ private fun StoreRow(
  * "Idle" for an exclusive action), and who did what lately, with one-tap turn off.
  */
 private fun LazyListScope.areaSection(
-    area: Area, list: List<InstalledExtension>, errors: Map<String, String>, statuses: Map<String, app.myspoti.extensions.ExtensionStatus>,
+    area: Area, list: List<InstalledExtension>, errors: Map<String, String>, statuses: Map<String, com.phush.hispoti.extensions.ExtensionStatus>,
     updates: Set<String>, enable: (String, Boolean) -> Unit, onOpen: (String) -> Unit,
 ) {
     // The exclusive actions of this area: who acts now.
-    val exclusive = Action.entries.filter { it.area == area && it.mode == app.myspoti.extensions.Mode.EXCLUSIVE }
+    val exclusive = Action.entries.filter { it.area == area && it.mode == com.phush.hispoti.extensions.Mode.EXCLUSIVE }
     immersiveGroup(
         "area:$area",
         headerRes = areaLabel(area),
@@ -433,7 +433,7 @@ private fun AreaActivity(area: Area, enable: (String, Boolean) -> Unit) {
 /** An installed row: icon (a dot when it failed), name, version, its state or description, its action icons, the switch; [extra] under it. */
 @Composable
 private fun InstalledRow(
-    e: InstalledExtension, error: String?, status: app.myspoti.extensions.ExtensionStatus?, update: Boolean,
+    e: InstalledExtension, error: String?, status: com.phush.hispoti.extensions.ExtensionStatus?, update: Boolean,
     enable: (String, Boolean) -> Unit, onOpen: () -> Unit, extra: @Composable () -> Unit = {},
 ) {
     val pkg = remember(e.id, e.sha256) { Extensions.pkg(e.id) }

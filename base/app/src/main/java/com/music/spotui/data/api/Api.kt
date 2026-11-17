@@ -4,19 +4,19 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import android.util.Log
-import app.myspoti.api.Album
-import app.myspoti.api.Artist
-import app.myspoti.api.Image
-import app.myspoti.api.LibraryFilter
-import app.myspoti.api.LocalFile
-import app.myspoti.api.MediaCard
-import app.myspoti.api.MediaKind
-import app.myspoti.api.MyspotiApi
-import app.myspoti.api.Playlist
-import app.myspoti.api.Track
-import app.myspoti.api.best
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.Album
+import com.phush.hispoti.api.Artist
+import com.phush.hispoti.api.Image
+import com.phush.hispoti.api.LibraryFilter
+import com.phush.hispoti.api.LocalFile
+import com.phush.hispoti.api.MediaCard
+import com.phush.hispoti.api.MediaKind
+import com.phush.hispoti.api.HispotiApi
+import com.phush.hispoti.api.Playlist
+import com.phush.hispoti.api.Track
+import com.phush.hispoti.api.best
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.entity.AlbumsModel
 import com.music.spotui.data.entity.ArtistOverviewModel
 import com.music.spotui.data.entity.ArtistTrackUi
@@ -44,13 +44,13 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.contentOrNull
 
 /**
- * The UI's data source, over [MyspotiApi]. Keeps the `Flow<Response<...>>` contract the
+ * The UI's data source, over [HispotiApi]. Keeps the `Flow<Response<...>>` contract the
  * ViewModels use; every call maps the API's models to the UI's ones.
  */
 class Api constructor(
     private val context: android.content.Context = Graph.app,
 ) {
-    private val api: MyspotiApi get() = MyspotiRuntime.api
+    private val api: HispotiApi get() = HispotiRuntime.api
 
     private fun stableId(key: String): Int = key.hashCode() and 0x7fffffff
 
@@ -217,7 +217,7 @@ class Api constructor(
         return LocalFileMatch.resolve(songs, LocalMusic.tracks(context))
     }
 
-    private fun episodeSong(e: app.myspoti.api.Episode): SongsModel {
+    private fun episodeSong(e: com.phush.hispoti.api.Episode): SongsModel {
         val id = e.uri.substringAfterLast(':')
         val show = e.show?.name ?: "Podcast"
         return SongsModel(
@@ -288,7 +288,7 @@ class Api constructor(
      * (home shelves), then Spotify's new-release editorial playlists' albums.
      */
     suspend fun newReleases(): List<AlbumsModel> {
-        val feed = api.home.feed(app.myspoti.api.HomeFilter.MUSIC, itemsPerShelf = 30)
+        val feed = api.home.feed(com.phush.hispoti.api.HomeFilter.MUSIC, itemsPerShelf = 30)
         val albums = feed.shelves.flatMap { it.items }.filter { it.kind == MediaKind.ALBUM }.distinctBy { it.uri }
         return albums.map { c ->
             AlbumsModel(spotifyId = c.uri.substringAfterLast(':'), id = stableId("album:${c.uri}"), artists = c.subtitle.orEmpty(),
@@ -345,8 +345,8 @@ class Api constructor(
      * (a show filed in a folder is only listed inside it), three levels down at most; failing on
      * a first page that fails.
      */
-    private suspend fun readShows(filter: LibraryFilter, folderUri: String? = null, depth: Int = 0): Result<List<app.myspoti.api.LibraryItem>> {
-        val out = ArrayList<app.myspoti.api.LibraryItem>()
+    private suspend fun readShows(filter: LibraryFilter, folderUri: String? = null, depth: Int = 0): Result<List<com.phush.hispoti.api.LibraryItem>> {
+        val out = ArrayList<com.phush.hispoti.api.LibraryItem>()
         val folders = ArrayList<String>()
         var offset = 0
         while (true) {
@@ -473,7 +473,7 @@ class Api constructor(
     /**
      * The show page: header and rows in one flow, so the screen has a single loading state.
      *
-     * A podcast answers [app.myspoti.api.Podcasts.episodes]; a book answers nothing there and
+     * A podcast answers [com.phush.hispoti.api.Podcasts.episodes]; a book answers nothing there and
      * only has chapters, which is why its page used to show a cover and a title and nothing
      * else (B13).
      */
@@ -485,7 +485,7 @@ class Api constructor(
         val rows = ArrayList<SongsModel>()
         var failure: Throwable? = null
         var audiobook = false
-        var book: app.myspoti.api.Audiobook? = null
+        var book: com.phush.hispoti.api.Audiobook? = null
 
         try {
             var offset = 0
@@ -533,8 +533,8 @@ class Api constructor(
 
     private fun pageOf(
         showId: String,
-        head: app.myspoti.api.Show?,
-        book: app.myspoti.api.Audiobook?,
+        head: com.phush.hispoti.api.Show?,
+        book: com.phush.hispoti.api.Audiobook?,
         rows: List<SongsModel>,
         audiobook: Boolean,
     ): ShowPage {
@@ -547,7 +547,7 @@ class Api constructor(
             publisher = head?.publisher?.takeIf { it.isNotBlank() }
                 ?: book?.authors?.joinToString(", ").orEmpty(),
             coverUri = cover,
-            description = head?.description ?: book?.description?.let { app.myspoti.spotify.stripHtml(it) }.orEmpty(),
+            description = head?.description ?: book?.description?.let { com.phush.hispoti.spotify.stripHtml(it) }.orEmpty(),
             rating = head?.rating ?: 0.0,
             saved = head?.saved == true,
             authors = book?.authors.orEmpty(),
@@ -570,7 +570,7 @@ class Api constructor(
      */
     suspend fun setEpisodePlayed(episodeUri: String, played: Boolean) {
         if (episodeUri.isBlank()) return
-        MyspotiRuntime.spotify.raw.service(
+        HispotiRuntime.spotify.raw.service(
             "CollectionPlatformAPI",
             if (played) "add" else "remove",
             kotlinx.serialization.json.JsonPrimitive(MARKED_FINISHED),
@@ -583,7 +583,7 @@ class Api constructor(
         if (!ready()) return emptySet()
         // The page's get() throws on an empty set: that simply means nothing is marked.
         val raw = runCatching {
-            MyspotiRuntime.spotify.raw.service(
+            HispotiRuntime.spotify.raw.service(
                 "CollectionPlatformAPI", "get", kotlinx.serialization.json.JsonPrimitive(MARKED_FINISHED),
             )
         }.getOrNull()
@@ -706,7 +706,7 @@ class Api constructor(
         // The overview carries only part of the discography: the whole list follows.
         // Every page of it (big artists have hundreds of singles), up to a sane cap.
         val all = runCatching {
-            val out = ArrayList<app.myspoti.api.Album>()
+            val out = ArrayList<com.phush.hispoti.api.Album>()
             val first = firstReleases.second.await()
             var offset: Int? = if (first != null) { out += first.items; first.nextOffset.takeIf { first.items.isNotEmpty() } } else 0
             while (offset != null && out.size < DISCOGRAPHY_MAX) {
@@ -878,7 +878,7 @@ class Api constructor(
         api.library.likedTracks(0, 50).items.map { songOf(it.track).copy(addedAt = it.addedAt.orEmpty()) }
 
     private suspend fun allLiked(onPage: suspend (List<SongsModel>) -> Unit): List<SongsModel> {
-        fun songs(p: app.myspoti.api.Page<app.myspoti.api.SavedTrack>) = p.items.map { songOf(it.track).copy(addedAt = it.addedAt.orEmpty()) }
+        fun songs(p: com.phush.hispoti.api.Page<com.phush.hispoti.api.SavedTrack>) = p.items.map { songOf(it.track).copy(addedAt = it.addedAt.orEmpty()) }
         val first = api.library.likedTracks(0, LIKED_PAGE)
         return PagedFetch.inOrder(songs(first), first.total, LIKED_PAGE, fetch = { o -> songs(api.library.likedTracks(o, LIKED_PAGE)) }, onBatch = onPage)
     }
@@ -1039,7 +1039,7 @@ class Api constructor(
 
     // ── Library ──
 
-    private fun entryOf(item: app.myspoti.api.LibraryItem): LibraryEntry? = when (item.kind) {
+    private fun entryOf(item: com.phush.hispoti.api.LibraryItem): LibraryEntry? = when (item.kind) {
         MediaKind.FOLDER -> LibraryEntry(
             spotifyId = item.uri, name = item.name,
             subtitle = context.getString(R.string.create_menu_item_folder_title) + " • " +
@@ -1058,7 +1058,7 @@ class Api constructor(
         else -> null
     }
 
-    private suspend fun libraryLevel(folderUri: String?, filter: LibraryFilter = LibraryFilter.ALL): List<app.myspoti.api.LibraryItem> {
+    private suspend fun libraryLevel(folderUri: String?, filter: LibraryFilter = LibraryFilter.ALL): List<com.phush.hispoti.api.LibraryItem> {
         val first = api.library.items(filter = filter, folderUri = folderUri, offset = 0, limit = 50)
         // 40 pages at most, as before (2,000 items); the rest four at a time instead of one by one.
         return PagedFetch.inOrder(first.items, minOf(first.total, 40 * 50), 50,

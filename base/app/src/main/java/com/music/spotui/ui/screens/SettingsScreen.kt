@@ -56,7 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import kotlinx.coroutines.launch
 import com.music.spotui.ui.components.DownloadQualityPicker
 import com.music.spotui.ui.components.StreamingQualityPicker
@@ -68,7 +68,7 @@ import com.music.spotui.ui.theme.AppBackground
  */
 @Composable
 fun SettingsScreen(navController: NavController) {
-    val energy by app.myspoti.power.EnergySettings.state.collectAsStateWithLifecycle()
+    val energy by com.phush.hispoti.power.EnergySettings.state.collectAsStateWithLifecycle()
     val ctx = androidx.compose.ui.platform.LocalContext.current
     // A page inside Settings (Transitions and AutoMix's options): its own screen, back returns to the tab.
     var sub by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) }
@@ -160,7 +160,7 @@ fun SettingsScreen(navController: NavController) {
             if (tab == 0) {
             Section(R.string.settings_section_playback)
             // An extension above Spotify: its settings, and Spotify's quality (kept, still used for what Spotify plays) leaves.
-            val ext = remember(registry, session) { com.music.spotui.extensions.Extensions.sectionPlacement(app.myspoti.extensions.SettingSection.PLAYBACK) }
+            val ext = remember(registry, session) { com.music.spotui.extensions.Extensions.sectionPlacement(com.phush.hispoti.extensions.SettingSection.PLAYBACK) }
             ext?.let { ExtensionSectionSettings(it) }
             if (ext?.hidesAppQuality != true) {
                 StreamingQualityPicker(title = R.string.quality_streaming_wifi_title)
@@ -179,8 +179,8 @@ fun SettingsScreen(navController: NavController) {
                 onChecked = { com.music.spotui.data.NewReleaseNotifier.setOn(ctx, it) },
             )
             OptionRow(
-                label = stringResource(R.string.myspoti_shuffle_title),
-                detail = stringResource(R.string.myspoti_shuffle_detail),
+                label = stringResource(R.string.hispoti_shuffle_title),
+                detail = stringResource(R.string.hispoti_shuffle_detail),
                 checked = com.music.spotui.data.preferences.AppShufflePref.on,
                 onChecked = { com.music.spotui.data.preferences.AppShufflePref.set(ctx, it) },
             )
@@ -195,24 +195,24 @@ fun SettingsScreen(navController: NavController) {
             }
             // What keeps the music going and what the headset buttons do.
             Section(R.string.settings_section_controls)
-            var keepPlaying by remember { mutableStateOf(app.myspoti.host.android.PlaybackService.keepsPlayingOnClose(ctx)) }
+            var keepPlaying by remember { mutableStateOf(com.phush.hispoti.host.android.PlaybackService.keepsPlayingOnClose(ctx)) }
             OptionRow(
                 label = stringResource(R.string.settings_keep_playing_title),
                 detail = stringResource(R.string.settings_keep_playing_detail),
                 checked = keepPlaying,
-                onChecked = { keepPlaying = it; app.myspoti.host.android.PlaybackService.setKeepsPlayingOnClose(ctx, it) },
+                onChecked = { keepPlaying = it; com.phush.hispoti.host.android.PlaybackService.setKeepsPlayingOnClose(ctx, it) },
             )
-            var headsetSkip by remember { mutableStateOf(app.myspoti.host.android.PlaybackService.skipsOnEpisodes(ctx)) }
+            var headsetSkip by remember { mutableStateOf(com.phush.hispoti.host.android.PlaybackService.skipsOnEpisodes(ctx)) }
             OptionRow(
                 label = stringResource(R.string.settings_headset_skip_title),
                 detail = stringResource(R.string.settings_headset_skip_detail),
                 checked = headsetSkip,
-                onChecked = { headsetSkip = it; app.myspoti.host.android.PlaybackService.setSkipsOnEpisodes(ctx, it) },
+                onChecked = { headsetSkip = it; com.phush.hispoti.host.android.PlaybackService.setSkipsOnEpisodes(ctx, it) },
             )
             // What other devices see of this phone, and a Jam joined here.
             Section(R.string.settings_section_connect)
             // Songs an extension streams, played by Spotify too (unheard): counted there, seen by Connect.
-            if (com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.AUDIO_SOURCE).isNotEmpty())
+            if (com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.AUDIO_SOURCE).isNotEmpty())
                 OptionRow(
                     label = stringResource(R.string.settings_connect_mirror_title),
                     detail = stringResource(R.string.settings_connect_mirror_detail),
@@ -250,7 +250,7 @@ fun SettingsScreen(navController: NavController) {
                 label = stringResource(R.string.energy_saver_title),
                 detail = stringResource(R.string.energy_saver_summary),
                 checked = energy.manualSaver,
-                onChecked = app.myspoti.power.EnergySettings::setSaver,
+                onChecked = com.phush.hispoti.power.EnergySettings::setSaver,
             )
             OptionRow(
                 label = stringResource(R.string.data_saver_title),
@@ -259,9 +259,9 @@ fun SettingsScreen(navController: NavController) {
                 onChecked = com.music.spotui.data.DataSaver::set,
             )
             // Battery optimization off = music and Connect keep going with the screen off.
-            var exempt by remember { androidx.compose.runtime.mutableStateOf(app.myspoti.power.BatteryExemption.isExempt(ctx)) }
+            var exempt by remember { androidx.compose.runtime.mutableStateOf(com.phush.hispoti.power.BatteryExemption.isExempt(ctx)) }
             androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                exempt = app.myspoti.power.BatteryExemption.isExempt(ctx)
+                exempt = com.phush.hispoti.power.BatteryExemption.isExempt(ctx)
             }
             OptionRow(
                 label = stringResource(R.string.background_playback_title),
@@ -269,12 +269,12 @@ fun SettingsScreen(navController: NavController) {
                 checked = exempt,
                 onChecked = {
                     if (exempt) ctx.startActivity(android.content.Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
-                    else app.myspoti.power.BatteryExemption.request(ctx)
+                    else com.phush.hispoti.power.BatteryExemption.request(ctx)
                 },
             )
             // Samsung's "Sleeping apps" is a second list: the app has to be in Never sleeping apps too.
-            if (app.myspoti.power.BatteryExemption.isSamsung()) Column(
-                Modifier.fillMaxWidth().clickable { app.myspoti.power.BatteryExemption.openAppSettings(ctx) }
+            if (com.phush.hispoti.power.BatteryExemption.isSamsung()) Column(
+                Modifier.fillMaxWidth().clickable { com.phush.hispoti.power.BatteryExemption.openAppSettings(ctx) }
                     .padding(horizontal = 20.dp, vertical = 10.dp),
             ) {
                 Text(stringResource(R.string.background_playback_open), color = AppText, fontSize = 16.sp)
@@ -328,15 +328,15 @@ fun SettingsScreen(navController: NavController) {
             if (tab == TAB_DOWNLOADS) {
             Section(R.string.settings_section_downloads)
             // Its role quality takes the place of the app's (kept, and still passed to every extension as `quality`).
-            val ext = remember(registry) { com.music.spotui.extensions.Extensions.sectionPlacement(app.myspoti.extensions.SettingSection.DOWNLOADS) }
+            val ext = remember(registry) { com.music.spotui.extensions.Extensions.sectionPlacement(com.phush.hispoti.extensions.SettingSection.DOWNLOADS) }
             if (ext?.hidesAppQuality != true) DownloadQualityPicker()
             ext?.let { ExtensionSectionSettings(it) }
             // Where downloads come from: the download-source extensions, in the order they are asked.
-            if (com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.DOWNLOAD_SOURCE).isNotEmpty()) Column(
+            if (com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE).isNotEmpty()) Column(
                 Modifier.fillMaxWidth().clickable { tab = TAB_SOURCES }.padding(horizontal = 20.dp, vertical = 10.dp),
             ) {
                 Text(stringResource(R.string.sources_download_title), color = AppText, fontSize = 16.sp)
-                Text(sourceLineSummary(app.myspoti.extensions.Action.DOWNLOAD_SOURCE).orEmpty(), color = AppMuted, fontSize = 12.sp)
+                Text(sourceLineSummary(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE).orEmpty(), color = AppMuted, fontSize = 12.sp)
             }
             else Column(
                 Modifier.fillMaxWidth().clickable { navController.navigate(com.music.spotui.ui.navigation.Routes.Extensions.route) }
@@ -370,14 +370,14 @@ fun SettingsScreen(navController: NavController) {
                 label = stringResource(R.string.settings_amoled_theme),
                 detail = stringResource(R.string.settings_amoled_theme_subtitle),
                 checked = energy.blackPreference,
-                onChecked = app.myspoti.power.EnergySettings::setBlackBackground,
+                onChecked = com.phush.hispoti.power.EnergySettings::setBlackBackground,
             )
             OptionRow(
                 label = stringResource(R.string.settings_item_canvas_title),
                 detail = stringResource(if (energy.policy.saverEnabled) R.string.energy_saver_summary else R.string.video_settings_canvas_subtitle),
                 checked = energy.canvasEnabled && !energy.policy.saverEnabled,
                 enabled = !energy.policy.saverEnabled,
-                onChecked = app.myspoti.power.EnergySettings::setCanvasEnabled,
+                onChecked = com.phush.hispoti.power.EnergySettings::setCanvasEnabled,
             )
             var canvasWifiOnly by remember { mutableStateOf(com.music.spotui.data.preferences.isCanvasWifiOnly(ctx)) }
             OptionRow(
@@ -441,14 +441,14 @@ fun SettingsScreen(navController: NavController) {
             LanguageRow()
             }
             if (tab == TAB_SOURCES) {
-            val anySource = com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.AUDIO_SOURCE).isNotEmpty() ||
-                com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.DOWNLOAD_SOURCE).isNotEmpty()
+            val anySource = com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.AUDIO_SOURCE).isNotEmpty() ||
+                com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE).isNotEmpty()
             if (!anySource) Text(stringResource(R.string.settings_sources_none), color = AppMuted, fontSize = 13.sp,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp))
-            if (com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.AUDIO_SOURCE).isNotEmpty())
-                SourcesBlock(app.myspoti.extensions.Action.AUDIO_SOURCE, navController)
-            if (com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.DOWNLOAD_SOURCE).isNotEmpty())
-                SourcesBlock(app.myspoti.extensions.Action.DOWNLOAD_SOURCE, navController)
+            if (com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.AUDIO_SOURCE).isNotEmpty())
+                SourcesBlock(com.phush.hispoti.extensions.Action.AUDIO_SOURCE, navController)
+            if (com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE).isNotEmpty())
+                SourcesBlock(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE, navController)
             ExtensionSettingsRows(navController)
             // Third-party extensions: lyrics, a song's audio, scripts reacting to the music.
             Column(
@@ -472,7 +472,7 @@ fun SettingsScreen(navController: NavController) {
             // The hidden Web Player stuck or crashed: rebuild it without leaving the app.
             Column(
                 Modifier.fillMaxWidth().clickable {
-                    app.myspoti.host.android.MyspotiRuntime.host.reload()
+                    com.phush.hispoti.host.android.HispotiRuntime.host.reload()
                     // Reported: nothing said the restart happened.
                     android.widget.Toast.makeText(ctx, ctx.getString(R.string.restart_player_done), android.widget.Toast.LENGTH_SHORT).show()
                 }
@@ -485,7 +485,7 @@ fun SettingsScreen(navController: NavController) {
             // adb logcat, which the person reporting the bug cannot run.
             Column(
                 Modifier.fillMaxWidth().clickable {
-                    val file = runCatching { app.myspoti.host.android.Logbook.export(ctx) }.getOrNull()
+                    val file = runCatching { com.phush.hispoti.host.android.Logbook.export(ctx) }.getOrNull()
                     if (file != null) shareDiagnosticReport(ctx, file)
                     else android.widget.Toast.makeText(ctx, ctx.getString(R.string.diagnostic_export_failed), android.widget.Toast.LENGTH_SHORT).show()
                 }.padding(horizontal = 20.dp, vertical = 10.dp),
@@ -538,9 +538,9 @@ private fun ExtensionSettingsRows(navController: NavController) {
 
 /** The order a source action asks extensions in ([SourceOrderList]); nothing without any such extension. */
 @Composable
-private fun SourcesBlock(action: app.myspoti.extensions.Action, navController: NavController) {
+private fun SourcesBlock(action: com.phush.hispoti.extensions.Action, navController: NavController) {
     val registry by com.music.spotui.extensions.Extensions.registry.collectAsStateWithLifecycle()
-    val audio = action == app.myspoti.extensions.Action.AUDIO_SOURCE
+    val audio = action == com.phush.hispoti.extensions.Action.AUDIO_SOURCE
     if (remember(registry) { com.music.spotui.extensions.Extensions.sources(action).isEmpty() }) return
     Section(if (audio) R.string.sources_audio_title else R.string.sources_download_title)
     SourceOrderList(action, spotifyLast = audio, look = SourceLook.Classic, onOpen = { navController.navigate(installedRoute(it)) })
@@ -1045,7 +1045,7 @@ private fun AboutRow() {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(stringResource(R.string.settings_about_version, app.myspoti.engine.BuildConfig.VERSION_NAME), color = AppText, fontSize = 16.sp)
+            Text(stringResource(R.string.settings_about_version, com.phush.hispoti.engine.BuildConfig.VERSION_NAME), color = AppText, fontSize = 16.sp)
             if (known != null) {
                 Text(stringResource(R.string.settings_update_available, known.version), color = com.music.spotui.ui.theme.AppAccent, fontSize = 14.sp,
                     fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 2.dp))
@@ -1074,7 +1074,7 @@ private fun AboutRow() {
 internal fun shareDiagnosticReport(context: android.content.Context, file: java.io.File) {
     val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
         type = "text/plain"
-        putExtra(android.content.Intent.EXTRA_SUBJECT, "Myspoti diagnostic report")
+        putExtra(android.content.Intent.EXTRA_SUBJECT, "Hispoti diagnostic report")
     }
     val uri = runCatching {
         androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
@@ -1084,7 +1084,7 @@ internal fun shareDiagnosticReport(context: android.content.Context, file: java.
         send.putExtra(android.content.Intent.EXTRA_STREAM, uri)
         send.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
     } else {
-        send.putExtra(android.content.Intent.EXTRA_TEXT, "Myspoti diagnostic report: ${file.absolutePath}")
+        send.putExtra(android.content.Intent.EXTRA_TEXT, "Hispoti diagnostic report: ${file.absolutePath}")
     }
     context.startActivity(android.content.Intent.createChooser(send, null).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
 }

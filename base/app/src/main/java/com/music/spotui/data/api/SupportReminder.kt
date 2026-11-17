@@ -20,7 +20,7 @@ import com.music.spotui.data.preferences.LookPref
  * sold): it unlocks cosmetic thank-yous only (accent colour, app icon, badge).
  */
 object SupportReminder {
-    const val URL = "https://ko-fi.com/myspoti"
+    const val URL = "https://ko-fi.com/hispoti"
     /** GitHub Sponsors, the other way to give (monthly or once). */
     const val SPONSORS_URL = "https://github.com/sponsors/kota-zo"
     const val FIRST_AFTER_MS = 24L * 3_600_000
@@ -145,7 +145,7 @@ object SupportReminder {
         prefs(context).edit().putString("icon", value.key).apply()
     }
 
-    private fun aliasOf(a: Accent) = "app.myspoti.engine.ui.Launcher" + a.key.replaceFirstChar { it.uppercase() }
+    private fun aliasOf(a: Accent) = "com.phush.hispoti.engine.ui.Launcher" + a.key.replaceFirstChar { it.uppercase() }
 
     fun open(context: Context) {
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(URL)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

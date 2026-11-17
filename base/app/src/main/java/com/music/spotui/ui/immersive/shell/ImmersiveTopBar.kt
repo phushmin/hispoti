@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/components/FrostedTopBar.kt at edc1e6f
- * (the large page heading is from sharedUi/.../ui/screens/HomeScreen.kt). Modified for Myspoti, 2026-10.
+ * (the large page heading is from sharedUi/.../ui/screens/HomeScreen.kt). Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.shell
 
@@ -59,7 +59,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.immersive.Immersive
 import dev.chrisbanes.haze.HazeState
 

@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipRect
 
 /*
- * The song the look preview plays: written for Myspoti, nothing real in it. The cover is drawn,
+ * The song the look preview plays: written for Hispoti, nothing real in it. The cover is drawn,
  * the words are original and timed by hand, and nothing goes through the network.
  */
 

@@ -1,9 +1,9 @@
 {
-  "id": "app.myspoti.samples.sunsetlook",
+  "id": "com.phush.hispoti.samples.sunsetlook",
   "name": "Sunset look (sample)",
   "version": "1.0.0",
   "versionCode": 1,
-  "author": "Myspoti",
+  "author": "Hispoti",
   "description": "A sample look-only extension: warm colours, no DJ on Home, Library first in the Classic tabs, slightly larger text and a small card on Home.",
   "category": "look",
   "actions": [

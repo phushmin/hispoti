@@ -27,7 +27,7 @@ class HomeViewModel constructor(private val repository: AppRepository = Graph.re
         // A Home that failed (player still signing in, network back) loads again by itself:
         // when the player is ready again, then a few times with growing pauses.
         viewModelScope.launch {
-            app.myspoti.host.android.MyspotiRuntime.api.ready.collect { ready ->
+            com.phush.hispoti.host.android.HispotiRuntime.api.ready.collect { ready ->
                 if (ready && _home.value is Response.Error) fetchHome()
             }
         }

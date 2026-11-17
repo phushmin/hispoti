@@ -5,7 +5,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
 // The last session's queue (and the list it was played in, kept beside it) and the rule that decides who wins at launch, kept pure so they
-// are tested without Android. The song itself lives in SongPlayer's "myspoti_last_track".
+// are tested without Android. The song itself lives in SongPlayer's "hispoti_last_track".
 
 object LastSession {
     /** Where the saved session played: Spotify's own player, or the local player (an extension's stream, a download). */

@@ -60,7 +60,7 @@ fun setStreamingQuality(c: Context, q: StreamingQuality, cellular: Boolean = fal
 
 /** Gives the current network's level to the Web Player (at start and when the network changes); harmless before it is up. */
 fun applyStreamingQuality(c: Context) {
-    val runtime = app.myspoti.host.android.MyspotiRuntime
+    val runtime = com.phush.hispoti.host.android.HispotiRuntime
     if (!runtime.isStarted) return
     val q = getStreamingQuality(c, cellular = com.music.spotui.data.DataSaver.metered)
     runtime.scope.launch { runtime.spotify.player.setAudioQuality(q.level) }

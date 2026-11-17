@@ -1,8 +1,8 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.Manifest
-import app.myspoti.extensions.Setting
-import app.myspoti.extensions.SettingSection
+import com.phush.hispoti.extensions.Manifest
+import com.phush.hispoti.extensions.Setting
+import com.phush.hispoti.extensions.SettingSection
 
 /**
  * The settings an extension announces in a section of the app's Settings (manifest `section`):
@@ -40,7 +40,7 @@ object SectionSettings {
 
     /**
      * The quality the extension [m] is set to for [section], "Quality: FLAC" (its label, its
-     * value), as `myspoti.settings.get` reads it now; null without a `role: quality` there.
+     * value), as `hispoti.settings.get` reads it now; null without a `role: quality` there.
      */
     fun qualityLine(m: Manifest, section: SettingSection, stored: (String) -> String?, metered: Boolean): String? {
         val s = m.qualitySetting(section) ?: return null

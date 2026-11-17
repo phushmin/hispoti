@@ -1,7 +1,7 @@
 package com.music.spotui.di
 
 import android.app.Application
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.api.Api
 import com.music.spotui.ui.repository.AppRepository
 
@@ -15,7 +15,7 @@ object Graph {
         // The data saver first: on a metered network with it on, nothing may go out, not even the page.
         com.music.spotui.data.DataSaver.init(application)
         // The Spotify session: hidden Web Player + API (operation hashes refresh themselves).
-        MyspotiRuntime.start(application, loadPage = !com.music.spotui.data.DataSaver.active)
+        HispotiRuntime.start(application, loadPage = !com.music.spotui.data.DataSaver.active)
         // The streaming quality the user chose, set on the player at every page load.
         com.music.spotui.data.preferences.applyStreamingQuality(application)
         // The crossfade length (0 = off), in the player from the first song on.

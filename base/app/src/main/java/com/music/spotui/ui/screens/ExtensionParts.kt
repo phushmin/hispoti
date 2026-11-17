@@ -74,19 +74,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
-import app.myspoti.extensions.Ask
-import app.myspoti.extensions.Catalog
-import app.myspoti.extensions.Category
-import app.myspoti.extensions.ExtensionPackage
-import app.myspoti.extensions.Clash
-import app.myspoti.extensions.Manifest
-import app.myspoti.extensions.ProtectedSurface
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.Ask
+import com.phush.hispoti.extensions.Catalog
+import com.phush.hispoti.extensions.Category
+import com.phush.hispoti.extensions.ExtensionPackage
+import com.phush.hispoti.extensions.Clash
+import com.phush.hispoti.extensions.Manifest
+import com.phush.hispoti.extensions.ProtectedSurface
 import com.music.spotui.extensions.ProtectedSurfaceEffect
 import com.music.spotui.extensions.actionIcon
 import com.music.spotui.extensions.actionLabel
 import com.music.spotui.extensions.askLabel
-import app.myspoti.extensions.StoreAction
+import com.phush.hispoti.extensions.StoreAction
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.music.spotui.extensions.ExtensionStore
@@ -110,11 +110,11 @@ import kotlinx.coroutines.withContext
 /** The colour of a critical action: the user reads it before ticking that they accept the risk. */
 internal val Warning = Color(0xFFFFA42B)
 
-/** This Myspoti's version name, compared with an extension's `minAppVersion`. */
-internal val appVersion: String get() = app.myspoti.engine.BuildConfig.VERSION_NAME
+/** This Hispoti's version name, compared with an extension's `minAppVersion`. */
+internal val appVersion: String get() = com.phush.hispoti.engine.BuildConfig.VERSION_NAME
 
 /** A package read and waiting for the user's answer in the install prompt; [origin]: its GitHub source. */
-internal class PendingInstall(val zip: ByteArray, val pkg: ExtensionPackage, val source: String, val plan: InstallPlan, val origin: app.myspoti.extensions.Origin? = null)
+internal class PendingInstall(val zip: ByteArray, val pkg: ExtensionPackage, val source: String, val plan: InstallPlan, val origin: com.phush.hispoti.extensions.Origin? = null)
 
 internal val pending = MutableStateFlow<PendingInstall?>(null)
 
@@ -125,12 +125,12 @@ private val installScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.
 internal fun toastError(ctx: Context, t: Throwable) {
     if (t is kotlinx.coroutines.CancellationException) return
     // The whole chain in the log: a cancellation wrapped in another exception still shows here.
-    app.myspoti.host.android.Logbook.log("ext: not installed: " + generateSequence(t) { it.cause }.take(4).joinToString(" <- ") { "${it.javaClass.name}: ${it.message}" })
+    com.phush.hispoti.host.android.Logbook.log("ext: not installed: " + generateSequence(t) { it.cause }.take(4).joinToString(" <- ") { "${it.javaClass.name}: ${it.message}" })
     Toast.makeText(ctx.applicationContext, ctx.getString(R.string.extensions_error, t.message ?: t.toString()), Toast.LENGTH_LONG).show()
 }
 
 /** Reads [zip] and opens the install prompt; a refused package says why. */
-internal fun offer(ctx: Context, zip: ByteArray, source: String, origin: app.myspoti.extensions.Origin? = null) {
+internal fun offer(ctx: Context, zip: ByteArray, source: String, origin: com.phush.hispoti.extensions.Origin? = null) {
     runCatching { ExtensionPackage.read(zip).localized(Extensions.language()) }
         .onSuccess { p -> pending.value = PendingInstall(zip, p, source, Extensions.plan(p), origin) }
         .onFailure { toastError(ctx, it) }
@@ -251,7 +251,7 @@ internal fun InstallPrompt() {
 }
 
 /**
- * "Third-party extension, not reviewed by Myspoti, under its author's responsibility", and the one
+ * "Third-party extension, not reviewed by Hispoti, under its author's responsibility", and the one
  * tick: "I understand this extension is made by a third party and I install it at my own risk".
  * Also on the cards that wait for the user's OK on an installed extension.
  */
@@ -415,7 +415,7 @@ internal fun iconOf(repo: String, e: Catalog.Entry): String? =
 /** `v1.2.0` in a small grey pill. */
 /** "Inactive: <what its status said>": its source does not answer now, the app skips it for songs' audio and downloads. */
 @Composable
-internal fun inactiveLine(s: app.myspoti.extensions.ExtensionStatus): String =
+internal fun inactiveLine(s: com.phush.hispoti.extensions.ExtensionStatus): String =
     s.detail?.let { stringResource(R.string.extension_inactive_detail, it) } ?: stringResource(R.string.extension_inactive)
 
 /**
@@ -423,7 +423,7 @@ internal fun inactiveLine(s: app.myspoti.extensions.ExtensionStatus): String =
  * that it is inactive, else its last error; null when there is nothing to say.
  */
 @Composable
-internal fun stateLine(e: com.music.spotui.extensions.InstalledExtension, error: String?, status: app.myspoti.extensions.ExtensionStatus?): Pair<String, Color>? = when {
+internal fun stateLine(e: com.music.spotui.extensions.InstalledExtension, error: String?, status: com.phush.hispoti.extensions.ExtensionStatus?): Pair<String, Color>? = when {
     e.disabledReason != null -> stringResource(R.string.extension_disabled_reason, e.disabledReason) to Problem
     !e.enabled -> null
     status != null -> inactiveLine(status) to Warning

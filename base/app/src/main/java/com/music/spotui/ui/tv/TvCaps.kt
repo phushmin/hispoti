@@ -3,7 +3,7 @@ package com.music.spotui.ui.tv
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
-import app.myspoti.host.android.Logbook
+import com.phush.hispoti.host.android.Logbook
 
 /**
  * What a TV can carry, measured once at start: its memory, its cores and whether it runs 64-bit
@@ -32,10 +32,10 @@ object TvCaps {
         if (com.music.spotui.automix.AutoMix.on) com.music.spotui.automix.AutoMix.set(false)
         // Looked up for each song, shown by no TV screen.
         if (com.music.spotui.data.preferences.MusicVideoPref.on) com.music.spotui.data.preferences.MusicVideoPref.set(context, false)
-        if (app.myspoti.power.EnergySettings.state.value.canvasEnabled) app.myspoti.power.EnergySettings.setCanvasEnabled(false)
+        if (com.phush.hispoti.power.EnergySettings.state.value.canvasEnabled) com.phush.hispoti.power.EnergySettings.setCanvasEnabled(false)
         // Notifications are not read on a TV.
         if (com.music.spotui.data.NewReleaseNotifier.on) com.music.spotui.data.NewReleaseNotifier.setOn(context, false)
-        if (c.weak && !app.myspoti.power.EnergySettings.state.value.manualSaver) app.myspoti.power.EnergySettings.setSaver(true)
+        if (c.weak && !com.phush.hispoti.power.EnergySettings.state.value.manualSaver) com.phush.hispoti.power.EnergySettings.setSaver(true)
         Logbook.log("tv: ${c.ramMb} MB${if (c.lowRam) " (low RAM)" else ""}, ${c.cores} cores, ${if (c.abi64) "64" else "32"}-bit, Android ${c.sdk}: " +
             "AutoMix, clips, Canvas and release notices off${if (c.weak) ", energy saver on (weak)" else ""}")
     }

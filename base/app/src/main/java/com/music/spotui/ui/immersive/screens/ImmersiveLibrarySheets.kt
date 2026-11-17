@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/screens/LibraryPhoneParts.kt at edc1e6f.
- * The sheets' rows and actions are those of Myspoti's Classic Library screen. Modified for Myspoti, 2026-10.
+ * The sheets' rows and actions are those of Hispoti's Classic Library screen. Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.screens
 
@@ -30,7 +30,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.ProfileCache
 import com.music.spotui.data.entity.AccountModel
 import com.music.spotui.data.local.LibraryOrder

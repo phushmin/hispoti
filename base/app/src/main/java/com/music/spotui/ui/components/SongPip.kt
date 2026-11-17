@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -47,7 +47,7 @@ import com.music.spotui.di.SongPlayer
  * lyrics and the playback buttons (the window's own actions: previous, play/pause, next).
  */
 object SongPip {
-    private const val ACTION = "app.myspoti.PIP_CONTROL"
+    private const val ACTION = "com.phush.hispoti.PIP_CONTROL"
     private const val EXTRA = "what"
 
     /** A card a little taller than wide, like the one shared on Discord. */
@@ -62,10 +62,10 @@ object SongPip {
             .setAspectRatio(RATIO)
             .setActions(
                 listOf(
-                    action(c, 0, app.myspoti.host.android.R.drawable.msp_ic_previous, R.string.pip_previous, "prev"),
-                    if (playing) action(c, 1, app.myspoti.host.android.R.drawable.msp_ic_pause, R.string.pip_pause, "toggle")
-                    else action(c, 1, app.myspoti.host.android.R.drawable.msp_ic_play, R.string.pip_play, "toggle"),
-                    action(c, 2, app.myspoti.host.android.R.drawable.msp_ic_next, R.string.pip_next, "next"),
+                    action(c, 0, com.phush.hispoti.host.android.R.drawable.msp_ic_previous, R.string.pip_previous, "prev"),
+                    if (playing) action(c, 1, com.phush.hispoti.host.android.R.drawable.msp_ic_pause, R.string.pip_pause, "toggle")
+                    else action(c, 1, com.phush.hispoti.host.android.R.drawable.msp_ic_play, R.string.pip_play, "toggle"),
+                    action(c, 2, com.phush.hispoti.host.android.R.drawable.msp_ic_next, R.string.pip_next, "next"),
                 ),
             )
             .build()

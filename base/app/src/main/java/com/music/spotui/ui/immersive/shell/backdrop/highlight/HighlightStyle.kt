@@ -6,9 +6,9 @@
  * against older Compose broke at runtime) and to add a backdrop resolution
  * scale for cheaper effect rendering. KMP expect/actual declarations were
  * merged into this single Android source set. Package renamed accordingly.
- * Myspoti copy taken from BitChord's vendored tree (github.com/kushagrasinghx/BitChord,
+ * Hispoti copy taken from BitChord's vendored tree (github.com/kushagrasinghx/BitChord,
  * app/src/main/java/com/music/bitchord/ui/components/backdrop at edc1e6f), which adds
- * backdropScale and exportedBackdrop to drawBackdrop. Package renamed again for Myspoti.
+ * backdropScale and exportedBackdrop to drawBackdrop. Package renamed again for Hispoti.
  */
 package com.music.spotui.ui.immersive.shell.backdrop.highlight
 

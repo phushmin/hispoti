@@ -1,7 +1,7 @@
 package com.music.spotui.data.api
 
-import app.myspoti.extensions.Outcome
-import app.myspoti.extensions.SourceCooldown
+import com.phush.hispoti.extensions.Outcome
+import com.phush.hispoti.extensions.SourceCooldown
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 

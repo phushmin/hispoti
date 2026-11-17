@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/components/Common.kt (MessageState)
- * and sharedUi/.../ui/components/Skeletons.kt (the Play / Shuffle pair's metrics) at edc1e6f. Modified for Myspoti, 2026-10.
+ * and sharedUi/.../ui/components/Skeletons.kt (the Play / Shuffle pair's metrics) at edc1e6f. Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.components
 
@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.components.GlyphSwap
 import com.music.spotui.ui.immersive.Immersive
 import com.music.spotui.ui.immersive.motion.ImmersiveMotion

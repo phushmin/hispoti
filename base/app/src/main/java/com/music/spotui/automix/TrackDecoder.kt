@@ -23,7 +23,7 @@ import java.nio.ByteOrder
  */
 @androidx.annotation.OptIn(UnstableApi::class)
 object TrackDecoder {
-    const val RATE = app.myspoti.automix.Features.RATE
+    const val RATE = com.phush.hispoti.automix.Features.RATE
     /** Longer songs are not analysed (memory: 4 bytes × 2 signals × 22 050 per second). */
     const val MAX_SECONDS = 15 * 60
 

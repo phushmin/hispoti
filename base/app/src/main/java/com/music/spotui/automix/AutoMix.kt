@@ -5,11 +5,11 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import app.myspoti.automix.Analyzer
-import app.myspoti.automix.BeatThis
-import app.myspoti.automix.MixPlan
-import app.myspoti.automix.MixPlanner
-import app.myspoti.automix.TrackAnalysis
+import com.phush.hispoti.automix.Analyzer
+import com.phush.hispoti.automix.BeatThis
+import com.phush.hispoti.automix.MixPlan
+import com.phush.hispoti.automix.MixPlanner
+import com.phush.hispoti.automix.TrackAnalysis
 import com.music.spotui.di.Graph
 import com.music.spotui.extensions.ExtensionAudio
 import java.io.File
@@ -24,7 +24,7 @@ import java.util.concurrent.Executors
  * [planFor] gives the transition between two analysed songs. LocalPlayer plays it (see its AutoMix part).
  */
 object AutoMix {
-    private const val PREFS = "myspoti_prefs"
+    private const val PREFS = "hispoti_prefs"
     private const val KEY = "automix_on"
 
     /** The setting, Compose state (off by default). */
@@ -141,15 +141,15 @@ object AutoMix {
     val segueActive: Boolean get() = segue && style == 0
 
     /** The policy's decision for two analysed songs. The listener's settings may only tighten its limits. */
-    fun decide(a: TrackAnalysis, b: TrackAnalysis, earliestExit: Double, sameAlbum: Boolean, listener: Float): app.myspoti.automix.segue.SegueDecision {
+    fun decide(a: TrackAnalysis, b: TrackAnalysis, earliestExit: Double, sameAlbum: Boolean, listener: Float): com.phush.hispoti.automix.segue.SegueDecision {
         val s = settings()
-        val d = app.myspoti.automix.segue.SeguePolicy.decide(app.myspoti.automix.segue.SegueRequest(a, b, (earliestExit * 1e6).toLong(),
-            listenerRate = (listener * app.myspoti.automix.segue.SegueFormat.RATE_NOMINAL).toLong(),
+        val d = com.phush.hispoti.automix.segue.SeguePolicy.decide(com.phush.hispoti.automix.segue.SegueRequest(a, b, (earliestExit * 1e6).toLong(),
+            listenerRate = (listener * com.phush.hispoti.automix.segue.SegueFormat.RATE_NOMINAL).toLong(),
             maxRatePpm = (s.maxStretch * 1e6).toLong(), maxBars = s.maxBars, eq = djEq, harmonic = harmonic, sameAlbum = sameAlbum))
         val plan = d.plan ?: return d
-        if (app.myspoti.automix.segue.SegueDeck.playable(plan)) return d
-        return app.myspoti.automix.segue.SegueDecision(app.myspoti.automix.segue.SegueLevel.NORMAL, null,
-            d.attempts + app.myspoti.automix.segue.SegueAttempt(d.level, app.myspoti.automix.segue.SegueCause.INVALID_PLAN, "the engine cannot play it"))
+        if (com.phush.hispoti.automix.segue.SegueDeck.playable(plan)) return d
+        return com.phush.hispoti.automix.segue.SegueDecision(com.phush.hispoti.automix.segue.SegueLevel.NORMAL, null,
+            d.attempts + com.phush.hispoti.automix.segue.SegueAttempt(d.level, com.phush.hispoti.automix.segue.SegueCause.INVALID_PLAN, "the engine cannot play it"))
     }
 
     // ── Why a song is not mixed (for the screens) ──
@@ -197,7 +197,7 @@ object AutoMix {
 
     private val lines = ArrayDeque<String>()
     fun journal(line: String) {
-        app.myspoti.host.android.Logbook.log("automix: $line")
+        com.phush.hispoti.host.android.Logbook.log("automix: $line")
         synchronized(lines) { lines.addLast(line); while (lines.size > 60) lines.removeFirst() }
     }
     fun journalLines(): List<String> = synchronized(lines) { lines.toList() }
@@ -211,7 +211,7 @@ object AutoMix {
     private val asked = HashSet<String>()
     private val retry = AnalysisRetry()
     private val fileVersions = java.util.concurrent.ConcurrentHashMap<String, String>()
-    private val streamKeys = ArrayDeque<Pair<app.myspoti.extensions.AudioStream, String>>()
+    private val streamKeys = ArrayDeque<Pair<com.phush.hispoti.extensions.AudioStream, String>>()
     private val baseKeys = java.util.concurrent.ConcurrentHashMap<String, String>()
     @Volatile private var cacheEpoch = 0L
     /** Songs without an analysis for now, and why (shown through [missing]). */
@@ -275,7 +275,7 @@ object AutoMix {
     private fun waitForThePage() {
         if (pageWaited) return
         val end = android.os.SystemClock.elapsedRealtime() + PAGE_WAIT_MS
-        while (android.os.SystemClock.elapsedRealtime() < end && !runCatching { app.myspoti.host.android.MyspotiRuntime.api.ready.value }.getOrDefault(false)) Thread.sleep(250)
+        while (android.os.SystemClock.elapsedRealtime() < end && !runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.ready.value }.getOrDefault(false)) Thread.sleep(250)
         pageWaited = true
     }
 
@@ -329,7 +329,7 @@ object AutoMix {
      * Saving energy: the app's own energy saver or its data saver applying, the phone's battery
      * saver, or under 20 % and unplugged.
      */
-    internal fun frugal(): Boolean = app.myspoti.power.EnergySettings.state.value.manualSaver || com.music.spotui.data.DataSaver.active || runCatching {
+    internal fun frugal(): Boolean = com.phush.hispoti.power.EnergySettings.state.value.manualSaver || com.music.spotui.data.DataSaver.active || runCatching {
         val power = Graph.app.getSystemService(android.os.PowerManager::class.java)
         val battery = Graph.app.getSystemService(android.os.BatteryManager::class.java)
         power.isPowerSaveMode || (!battery.isCharging && battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) in 0 until 20)

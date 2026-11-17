@@ -263,5 +263,5 @@ object CastServer {
         if (flush) out.flush()
     }
 
-    private fun log(line: String) = app.myspoti.host.android.Logbook.log("cast: $line")
+    private fun log(line: String) = com.phush.hispoti.host.android.Logbook.log("cast: $line")
 }

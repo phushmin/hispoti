@@ -31,7 +31,7 @@ import java.net.URLEncoder
  */
 object LyricsApi {
     private const val LRCLIB = "https://lrclib.net/api"
-    private const val UA = "Myspoti (https://github.com/)"
+    private const val UA = "Hispoti (https://github.com/)"
 
     /** What the resolver needs to know about a track. */
     data class Track(
@@ -611,7 +611,7 @@ object LyricsApi {
     // ── 1. Spotify color-lyrics ──
     private suspend fun fromSpotify(track: Track): Lyrics? {
         if (track.trackId.isBlank()) return null
-        val sp = runCatching { app.myspoti.host.android.MyspotiRuntime.api.extras.lyrics("spotify:track:${track.trackId}") }
+        val sp = runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.extras.lyrics("spotify:track:${track.trackId}") }
             .onFailure { Log.d("LyricsApi", "spotify lyrics miss for ${track.trackId}: ${it.message}") }
             .getOrNull() ?: return null
         if (sp.lines.isEmpty()) return null

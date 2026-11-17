@@ -36,9 +36,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.api.UserRef
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.UserRef
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
@@ -61,7 +61,7 @@ fun FollowListScreen(navController: NavController, userId: String, followers: Bo
     LaunchedEffect(userId, followers) {
         val uri = "spotify:user:$userId"
         people = runCatching {
-            if (followers) MyspotiRuntime.api.users.followers(uri) else MyspotiRuntime.api.users.following(uri)
+            if (followers) HispotiRuntime.api.users.followers(uri) else HispotiRuntime.api.users.following(uri)
         }.getOrDefault(emptyList())
     }
     val list = people

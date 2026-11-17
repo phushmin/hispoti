@@ -3,47 +3,47 @@ package com.music.spotui.extensions
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
-import app.myspoti.extensions.Action
-import app.myspoti.extensions.ActivityLog
-import app.myspoti.extensions.Area
-import app.myspoti.extensions.AudioQuery
-import app.myspoti.extensions.AudioStream
-import app.myspoti.extensions.Blocks
-import app.myspoti.extensions.Clash
-import app.myspoti.extensions.Conflicts
-import app.myspoti.extensions.PageContent
-import app.myspoti.extensions.PlaybackArbiter
-import app.myspoti.extensions.Surface
-import app.myspoti.extensions.SurfaceGuard
-import app.myspoti.extensions.mode
-import app.myspoti.extensions.BasicHttp
-import app.myspoti.extensions.Catalog
-import app.myspoti.extensions.DownloadFile
-import app.myspoti.extensions.DownloadQuery
-import app.myspoti.extensions.PlaybackEvent
-import app.myspoti.extensions.ExtensionException
-import app.myspoti.extensions.ExtensionPackage
-import app.myspoti.extensions.ExtensionRuntime
-import app.myspoti.extensions.Hook
-import app.myspoti.extensions.HookBudgets
-import app.myspoti.extensions.Outcome
-import app.myspoti.extensions.PlayAttempt
-import app.myspoti.extensions.PlayAttempts
-import app.myspoti.extensions.SourceCooldown
-import app.myspoti.extensions.Host
-import app.myspoti.extensions.HttpRequest
-import app.myspoti.extensions.HttpResponse
-import app.myspoti.extensions.LyricsResult
-import app.myspoti.extensions.Romanize
-import app.myspoti.extensions.Manifest
-import app.myspoti.extensions.Snapshot
-import app.myspoti.extensions.SpotifyCall
-import app.myspoti.extensions.SpotifyDispatcher
-import app.myspoti.extensions.SpotifyRaw
-import app.myspoti.extensions.Storage
-import app.myspoti.extensions.TrackInfo
-import app.myspoti.host.android.Logbook
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.extensions.Action
+import com.phush.hispoti.extensions.ActivityLog
+import com.phush.hispoti.extensions.Area
+import com.phush.hispoti.extensions.AudioQuery
+import com.phush.hispoti.extensions.AudioStream
+import com.phush.hispoti.extensions.Blocks
+import com.phush.hispoti.extensions.Clash
+import com.phush.hispoti.extensions.Conflicts
+import com.phush.hispoti.extensions.PageContent
+import com.phush.hispoti.extensions.PlaybackArbiter
+import com.phush.hispoti.extensions.Surface
+import com.phush.hispoti.extensions.SurfaceGuard
+import com.phush.hispoti.extensions.mode
+import com.phush.hispoti.extensions.BasicHttp
+import com.phush.hispoti.extensions.Catalog
+import com.phush.hispoti.extensions.DownloadFile
+import com.phush.hispoti.extensions.DownloadQuery
+import com.phush.hispoti.extensions.PlaybackEvent
+import com.phush.hispoti.extensions.ExtensionException
+import com.phush.hispoti.extensions.ExtensionPackage
+import com.phush.hispoti.extensions.ExtensionRuntime
+import com.phush.hispoti.extensions.Hook
+import com.phush.hispoti.extensions.HookBudgets
+import com.phush.hispoti.extensions.Outcome
+import com.phush.hispoti.extensions.PlayAttempt
+import com.phush.hispoti.extensions.PlayAttempts
+import com.phush.hispoti.extensions.SourceCooldown
+import com.phush.hispoti.extensions.Host
+import com.phush.hispoti.extensions.HttpRequest
+import com.phush.hispoti.extensions.HttpResponse
+import com.phush.hispoti.extensions.LyricsResult
+import com.phush.hispoti.extensions.Romanize
+import com.phush.hispoti.extensions.Manifest
+import com.phush.hispoti.extensions.Snapshot
+import com.phush.hispoti.extensions.SpotifyCall
+import com.phush.hispoti.extensions.SpotifyDispatcher
+import com.phush.hispoti.extensions.SpotifyRaw
+import com.phush.hispoti.extensions.Storage
+import com.phush.hispoti.extensions.TrackInfo
+import com.phush.hispoti.host.android.Logbook
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.entity.Lyrics
 import com.music.spotui.di.SongPlayer
 import kotlinx.coroutines.flow.first
@@ -94,7 +94,7 @@ object Extensions {
      */
     class NotAnswering(message: String, val sources: List<String> = emptyList()) : java.io.IOException(message)
 
-    // Every hook's time is in [HookBudgets], shared with the desktop runner (`myspoti-ext`).
+    // Every hook's time is in [HookBudgets], shared with the desktop runner (`hispoti-ext`).
     /** A lyrics hook call. */
     const val LYRICS_MS = HookBudgets.LYRICS
     /** A lyrics-romanize hook call. */
@@ -256,11 +256,11 @@ object Extensions {
     // ── Writes allowed for good ──
 
     /** Keeps [g] for [id]: its `raw.request` writes [g] covers run without asking. */
-    fun addRawGrant(id: String, g: app.myspoti.extensions.RawGrant) = update { r ->
+    fun addRawGrant(id: String, g: com.phush.hispoti.extensions.RawGrant) = update { r ->
         r.find(id)?.let { e -> if (g in e.rawGrants) r else r.put(e.copy(rawGrants = e.rawGrants + g)) } ?: r
     }.also { log(id, "always allowed: $g") }
 
-    fun revokeRawGrant(id: String, g: app.myspoti.extensions.RawGrant) = update { r ->
+    fun revokeRawGrant(id: String, g: com.phush.hispoti.extensions.RawGrant) = update { r ->
         r.find(id)?.let { e -> r.put(e.copy(rawGrants = e.rawGrants - g)) } ?: r
     }.also { log(id, "no longer allowed: $g") }
 
@@ -316,7 +316,7 @@ object Extensions {
 
     /**
      * The language the app shows, as a BCP 47 tag: the one picked in the settings, else the app's
-     * configuration (the phone's, or on Android 13+ the per-app one). What `myspoti.locale` gives
+     * configuration (the phone's, or on Android 13+ the per-app one). What `hispoti.locale` gives
      * and what manifests are shown in ([Manifest.localized]).
      */
     fun language(): String = if (!::ctx.isInitialized) java.util.Locale.getDefault().toLanguageTag()
@@ -353,10 +353,10 @@ object Extensions {
     suspend fun install(
         zip: ByteArray, p: ExtensionPackage, granted: Set<String>, source: String,
         clashes: List<Clash> = emptyList(), keepNew: (Clash) -> Boolean = { true }, noticeAccepted: Boolean = true,
-        origin: app.myspoti.extensions.Origin? = null, accepted: Boolean = true,
+        origin: com.phush.hispoti.extensions.Origin? = null, accepted: Boolean = true,
     ) = withContext(Dispatchers.IO) {
         val id = p.manifest.id
-        ExtensionUpdates.blocked(id, p.sha256)?.let { throw ExtensionException("blocked by Myspoti: ${it.reason.ifBlank { "no reason given" }}") }
+        ExtensionUpdates.blocked(id, p.sha256)?.let { throw ExtensionException("blocked by Hispoti: ${it.reason.ifBlank { "no reason given" }}") }
         // Under the extension's start lock: a start racing this update never sees the new package
         // beside the old entry (it read as "changed on the phone" and turned the extension off).
         val (e, before) = synchronized(startLocks.getOrPut(id) { Any() }) {
@@ -389,7 +389,7 @@ object Extensions {
                 lastCheck = before?.lastCheck ?: 0,
                 // The writes it declared are allowed with the install (shown under spotify.raw before it).
                 rawGrants = (before?.rawGrants.orEmpty() +
-                    if (app.myspoti.extensions.Action.SPOTIFY_RAW.key in granted) p.manifest.declaredWrites() else emptyList()).distinct(),
+                    if (com.phush.hispoti.extensions.Action.SPOTIFY_RAW.key in granted) p.manifest.declaredWrites() else emptyList()).distinct(),
             )
             // A fresh install is asked first wherever it acts; an update keeps the user's order.
             update { r -> r.put(e).let { if (before == null) it.firstOnInstall(id, p.manifest) else it } }
@@ -418,7 +418,7 @@ object Extensions {
     fun setEnabled(id: String, on: Boolean, clashes: List<Clash> = emptyList(), keepNew: (Clash) -> Boolean = { true }) = scope.launch {
         val e = _registry.value.find(id) ?: return@launch
         if (on) {
-            ExtensionUpdates.blocked(id, e.sha256)?.let { return@launch disable(id, "blocked by Myspoti: ${it.reason.ifBlank { "no reason given" }}") }
+            ExtensionUpdates.blocked(id, e.sha256)?.let { return@launch disable(id, "blocked by Hispoti: ${it.reason.ifBlank { "no reason given" }}") }
             // The user kept the one it conflicts with: it stays off.
             if (Clashes.apply(_registry.value, id, clashes, keepNew).second) return@launch
             update { Clashes.apply(it, id, clashes, keepNew).first }
@@ -451,13 +451,13 @@ object Extensions {
 
     /**
      * [json]: the value as JSON text, null to go back to the manifest's default. [key] may be a
-     * per-network setting's mobile data value ([app.myspoti.extensions.Setting.cellKey]): the
+     * per-network setting's mobile data value ([com.phush.hispoti.extensions.Setting.cellKey]): the
      * extension hears of its own key.
      */
     fun setSetting(id: String, key: String, json: String?) {
         val s = settingsOf(id)
         if (json == null) s.remove(key) else s.set(key, json)
-        val base = app.myspoti.extensions.Setting.baseKey(key)
+        val base = com.phush.hispoti.extensions.Setting.baseKey(key)
         // Typing changes a text field at each key: the extension hears of it once the user pauses.
         settingJobs.remove("$id\u0000$base")?.cancel()
         settingJobs["$id\u0000$base"] = scope.launch { kotlinx.coroutines.delay(SETTING_PAUSE_MS); sendSetting(id, base, pressed = false) }
@@ -479,12 +479,12 @@ object Extensions {
      * The extension settings shown in [section] of Settings, and whether the app's own quality
      * gives way to them ([SectionSettings]); null: the section is as it always was.
      */
-    fun sectionPlacement(section: app.myspoti.extensions.SettingSection): SectionPlacement? = _registry.value.let { r ->
+    fun sectionPlacement(section: com.phush.hispoti.extensions.SettingSection): SectionPlacement? = _registry.value.let { r ->
         SectionSettings.place(section, line(r, section.action), { r.find(it)?.enabled == true }, ::manifest)
     }
 
     /** What [id]'s own quality setting for [section] is now ("Quality: FLAC"), or null without one. */
-    fun qualityLine(id: String?, section: app.myspoti.extensions.SettingSection): String? {
+    fun qualityLine(id: String?, section: com.phush.hispoti.extensions.SettingSection): String? {
         val m = id?.let(::manifest) ?: return null
         return runCatching { SectionSettings.qualityLine(m, section, settingsOf(id)::get, com.music.spotui.data.DataSaver.metered) }.getOrNull()
     }
@@ -515,7 +515,7 @@ object Extensions {
 
     /**
      * The running extensions providing [hook], in their area's priority order (a source: in the
-     * user's order for it, [sources]). An exclusive action ([app.myspoti.extensions.Mode.EXCLUSIVE])
+     * user's order for it, [sources]). An exclusive action ([com.phush.hispoti.extensions.Mode.EXCLUSIVE])
      * has one: the one the user made active, else the first.
      */
     private fun providing(hook: Hook): List<Pair<String, ExtensionRuntime>> = _registry.value.let { r ->
@@ -524,10 +524,10 @@ object Extensions {
         // A source whose last `status` said it does not answer is skipped: the next one, or Spotify, plays.
         val skip = { id: String -> hook in SOURCE_HOOKS && health.inactive(id) }
         // A source: the extensions above Spotify only (all of them while Spotify is last).
-        val ordered = if (action?.mode == app.myspoti.extensions.Mode.ORDERED) line(r, action).takeWhile { it != SPOTIFY_SOURCE }.mapNotNull(r::find)
+        val ordered = if (action?.mode == com.phush.hispoti.extensions.Mode.ORDERED) line(r, action).takeWhile { it != SPOTIFY_SOURCE }.mapNotNull(r::find)
             else r.byPriority(area, r.extensions) { it.id }
         val all = ordered.mapNotNull { e -> runtimes[e.id]?.takeIf { e.enabled && it.provides(hook) && !skip(e.id) }?.let { e.id to it } }
-        if (action == null || action.mode != app.myspoti.extensions.Mode.EXCLUSIVE) all
+        if (action == null || action.mode != com.phush.hispoti.extensions.Mode.EXCLUSIVE) all
         else Conflicts.activeFor(all.map { it.first }, r.active[action.key]).let { one -> all.filter { it.first == one } }
     }
 
@@ -616,7 +616,7 @@ object Extensions {
     // ── Silent Spotify mirror (player.setLocalMute, playback.mirror) ──
 
     /** The host's rules for the mute; the app feeds it the local player's state. */
-    val mirror = app.myspoti.extensions.MirrorGuard()
+    val mirror = com.phush.hispoti.extensions.MirrorGuard()
 
     /** Name of the extension keeping Spotify muted now (the players show "Spotify mirrored by <name>"). */
     val mirrorBy = MutableStateFlow<String?>(null)
@@ -678,7 +678,7 @@ object Extensions {
     val suspendedNotice = MutableStateFlow<Pair<String, String>?>(null)
 
     /** An extension just installed for the first time, and its welcome (`welcome` in its manifest). */
-    val welcome = MutableStateFlow<Pair<String, app.myspoti.extensions.Welcome>?>(null)
+    val welcome = MutableStateFlow<Pair<String, com.phush.hispoti.extensions.Welcome>?>(null)
 
     private val arbiter = PlaybackArbiter({ id -> byArea()[Area.PLAYBACK].orEmpty().indexOfFirst { it.id == id }.let { if (it < 0) Int.MAX_VALUE else it } })
 
@@ -710,7 +710,7 @@ object Extensions {
 
     // ── Blocks, pages and taps ──
 
-    /** Bumped when an extension asks for its blocks to be asked again (`myspoti.ui.refresh`). */
+    /** Bumped when an extension asks for its blocks to be asked again (`hispoti.ui.refresh`). */
     val blocksTick = MutableStateFlow(0L)
 
     /** The blocks the extensions draw on [surface] for [input], merged (de-duplicated, quotas) in their area's order. */
@@ -769,7 +769,7 @@ object Extensions {
     fun hasAudioSource(): Boolean {
         providedState.value
         // A Jam member's songs play on the host's device, sent there by Spotify: none through an extension here.
-        if (app.myspoti.host.android.MyspotiRuntime.isStarted && app.myspoti.host.android.MyspotiRuntime.spotify.jam.member) return false
+        if (com.phush.hispoti.host.android.HispotiRuntime.isStarted && com.phush.hispoti.host.android.HispotiRuntime.spotify.jam.member) return false
         return isReady && (providing(Hook.AUDIO_SOURCE).isNotEmpty() || startingAudioSource())
     }
 
@@ -800,7 +800,7 @@ object Extensions {
         }
 
     /** What [id]'s last `status` probe said (null: not probed yet), for the adb CLI. */
-    fun statusOf(id: String): app.myspoti.extensions.ExtensionStatus? = health.last(id)
+    fun statusOf(id: String): com.phush.hispoti.extensions.ExtensionStatus? = health.last(id)
 
     /** An enabled extension gives songs' download files (without one, downloads say to install one). */
     fun hasDownloadSource(): Boolean { providedState.value; return isReady && (providing(Hook.DOWNLOAD_SOURCE).isNotEmpty() || startingDownloadSource()) }
@@ -947,7 +947,7 @@ object Extensions {
         val withIsrc = withIsrc(track)
         // Without it the sources would say "not found" (they match by it): not a miss of the song,
         // nothing recorded, the caller falls back for now and the song is asked again later.
-        if (withIsrc.isrc.isNullOrBlank() && !app.myspoti.host.android.MyspotiRuntime.api.ready.value) {
+        if (withIsrc.isrc.isNullOrBlank() && !com.phush.hispoti.host.android.HispotiRuntime.api.ready.value) {
             attempts.update(attempt) { it.copy(fallback = "Spotify: no ISRC yet (Spotify not ready)") }
             return null
         }
@@ -987,7 +987,7 @@ object Extensions {
         val (c, a) = found
         log(c.first, "audio for ${track.title} ($ms ms)")
         did(Area.AUDIO, c.first, "Audio of ${track.title} from ${c.second.manifest.name}")
-        val own = qualityLine(c.first, app.myspoti.extensions.SettingSection.PLAYBACK)
+        val own = qualityLine(c.first, com.phush.hispoti.extensions.SettingSection.PLAYBACK)
         attempts.update(attempt) { it.copy(asked = all, chosen = c.first, announced = a.qualityLabel(), sourceQuality = own) }
         return a.copy(providerId = c.first)
     }
@@ -1017,7 +1017,7 @@ object Extensions {
         misses.forget(track.id)
         log(id, "audio for ${track.title} (${a.ms} ms, picked in the player)")
         did(Area.AUDIO, id, "Audio of ${track.title} from ${rt.manifest.name}")
-        val own = qualityLine(id, app.myspoti.extensions.SettingSection.PLAYBACK)
+        val own = qualityLine(id, com.phush.hispoti.extensions.SettingSection.PLAYBACK)
         attempts.update(attempt) { it.copy(asked = asked, chosen = id, announced = found.qualityLabel(), sourceQuality = own) }
         return found.copy(providerId = id)
     }
@@ -1047,7 +1047,7 @@ object Extensions {
         // for Spotify to be ready instead.
         val known = isrcs[track.id] ?: savedIsrc(track.id)?.also { isrcs[track.id] = it } ?: runCatching {
             kotlinx.coroutines.withTimeout(ISRC_WAIT_MS) {
-                val api = app.myspoti.host.android.MyspotiRuntime.api
+                val api = com.phush.hispoti.host.android.HispotiRuntime.api
                 api.ready.first { it }
                 api.catalog.isrc("spotify:track:${track.id}")
             }
@@ -1120,11 +1120,11 @@ object Extensions {
             val out = try { raw?.let(parse) } catch (e: ExtensionException) { log(id, "failed: ${e.message}"); throw e }
             failures.succeeded(id)
             return out to (if (out != null) Outcome.Found else Outcome.NotFound)
-        } catch (e: app.myspoti.extensions.ExtensionBusy) {
+        } catch (e: com.phush.hispoti.extensions.ExtensionBusy) {
             // It was still busy (a slow lookup before): not its fault, nothing counted.
             log(id, "${hook.key} skipped: ${e.message}")
             return null to Outcome.of(e)
-        } catch (e: app.myspoti.extensions.ExtensionFault) {
+        } catch (e: com.phush.hispoti.extensions.ExtensionFault) {
             // Out of memory, stack overflow, engine crash: turned off at once, the app goes on.
             if (!rt.closed) disable(id, e.message ?: "crashed the sandbox")
             return null to Outcome.Bug(e.message)
@@ -1164,7 +1164,7 @@ object Extensions {
         if (!first) return
         val name = _registry.value.find(id)?.name ?: id
         main.post {
-            android.widget.Toast.makeText(ctx, ctx.getString(app.myspoti.engine.R.string.extension_sign_in_needed, name), android.widget.Toast.LENGTH_LONG).show()
+            android.widget.Toast.makeText(ctx, ctx.getString(com.phush.hispoti.engine.R.string.extension_sign_in_needed, name), android.widget.Toast.LENGTH_LONG).show()
         }
     }
 
@@ -1181,13 +1181,13 @@ object Extensions {
     /** How old a probe may be: asked again after it while the app is in sight or plays, and before a source is asked. */
     private const val STATUS_EVERY_MS = 5 * 60_000L
     private val SOURCE_HOOKS = setOf(Hook.AUDIO_SOURCE, Hook.DOWNLOAD_SOURCE)
-    private val health = app.myspoti.extensions.StatusBook()
+    private val health = com.phush.hispoti.extensions.StatusBook()
     /** The hook calls each extension is answering now: a probe would wait behind them, it is not sent. */
     private val busy = ConcurrentHashMap<String, Int>()
 
     /** The inactive extensions and what their `status` said (their rows and pages show it). */
-    private val _statuses = MutableStateFlow<Map<String, app.myspoti.extensions.ExtensionStatus>>(emptyMap())
-    val statuses: StateFlow<Map<String, app.myspoti.extensions.ExtensionStatus>> = _statuses.asStateFlow()
+    private val _statuses = MutableStateFlow<Map<String, com.phush.hispoti.extensions.ExtensionStatus>>(emptyMap())
+    val statuses: StateFlow<Map<String, com.phush.hispoti.extensions.ExtensionStatus>> = _statuses.asStateFlow()
 
     /**
      * Asks [id]'s `status` (at most [STATUS_MS]). `live: false`: it is inactive, skipped for songs'
@@ -1208,7 +1208,7 @@ object Extensions {
 
     private suspend fun probeNow(id: String, rt: ExtensionRuntime) {
         val t0 = System.currentTimeMillis()
-        val s = runInterruptible(Dispatchers.IO) { app.myspoti.extensions.ExtensionStatus.probe(rt, STATUS_MS) }
+        val s = runInterruptible(Dispatchers.IO) { com.phush.hispoti.extensions.ExtensionStatus.probe(rt, STATUS_MS) }
         if (runtimes[id] !== rt) return
         val ms = System.currentTimeMillis() - t0
         val changed = health.record(id, s)
@@ -1329,7 +1329,7 @@ object Extensions {
         }
     }
 
-    /** What is playing now, in the player that plays (Myspoti's own, or the Web Player); null: nothing. */
+    /** What is playing now, in the player that plays (Hispoti's own, or the Web Player); null: nothing. */
     private fun playbackSnapshot(): PlaybackTracker.Snapshot? {
         // A song shown loading while the extensions are asked for it does not play yet.
         if (SongPlayer.routing) return null
@@ -1372,7 +1372,7 @@ object Extensions {
         return if (offline != null) PlaybackEvent.ORIGIN_DOWNLOAD to offline.providerId else PlaybackEvent.ORIGIN_LOCAL_FILE to null
     }
 
-    /** The song playing in Myspoti, as hooks receive it. */
+    /** The song playing in Hispoti, as hooks receive it. */
     fun currentTrack(): TrackInfo? {
         val t = runCatching { SongPlayer.currentLyricsTrack() }.getOrNull() ?: return null
         return trackInfo(t.trackId, t.title, t.artist, t.album, t.durationMs, t.coverUrl)
@@ -1409,7 +1409,7 @@ object Extensions {
      * index's sha256 checked when it gives one), else from its address, sha256 checked.
      */
     suspend fun fetch(indexUrl: String, entry: Catalog.Entry): ExtensionUpdates.Fetched = withContext(Dispatchers.IO) {
-        val repo = entry.repo?.let { app.myspoti.extensions.GitHubRepo.parse(it) }
+        val repo = entry.repo?.let { com.phush.hispoti.extensions.GitHubRepo.parse(it) }
         if (repo == null) return@withContext download(indexUrl, entry).let { (zip, p) -> ExtensionUpdates.Fetched(zip, p, null) }
         val f = ExtensionUpdates.fromGitHub(repo, expectSha = entry.sha256.ifBlank { null })
         if (f.pkg.manifest.id != entry.id) throw ExtensionException("the package is ${f.pkg.manifest.id}, the store lists ${entry.id}")
@@ -1438,7 +1438,7 @@ object Extensions {
         if (com.music.spotui.data.DataSaver.active) throw ExtensionException("the data saver is on")
         val c = uri.toURL().openConnection() as HttpURLConnection
         c.connectTimeout = 15_000; c.readTimeout = 20_000; c.useCaches = false
-        c.setRequestProperty("User-Agent", "Myspoti-Extensions/1")
+        c.setRequestProperty("User-Agent", "Hispoti-Extensions/1")
         c.setRequestProperty("Cache-Control", "no-cache"); c.setRequestProperty("Pragma", "no-cache")
         try {
             if (c.responseCode !in 200..299) throw ExtensionException("the server answered ${c.responseCode}")
@@ -1484,14 +1484,14 @@ object Extensions {
         if (runtimes.containsKey(e.id)) { if (runningSha[e.id] == e.sha256) return else stop(e.id) }
         val p = pkg(e.id) ?: return disable(e.id, "its package is missing")
         if (p.sha256 != e.sha256) return disable(e.id, "its package changed on the phone")
-        ExtensionUpdates.blocked(e.id, e.sha256)?.let { return disable(e.id, "blocked by Myspoti: ${it.reason.ifBlank { "no reason given" }}") }
+        ExtensionUpdates.blocked(e.id, e.sha256)?.let { return disable(e.id, "blocked by Hispoti: ${it.reason.ifBlank { "no reason given" }}") }
         // Unticked back when the prompt allowed it: it waits for the user's OK on its page.
         if (Grants.refused(e, p.manifest).isNotEmpty()) return disable(e.id, "it waits for your OK on its page")
         var rt = ExtensionRuntime(p.manifest, p.script, AndroidHost, e.granted)
         try {
             try {
                 rt.start()
-            } catch (slow: app.myspoti.extensions.ExtensionTimeout) {
+            } catch (slow: com.phush.hispoti.extensions.ExtensionTimeout) {
                 // Right after an update or a cold start the phone may be busy: once more, with more time.
                 rt.close()
                 log(e.id, "slow to load: trying once more")
@@ -1525,11 +1525,11 @@ object Extensions {
     }
 
     /** Delivers a sign-in page's outcome to [id] ([ExtensionAuth]). */
-    internal fun authDone(id: String, result: app.myspoti.extensions.AuthResult) {
+    internal fun authDone(id: String, result: com.phush.hispoti.extensions.AuthResult) {
         val rt = runtimes[id] ?: return
         log(id, "sign-in ${result.id}: ${if (result.url != null) "reached the callback" else result.error}")
         if (result.url != null) dismissSignIn(id)
-        val json = kotlinx.serialization.json.Json.encodeToString(app.myspoti.extensions.AuthResult.serializer(), result)
+        val json = kotlinx.serialization.json.Json.encodeToString(com.phush.hispoti.extensions.AuthResult.serializer(), result)
         scope.launch { runCatching { runInterruptible { rt.emit(ExtensionRuntime.EVENT_AUTH, json, AUTH_MS) } }.onSuccess { recheckAfterEvent(id, rt) }.onFailure { failed(id, it.toString()) } }
     }
 
@@ -1556,7 +1556,7 @@ object Extensions {
         setError(id, reason)
         log(id, "turned off: $reason")
         main.post {
-            android.widget.Toast.makeText(ctx, ctx.getString(app.myspoti.engine.R.string.extension_turned_off, e.name, reason), android.widget.Toast.LENGTH_LONG).show()
+            android.widget.Toast.makeText(ctx, ctx.getString(com.phush.hispoti.engine.R.string.extension_turned_off, e.name, reason), android.widget.Toast.LENGTH_LONG).show()
         }
     }
 
@@ -1591,7 +1591,7 @@ object Extensions {
         val profile = com.music.spotui.data.preferences.ProfilePrefs.profile()
         return settings.getOrPut("$profile\u0000$id") {
             val first = File(dir, "$id/settings.json")
-            if (profile == app.myspoti.host.android.AccountList.DEFAULT_PROFILE) return@getOrPut FileStore(first)
+            if (profile == com.phush.hispoti.host.android.AccountList.DEFAULT_PROFILE) return@getOrPut FileStore(first)
             val own = File(dir, "$id/settings-" + profile.filter { it.isLetterOrDigit() || it == '-' || it == '_' } + ".json")
             if (!own.exists() && first.exists()) runCatching { first.copyTo(own) }
             FileStore(own)
@@ -1606,7 +1606,7 @@ object Extensions {
     fun profileChanged() {
         if (!isReady) return
         _registry.value.extensions.filter { it.enabled }.forEach { e ->
-            val keys = settingsOf(e.id).all().keys.map { app.myspoti.extensions.Setting.baseKey(it) }.distinct()
+            val keys = settingsOf(e.id).all().keys.map { com.phush.hispoti.extensions.Setting.baseKey(it) }.distinct()
             if (keys.isNotEmpty()) scope.launch { keys.forEach { sendSetting(e.id, it, pressed = false) } }
             health.forget(e.id)
             runtimes[e.id]?.let { rt -> scope.launch { probe(e.id, rt) } }
@@ -1623,7 +1623,7 @@ object Extensions {
 
     private object AndroidHost : Host {
         private val dispatcher by lazy {
-            SpotifyDispatcher(MyspotiRuntime.api, AppRaw, app.myspoti.extensions.PlayerMedia { app.myspoti.spotify.bridge.MediaManifests.of(it) })
+            SpotifyDispatcher(HispotiRuntime.api, AppRaw, com.phush.hispoti.extensions.PlayerMedia { com.phush.hispoti.spotify.bridge.MediaManifests.of(it) })
         }
 
         override fun http(extensionId: String, request: HttpRequest): HttpResponse {
@@ -1666,8 +1666,8 @@ object Extensions {
         }
 
         override suspend fun spotify(extensionId: String, call: SpotifyCall): String {
-            if (!MyspotiRuntime.isStarted) throw IllegalStateException("no Spotify account")
-            // Playback commands go through the arbiter like myspoti.player's; a dropped one answers null.
+            if (!HispotiRuntime.isStarted) throw IllegalStateException("no Spotify account")
+            // Playback commands go through the arbiter like hispoti.player's; a dropped one answers null.
             if (call.area == "player" && call.method == "setLocalMute") return setLocalMute(extensionId, call)
             if (call.area == "player" && call.method in ARBITRATED && !arbitrate(extensionId, call.method)) return "null"
             if (call.area == "devices" && call.method != "list" && !arbitrate(extensionId, "transfer")) return "null"
@@ -1684,11 +1684,11 @@ object Extensions {
                 if (!Extensions.mirror.disable(extensionId)) return "null"
                 try { return dispatcher.execute(call) } finally { Extensions.mirrorEndedBy(extensionId) }
             }
-            // Myspoti's own Connect mirror has the page already ("Count extension plays on Spotify"): it wins.
+            // Hispoti's own Connect mirror has the page already ("Count extension plays on Spotify"): it wins.
             // A download mirrored by "Sync downloaded songs with Spotify" gives way instead, as before that setting.
             val download = com.music.spotui.di.ConnectMirror.mirrorsDownload
             if (com.music.spotui.di.ConnectMirror.running && !download) {
-                val why = "setLocalMute: Myspoti already plays this song on Spotify (Count extension plays on Spotify)"
+                val why = "setLocalMute: Hispoti already plays this song on Spotify (Count extension plays on Spotify)"
                 Extensions.log(extensionId, "refused: $why"); throw IllegalStateException(why)
             }
             if (!arbitrate(extensionId, "setLocalMute")) return "null"
@@ -1703,7 +1703,7 @@ object Extensions {
 
         override fun postToPage(extensionId: String, json: String) { main.post { pageSinks[extensionId]?.invoke(json) } }
 
-        override fun spotifyMutation(name: String): Boolean = app.myspoti.spotify.gql.isMutation(name)
+        override fun spotifyMutation(name: String): Boolean = com.phush.hispoti.spotify.gql.isMutation(name)
 
         override suspend fun confirm(extensionId: String, text: String): Boolean {
             val ok = ExtensionConfirm.ask(extensionId, text)
@@ -1713,30 +1713,30 @@ object Extensions {
 
         override fun rawGrants(extensionId: String) = _registry.value.find(extensionId)?.rawGrants.orEmpty()
 
-        override suspend fun confirmWrite(extensionId: String, text: String, offer: app.myspoti.extensions.RawGrant): app.myspoti.extensions.Consent {
+        override suspend fun confirmWrite(extensionId: String, text: String, offer: com.phush.hispoti.extensions.RawGrant): com.phush.hispoti.extensions.Consent {
             val c = ExtensionConfirm.ask(extensionId, text, offer)
-            if (c == app.myspoti.extensions.Consent.ALWAYS) addRawGrant(extensionId, offer)
-            else Extensions.log(extensionId, "the user ${if (c == app.myspoti.extensions.Consent.ONCE) "allowed once" else "refused"}: $offer")
+            if (c == com.phush.hispoti.extensions.Consent.ALWAYS) addRawGrant(extensionId, offer)
+            else Extensions.log(extensionId, "the user ${if (c == com.phush.hispoti.extensions.Consent.ONCE) "allowed once" else "refused"}: $offer")
             return c
         }
 
-        override fun openAuth(extensionId: String, request: app.myspoti.extensions.AuthRequest): String = ExtensionAuth.open(extensionId, request)
+        override fun openAuth(extensionId: String, request: com.phush.hispoti.extensions.AuthRequest): String = ExtensionAuth.open(extensionId, request)
 
         override fun whenOnline(extensionId: String) = askOnline(extensionId)
 
-        override fun attestation(): app.myspoti.extensions.Attestation = ExtensionAttestation
+        override fun attestation(): com.phush.hispoti.extensions.Attestation = ExtensionAttestation
     }
 
     /** The raw door: the Web Player's GraphQL, page services and Spotify URLs, as the account. */
     private object AppRaw : SpotifyRaw {
-        private val api get() = MyspotiRuntime.spotify
+        private val api get() = HispotiRuntime.spotify
         override suspend fun gql(operation: String, variables: JsonObject): JsonElement = api.raw.gql(operation, variables)
         override fun operations(): Set<String> = api.raw.operations
         override suspend fun service(service: String, method: String, args: List<JsonElement>): JsonElement = api.raw.service(service, method, *args.toTypedArray())
         override suspend fun get(url: String): JsonElement? = api.raw.get(url)
-        override fun isMutation(operation: String): Boolean = app.myspoti.spotify.gql.isMutation(operation)
+        override fun isMutation(operation: String): Boolean = com.phush.hispoti.spotify.gql.isMutation(operation)
         override suspend fun request(method: String, url: String, body: ByteArray?, headers: Map<String, String>): JsonElement =
-            api.raw.request(method, url, body, headers).let { app.myspoti.extensions.RawRequest.response(it.status, it.headers, it.body) }
+            api.raw.request(method, url, body, headers).let { com.phush.hispoti.extensions.RawRequest.response(it.status, it.headers, it.body) }
     }
 
     /**

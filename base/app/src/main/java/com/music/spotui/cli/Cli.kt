@@ -1,7 +1,7 @@
 package com.music.spotui.cli
 
-import app.myspoti.extensions.Hook
-import app.myspoti.extensions.Setting
+import com.phush.hispoti.extensions.Hook
+import com.phush.hispoti.extensions.Setting
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -13,7 +13,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 
 /**
- * Debug and beta builds: the commands `tools/myspoti-cli` sends over adb ([CliReceiver]), so a test
+ * Debug and beta builds: the commands `tools/hispoti-cli` sends over adb ([CliReceiver]), so a test
  * drives the app's own paths without a screenshot or a tap. Nothing here knows a provider: the
  * commands name the app's own parts (extensions, hooks, player, routes).
  */

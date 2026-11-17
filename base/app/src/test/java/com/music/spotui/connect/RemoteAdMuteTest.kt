@@ -20,7 +20,7 @@ class RemoteAdMuteTest {
         assertFalse(mutes(elsewhere = false))
     }
 
-    @Test fun onlyTheDevicePickedInMyspoti() {
+    @Test fun onlyTheDevicePickedInHispoti() {
         assertFalse(mutes(chosenId = null))
         assertFalse(mutes(chosenId = "desktop"))
         assertFalse(mutes(activeId = null))

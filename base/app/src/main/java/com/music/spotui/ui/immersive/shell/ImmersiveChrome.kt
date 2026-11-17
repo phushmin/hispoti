@@ -2,7 +2,7 @@
  * The minimizing chrome follows BitChord (https://github.com/kushagrasinghx/BitChord),
  * GPL-3.0-or-later, app/src/main/java/com/music/bitchord/ui/components/floatingtabbar/FloatingTabBar.kt
  * (FloatingTabBarScrollConnection, the inline bar) and GlassNavBar.kt at edc1e6f.
- * Written anew for Myspoti, 2026-10: a scroll connection pages attach to, and one layout that
+ * Written anew for Hispoti, 2026-10: a scroll connection pages attach to, and one layout that
  * morphs the tab bar into a pill with the mini player beside it.
  */
 package com.music.spotui.ui.immersive.shell
@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.immersive.Immersive
 import com.music.spotui.ui.immersive.motion.ImmersiveMotion
 import com.music.spotui.ui.look.rememberReduceMotion

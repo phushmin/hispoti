@@ -38,8 +38,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.ui.theme.AppMuted
 import com.music.spotui.ui.theme.AppText
 import com.music.spotui.ui.theme.tone
@@ -142,7 +142,7 @@ private fun consentView(ctx: android.content.Context, o: DesktopConsent.Open, on
         allowContentAccess = false
         setGeolocationEnabled(false)
         // The same browser as the Web Player's page, for accounts.spotify.com.
-        userAgentString = MyspotiRuntime.host.userAgent
+        userAgentString = HispotiRuntime.host.userAgent
     }
     if (androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST))
         androidx.webkit.WebSettingsCompat.setRequestedWithHeaderOriginAllowList(view.settings, emptySet())

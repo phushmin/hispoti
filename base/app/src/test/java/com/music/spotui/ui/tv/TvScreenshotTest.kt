@@ -77,9 +77,9 @@ class TvScreenshotTest {
     }
 
     @Test fun list() = shoot("list") {
-        val entry = LibraryEntry("pl1", "Night Drive", "Myspoti", "", isPlaylist = true, uri = "spotify:playlist:pl1")
+        val entry = LibraryEntry("pl1", "Night Drive", "Hispoti", "", isPlaylist = true, uri = "spotify:playlist:pl1")
         TvFrame(TvTab.Library, {}) {
-            TvSongsPage(entry, ContextPageModel("spotify:playlist:pl1", "playlist", "Night Drive", "", ownerName = "Myspoti", tracks = songs), {}, {}, {})
+            TvSongsPage(entry, ContextPageModel("spotify:playlist:pl1", "playlist", "Night Drive", "", ownerName = "Hispoti", tracks = songs), {}, {}, {})
         }
     }
 

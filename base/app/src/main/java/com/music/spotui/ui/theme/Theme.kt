@@ -59,7 +59,7 @@ private fun spotifyColorScheme(accent: Color) = darkColorScheme(
 fun SpotuiTheme(
     content: @Composable () -> Unit
 ) {
-    val energy by app.myspoti.power.EnergySettings.state.collectAsStateWithLifecycle()
+    val energy by com.phush.hispoti.power.EnergySettings.state.collectAsStateWithLifecycle()
     val policy = energy.policy
     androidx.compose.runtime.LaunchedEffect(policy.videoMaxHeight, policy.allowBackgroundLookups) {
         com.music.spotui.video.MusicVideoController.onEnergyPolicyChanged()

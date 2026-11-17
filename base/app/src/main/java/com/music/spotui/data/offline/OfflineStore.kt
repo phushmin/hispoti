@@ -88,7 +88,7 @@ sealed interface OfflineStatus {
 
 /**
  * Downloaded songs. Files live in the app's private storage (filesDir/offline), so
- * only Myspoti plays them: they are not in the phone's Music folder or MediaStore.
+ * only Hispoti plays them: they are not in the phone's Music folder or MediaStore.
  */
 object OfflineStore {
     private lateinit var root: File
@@ -166,7 +166,7 @@ object OfflineStore {
             lyricsDir.listFiles()?.forEach { if (it.name !in lyrics) it.delete() }
         } else {
             val aside = keepAside(audioDir, names, File(recoveredDir, "audio")) + keepAside(coverDir, covers, File(recoveredDir, "covers"))
-            if (aside > 0) runCatching { app.myspoti.host.android.Logbook.log("offline: download index not read in full; $aside files the index does not list kept in ${recoveredDir.name}/") }
+            if (aside > 0) runCatching { com.phush.hispoti.host.android.Logbook.log("offline: download index not read in full; $aside files the index does not list kept in ${recoveredDir.name}/") }
             if (read != null && read.complete) writeIndex()
         }
         return kept.map { File(audioDir, it.file) }
@@ -280,7 +280,7 @@ object OfflineStore {
         artist = t.artist,
         album = t.album,
         durationMs = t.durationMs,
-        artUri = coverFile(t)?.let { Uri.fromFile(it) } ?: Uri.parse(app.myspoti.host.android.Covers.large(t.coverUrl)),
+        artUri = coverFile(t)?.let { Uri.fromFile(it) } ?: Uri.parse(com.phush.hispoti.host.android.Covers.large(t.coverUrl)),
         speech = t.isEpisode,
     )
 
@@ -321,6 +321,6 @@ object OfflineStore {
         if (indexFile.exists() && readIndex(indexFile)?.complete == true) indexFile.copyTo(backupFile, overwrite = true)
         // A failed write keeps the last good index (and its backup) rather than a half-moved one.
         runCatching { com.music.spotui.data.writeTextSafely(indexFile, a.toString()) }
-            .onFailure { app.myspoti.host.android.Logbook.log("offline: index not saved: ${it.message}") }
+            .onFailure { com.phush.hispoti.host.android.Logbook.log("offline: index not saved: ${it.message}") }
     }
 }

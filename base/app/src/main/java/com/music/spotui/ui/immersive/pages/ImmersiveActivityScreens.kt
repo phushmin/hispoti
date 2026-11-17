@@ -56,9 +56,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import app.myspoti.api.FriendActivity
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.FriendActivity
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.local.LocalMusic
 import com.music.spotui.data.local.LocalTrack
 import com.music.spotui.di.LocalPlayer
@@ -101,7 +101,7 @@ import kotlinx.coroutines.launch
 fun ImmersiveFriendsScreen(navController: NavController) {
     var attempt by remember { mutableIntStateOf(0) }
     var state by remember { mutableStateOf<Result<List<FriendActivity>>?>(null) }
-    LaunchedEffect(attempt) { state = runCatching { MyspotiRuntime.api.users.friendActivity() } }
+    LaunchedEffect(attempt) { state = runCatching { HispotiRuntime.api.users.friendActivity() } }
     val now = remember(state) { System.currentTimeMillis() }
     ImmersivePage(
         title = stringResource(R.string.friends_title),

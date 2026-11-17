@@ -1,6 +1,6 @@
 package com.music.spotui.ui.components
 
-import app.myspoti.host.android.Covers as HostCovers
+import com.phush.hispoti.host.android.Covers as HostCovers
 import com.music.spotui.ui.theme.tone
 import com.music.spotui.ui.theme.AppText
 import com.music.spotui.ui.theme.AppMuted
@@ -60,7 +60,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -160,7 +160,7 @@ fun SpotifyCodeSheet(target: ShareTarget, onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(0.82f).clip(RoundedCornerShape(16.dp)).background(background).padding(20.dp),
             ) {
                 if (target.coverUri.isNotBlank()) GlideImage(
-                    model = app.myspoti.host.android.Covers.large(target.coverUri), contentDescription = null, contentScale = ContentScale.Crop, transition = CrossFade,
+                    model = com.phush.hispoti.host.android.Covers.large(target.coverUri), contentDescription = null, contentScale = ContentScale.Crop, transition = CrossFade,
                     modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(6.dp)),
                 )
                 Text(target.title, color = text, fontSize = 18.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis,

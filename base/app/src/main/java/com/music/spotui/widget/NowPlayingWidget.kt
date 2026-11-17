@@ -9,7 +9,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.RemoteViews
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.di.SongPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,9 +37,9 @@ class NowPlayingWidget : AppWidgetProvider() {
     }
 
     companion object {
-        private const val ACTION_PREVIOUS = "app.myspoti.widget.PREVIOUS"
-        private const val ACTION_TOGGLE = "app.myspoti.widget.TOGGLE"
-        private const val ACTION_NEXT = "app.myspoti.widget.NEXT"
+        private const val ACTION_PREVIOUS = "com.phush.hispoti.widget.PREVIOUS"
+        private const val ACTION_TOGGLE = "com.phush.hispoti.widget.TOGGLE"
+        private const val ACTION_NEXT = "com.phush.hispoti.widget.NEXT"
 
         private data class Shown(val title: String, val artist: String, val coverUrl: String?, val playing: Boolean)
 
@@ -80,7 +80,7 @@ class NowPlayingWidget : AppWidgetProvider() {
                 setTextViewText(R.id.widget_artist, s.artist)
                 val bmp = cover.takeIf { coverUrl == s.coverUrl }
                 if (bmp != null) setImageViewBitmap(R.id.widget_cover, bmp) else setImageViewResource(R.id.widget_cover, R.mipmap.ic_launcher)
-                setImageViewResource(R.id.widget_play, if (s.playing) app.myspoti.host.android.R.drawable.msp_ic_pause else app.myspoti.host.android.R.drawable.msp_ic_play)
+                setImageViewResource(R.id.widget_play, if (s.playing) com.phush.hispoti.host.android.R.drawable.msp_ic_pause else com.phush.hispoti.host.android.R.drawable.msp_ic_play)
                 setOnClickPendingIntent(R.id.widget_previous, action(context, ACTION_PREVIOUS, 1))
                 setOnClickPendingIntent(R.id.widget_play, action(context, ACTION_TOGGLE, 2))
                 setOnClickPendingIntent(R.id.widget_next, action(context, ACTION_NEXT, 3))

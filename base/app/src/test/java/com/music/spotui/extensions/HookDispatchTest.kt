@@ -1,6 +1,6 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.LyricsResult
+import com.phush.hispoti.extensions.LyricsResult
 import com.music.spotui.data.entity.LyricLine
 import com.music.spotui.data.entity.LyricWord
 import com.music.spotui.data.entity.Lyrics

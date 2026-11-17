@@ -1,10 +1,10 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/PlayerState.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: the scrubber's hold-after-release and the volume bar's state, with the position from
- * Myspoti's playback and the volume from Android's AudioManager (STREAM_MUSIC).
+ * Hispoti's playback and the volume from Android's AudioManager (STREAM_MUSIC).
  */
 package com.music.spotui.ui.immersive.player
 

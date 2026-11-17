@@ -1,10 +1,10 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/PlayerHost.kt and PlayerState.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: only the shape is kept (a player screen that is given plain state and a set of
- * actions, and knows nothing about the engine). The state is filled from Myspoti's
+ * actions, and knows nothing about the engine). The state is filled from Hispoti's
  * CurrentSongState, SongPlayer and PlayerViewModel, read-only, and every action does what the
  * Classic player's does.
  */
@@ -23,7 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.SongsModel
 import com.music.spotui.di.SongPlayer
 import com.music.spotui.ui.navigation.PlayerSheet
@@ -104,7 +104,7 @@ class ImmersivePlayerActions(
     /** Opens the artist of the playing track (a choice first when there are several). */
     val openArtist: () -> Unit = {},
     /** Opens one artist of the credit line directly. */
-    val openArtistRef: (app.myspoti.api.ArtistRef) -> Unit = {},
+    val openArtistRef: (com.phush.hispoti.api.ArtistRef) -> Unit = {},
     /** Closes the player (PlayerSheet.close()). */
     val close: () -> Unit = {},
 )
@@ -114,7 +114,7 @@ class ImmersivePlayerActions(
 data class ImmersivePlayerBridge(val state: ImmersivePlayerState, val actions: ImmersivePlayerActions)
 
 /**
- * Fills the player's state from Myspoti's playback (read-only) and wires its actions to the
+ * Fills the player's state from Hispoti's playback (read-only) and wires its actions to the
  * same calls the Classic player makes. Needs the [navController] for the artist and album pages.
  */
 @Composable
@@ -159,7 +159,7 @@ fun rememberImmersivePlayer(navController: NavController): ImmersivePlayerBridge
         artist = outgoing?.song?.artist ?: singer,
         trackId = com.music.spotui.ui.viewmodel.confirmedTrackIdForDisplay(np.uri, songId),
         album = album,
-        coverUrl = app.myspoti.host.android.Covers.large(cover),
+        coverUrl = com.phush.hispoti.host.android.Covers.large(cover),
         playing = playing,
         buffering = buffering,
         positionMs = remember(outgoing) { outgoing?.let { o -> { o.positionMs() } } ?: { SongPlayer.getCurrentPosition() } },

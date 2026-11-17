@@ -39,11 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import app.myspoti.engine.R
-import app.myspoti.extensions.Action
-import app.myspoti.extensions.PageContent
-import app.myspoti.extensions.PageNetwork
-import app.myspoti.extensions.SurfaceGuard
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.Action
+import com.phush.hispoti.extensions.PageContent
+import com.phush.hispoti.extensions.PageNetwork
+import com.phush.hispoti.extensions.SurfaceGuard
 import com.music.spotui.extensions.Extensions
 import com.music.spotui.ui.theme.AppAccent
 import com.music.spotui.ui.theme.AppBackground
@@ -58,7 +58,7 @@ internal fun extensionPageRoute(id: String) = "extension-page/${android.net.Uri.
  * No file or content access, no navigation, no new windows, no storage, no cookies: what the page
  * loads is fetched by the app, GET over https from the hosts its network action lists, never a
  * local or Spotify address ([PageNetwork]), with a content policy on top. The only bridge is
- * `MyspotiPage.postMessage(text)`, to its own extension; answers come back as `message` events.
+ * `HispotiPage.postMessage(text)`, to its own extension; answers come back as `message` events.
  * It is drawn in the app's page (dialogs, the protected ones included, are above it) and hidden
  * while a protected surface is on screen.
  */
@@ -133,7 +133,7 @@ internal fun ExtensionPageBody(id: String, loaded: Result<PageContent?>?, hosts:
                             CookieManager.getInstance().setAcceptThirdPartyCookies(this, false)
                             setBackgroundColor(android.graphics.Color.BLACK)
                             webViewClient = SandboxClient(hosts, network, any)
-                            addJavascriptInterface(PageBridge(id), "MyspotiPage")
+                            addJavascriptInterface(PageBridge(id), "HispotiPage")
                             Extensions.attachPage(id) { json -> evaluateJavascript("window.dispatchEvent(new MessageEvent('message', { data: $json }));", null) }
                             loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
                         }
@@ -170,8 +170,8 @@ private class SandboxClient(private val hosts: List<String>, private val network
         // OkHttp with the sandbox's Dns: a name that resolves to a local address is never connected to,
         // and no redirect is followed (a redirect would escape the allowed hosts).
         return runCatching {
-            val req = okhttp3.Request.Builder().url(url).header("User-Agent", "Myspoti-Extension-Page/1").get().build()
-            val client = app.myspoti.extensions.SafeNet.client.newBuilder()
+            val req = okhttp3.Request.Builder().url(url).header("User-Agent", "Hispoti-Extension-Page/1").get().build()
+            val client = com.phush.hispoti.extensions.SafeNet.client.newBuilder()
                 .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS).readTimeout(15, java.util.concurrent.TimeUnit.SECONDS).build()
             client.newCall(req).execute().use { r ->
                 val status = r.code

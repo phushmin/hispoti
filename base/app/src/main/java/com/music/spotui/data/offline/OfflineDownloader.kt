@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Downloads songs for offline listening. Spotify only gives the track (title, artist,
  * duration, ISRC); where the audio file is, and that it is the right recording, is the job
  * of a `download-source` extension (docs/extensions/API.md §3), which answers the files it
- * has, best first. Myspoti then:
+ * has, best first. Hispoti then:
  *
  * 1. fetches the first file that works (a FLAC, a DASH manifest of FLAC frames joined
  *    into one FLAC, or an M4A / MP3);
@@ -127,13 +127,13 @@ object OfflineDownloader {
     fun ready(auto: Boolean = false): Boolean {
         if (!isDownloadsEnabled(Graph.app)) {
             scope.launch(Dispatchers.Main) {
-                android.widget.Toast.makeText(Graph.app, app.myspoti.engine.R.string.downloads_off_toast, android.widget.Toast.LENGTH_LONG).show()
+                android.widget.Toast.makeText(Graph.app, com.phush.hispoti.engine.R.string.downloads_off_toast, android.widget.Toast.LENGTH_LONG).show()
             }
             return false
         }
         if (!com.music.spotui.extensions.Extensions.hasDownloadSource()) {
             if (!auto) scope.launch(Dispatchers.Main) {
-                android.widget.Toast.makeText(Graph.app, app.myspoti.engine.R.string.downloads_need_source, android.widget.Toast.LENGTH_LONG).show()
+                android.widget.Toast.makeText(Graph.app, com.phush.hispoti.engine.R.string.downloads_need_source, android.widget.Toast.LENGTH_LONG).show()
             }
             return false
         }
@@ -153,7 +153,7 @@ object OfflineDownloader {
         } else if (com.music.spotui.data.DataSaver.metered) {
             // Asked for by the user on mobile data: it goes ahead, but they are told.
             scope.launch(Dispatchers.Main) {
-                android.widget.Toast.makeText(Graph.app, app.myspoti.engine.R.string.download_on_mobile_data, android.widget.Toast.LENGTH_LONG).show()
+                android.widget.Toast.makeText(Graph.app, com.phush.hispoti.engine.R.string.download_on_mobile_data, android.widget.Toast.LENGTH_LONG).show()
             }
         }
         val q = quality?.let { com.music.spotui.data.preferences.DownloadQuality.saved(it.name) }?.name.orEmpty()
@@ -334,11 +334,11 @@ object OfflineDownloader {
             // The audio is complete on disk from here on: "stop all" must not interrupt this last
             // part, or the file would stay out of the index and be swept as a stray at startup.
             return withContext(NonCancellable) {
-                // Kept encrypted: the file only plays in Myspoti, on this phone.
+                // Kept encrypted: the file only plays in Hispoti, on this phone.
                 runInterruptible(Dispatchers.IO) { OfflineCrypto.encryptInPlace(Graph.app, out) }
                 val cover = runCatching {
                     val c = File(OfflineStore.coverDir, "${r.trackId}.jpg")
-                    httpGet(app.myspoti.host.android.Covers.large(meta.coverUrl), c); c.name
+                    httpGet(com.phush.hispoti.host.android.Covers.large(meta.coverUrl), c); c.name
                 }.getOrDefault("")
                 OfflineTrack(
                     trackId = r.trackId, title = meta.title, artist = meta.artist, album = meta.album,
@@ -348,7 +348,7 @@ object OfflineDownloader {
                         "${providerWithoutQuality(file.providerName)} AAC ${AacTranscoder.BITRATE / 1000} kbit/s" else file.provider,
                     verified = file.isrcMatched,
                     bytes = out.length(), addedAt = System.currentTimeMillis(), providerId = file.extensionId,
-                    extensionQuality = com.music.spotui.extensions.Extensions.qualityLine(file.extensionId, app.myspoti.extensions.SettingSection.DOWNLOADS),
+                    extensionQuality = com.music.spotui.extensions.Extensions.qualityLine(file.extensionId, com.phush.hispoti.extensions.SettingSection.DOWNLOADS),
                 )
             }
         } finally {
@@ -423,7 +423,7 @@ object OfflineDownloader {
      * ([onFetchError] hears of a failure that is not a refusal).
      */
     private suspend fun fetchOne(
-        r: Request, meta: Meta, out: File, file: app.myspoti.extensions.DownloadFile, extensionId: String, extension: String,
+        r: Request, meta: Meta, out: File, file: com.phush.hispoti.extensions.DownloadFile, extensionId: String, extension: String,
         onFetchError: (Exception) -> Unit,
     ): Fetched? {
         currentCoroutineContext().ensureActive()
@@ -441,7 +441,7 @@ object OfflineDownloader {
                     val staged = File.createTempFile("download-transform-", ".partial", out.parentFile)
                     try {
                         out.inputStream().use { input -> staged.outputStream().use { output ->
-                            app.myspoti.extensions.PatternedBlowfish.transform(input, output, spec)
+                            com.phush.hispoti.extensions.PatternedBlowfish.transform(input, output, spec)
                         } }
                         if (Thread.currentThread().isInterrupted) throw java.io.InterruptedIOException("transform cancelled")
                         java.nio.file.Files.move(staged.toPath(), out.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
@@ -453,7 +453,7 @@ object OfflineDownloader {
             throw e
         } catch (e: Exception) {
             Log.w(TAG, "${meta.title}: $label ${file.format}: ${e.message}")
-            if (e !is app.myspoti.extensions.ExtensionMediaHttp.Refused && !app.myspoti.extensions.SafeNet.isRefusal(e)) onFetchError(e)
+            if (e !is com.phush.hispoti.extensions.ExtensionMediaHttp.Refused && !com.phush.hispoti.extensions.SafeNet.isRefusal(e)) onFetchError(e)
             false
         }
         if (!ok) return null
@@ -530,7 +530,7 @@ object OfflineDownloader {
 
     /** The request, completed by Spotify's track (ISRC, and anything the list lacked). */
     private suspend fun spotifyMeta(r: Request): Meta {
-        val api = app.myspoti.host.android.MyspotiRuntime.api
+        val api = com.phush.hispoti.host.android.HispotiRuntime.api
         val uri = "spotify:track:${r.trackId}"
         val t = runCatching { api.catalog.track(uri) }.onFailure { Log.w(TAG, "${r.title}: Spotify track: $it") }.getOrNull()
         val isrc = runCatching { api.catalog.isrc(uri) }.onFailure { Log.w(TAG, "${r.title}: ISRC: $it") }.getOrNull()
@@ -633,7 +633,7 @@ object OfflineDownloader {
                         }
                         break
                     } catch (e: IOException) {
-                        if (attempt >= 3 || e is app.myspoti.extensions.ExtensionMediaHttp.Refused || app.myspoti.extensions.SafeNet.isRefusal(e)) throw e
+                        if (attempt >= 3 || e is com.phush.hispoti.extensions.ExtensionMediaHttp.Refused || com.phush.hispoti.extensions.SafeNet.isRefusal(e)) throw e
                         Log.w(TAG, "chunk at ${output.length()} failed (attempt $attempt): ${e.message}")
                     }
                 }
@@ -718,7 +718,7 @@ object OfflineDownloader {
      * CD a 16-bit FLAC (a bigger one next), small a file kept as served (a FLAC is encoded to AAC
      * on the phone). A lossy file for CD or hi-res comes last, but is still kept as served.
      */
-    internal fun downloadFit(quality: com.music.spotui.data.preferences.DownloadQuality, file: app.myspoti.extensions.DownloadFile): Int = when (quality) {
+    internal fun downloadFit(quality: com.music.spotui.data.preferences.DownloadQuality, file: com.phush.hispoti.extensions.DownloadFile): Int = when (quality) {
         com.music.spotui.data.preferences.DownloadQuality.SMALL -> if (file.lossless) 2 else 3
         com.music.spotui.data.preferences.DownloadQuality.HI_RES -> when {
             !file.lossless -> 1
@@ -737,9 +737,9 @@ object OfflineDownloader {
      * order they are tried, each with its offer's index: best fit, then the exact recording
      * (found by ISRC), then the offers' order, then each extension's own order.
      */
-    internal fun downloadOrder(quality: com.music.spotui.data.preferences.DownloadQuality, offers: List<List<app.myspoti.extensions.DownloadFile>>): List<Pair<Int, app.myspoti.extensions.DownloadFile>> =
+    internal fun downloadOrder(quality: com.music.spotui.data.preferences.DownloadQuality, offers: List<List<com.phush.hispoti.extensions.DownloadFile>>): List<Pair<Int, com.phush.hispoti.extensions.DownloadFile>> =
         offers.flatMapIndexed { i, files -> files.map { i to it } }
-            .sortedWith(compareByDescending<Pair<Int, app.myspoti.extensions.DownloadFile>> { downloadFit(quality, it.second) }.thenByDescending { it.second.isrcMatched })
+            .sortedWith(compareByDescending<Pair<Int, com.phush.hispoti.extensions.DownloadFile>> { downloadFit(quality, it.second) }.thenByDescending { it.second.isrcMatched })
 
     /** Why a file of [seconds] is not the song of [durationMs], or null when it is (or the song's length is unknown). */
     internal fun lengthMismatch(seconds: Long, durationMs: Long): String? {

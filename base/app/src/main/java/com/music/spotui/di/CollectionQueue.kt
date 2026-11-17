@@ -1,7 +1,7 @@
 package com.music.spotui.di
 
 import android.widget.Toast
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.ContextPageModel
 import com.music.spotui.data.entity.SongsModel
 import com.music.spotui.data.api.Response

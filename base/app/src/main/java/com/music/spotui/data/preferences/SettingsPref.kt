@@ -65,12 +65,12 @@ object AutoplayPref {
 }
 
 /**
- * "Myspoti shuffle" (off by default): with shuffle on, a list plays every one of its songs once, in
- * an order Myspoti draws, before it starts over, instead of Spotify's shuffle (see
+ * "Hispoti shuffle" (off by default): with shuffle on, a list plays every one of its songs once, in
+ * an order Hispoti draws, before it starts over, instead of Spotify's shuffle (see
  * [com.music.spotui.di.AppShuffle]). Off: Spotify shuffles, as before.
  */
 object AppShufflePref {
-    private const val KEY = "myspoti_shuffle"
+    private const val KEY = "hispoti_shuffle"
     var on by androidx.compose.runtime.mutableStateOf(prefs(com.music.spotui.di.Graph.app).getBoolean(KEY, false))
         private set
 
@@ -240,7 +240,7 @@ object HideDjPref {
         private set
 
     /** Hidden here or by an extension's look (`home.dj`). */
-    val hidden: Boolean get() = on || com.music.spotui.extensions.ExtensionLook.hides(app.myspoti.extensions.UiPart.HOME_DJ)
+    val hidden: Boolean get() = on || com.music.spotui.extensions.ExtensionLook.hides(com.phush.hispoti.extensions.UiPart.HOME_DJ)
 
     fun set(c: Context, value: Boolean) {
         on = value
@@ -253,7 +253,7 @@ fun getCrossfadeSeconds(c: Context): Int =
 
 /** Gives the saved length to the player (at start, and at every change); 0 stops a fade at once. */
 fun applyCrossfade(seconds: Int) {
-    val runtime = app.myspoti.host.android.MyspotiRuntime
+    val runtime = com.phush.hispoti.host.android.HispotiRuntime
     if (!runtime.isStarted) return
     // AutoMix on: the crossfade length is only kept for later, the Spotify songs get a short fade.
     runtime.spotify.player.crossfadeSeconds = if (com.music.spotui.automix.AutoMix.on) TransitionPref.SPOTIFY_FADE_SECONDS else seconds
@@ -292,7 +292,7 @@ object PlayerLyricsCardPref {
         private set
 
     /** Shown: on here and not hidden by an extension's look (`player.lyrics-card`). */
-    val shown: Boolean get() = on && !com.music.spotui.extensions.ExtensionLook.hides(app.myspoti.extensions.UiPart.PLAYER_LYRICS_CARD)
+    val shown: Boolean get() = on && !com.music.spotui.extensions.ExtensionLook.hides(com.phush.hispoti.extensions.UiPart.PLAYER_LYRICS_CARD)
 
     fun set(c: Context, value: Boolean) {
         on = value
@@ -311,7 +311,7 @@ object PlayerSourceLinePref {
         private set
 
     /** Shown: on here and not hidden by an extension's look (`player.source`). */
-    val shown: Boolean get() = on && !com.music.spotui.extensions.ExtensionLook.hides(app.myspoti.extensions.UiPart.PLAYER_SOURCE)
+    val shown: Boolean get() = on && !com.music.spotui.extensions.ExtensionLook.hides(com.phush.hispoti.extensions.UiPart.PLAYER_SOURCE)
 
     fun set(c: Context, value: Boolean) {
         on = value
@@ -330,7 +330,7 @@ object PlayerCapsulePref {
         private set
 
     /** Shown: on here and not hidden by an extension's look (`player.capsule`). */
-    val shown: Boolean get() = on && !com.music.spotui.extensions.ExtensionLook.hides(app.myspoti.extensions.UiPart.PLAYER_CAPSULE)
+    val shown: Boolean get() = on && !com.music.spotui.extensions.ExtensionLook.hides(com.phush.hispoti.extensions.UiPart.PLAYER_CAPSULE)
 
     fun set(c: Context, value: Boolean) {
         on = value

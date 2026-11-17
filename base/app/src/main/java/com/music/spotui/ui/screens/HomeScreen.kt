@@ -68,7 +68,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.Response
 import com.music.spotui.data.api.Api
 import com.music.spotui.data.entity.HomeFeedModel
@@ -243,7 +243,7 @@ fun HomeFeedContent(navController: NavController, feed: HomeFeedModel, facet: St
             HomeFeedSection(navController, carousels[i])
         }
         // Sections from extensions (home.sections), after Spotify's own, each under its extension's name.
-        item { com.music.spotui.extensions.ExtensionBlocks(app.myspoti.extensions.Hook.HOME, app.myspoti.extensions.Surface.HOME, "{}") }
+        item { com.music.spotui.extensions.ExtensionBlocks(com.phush.hispoti.extensions.Hook.HOME, com.phush.hispoti.extensions.Surface.HOME, "{}") }
     }
 }
 

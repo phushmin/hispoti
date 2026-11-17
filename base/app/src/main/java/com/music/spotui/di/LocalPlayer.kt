@@ -237,14 +237,14 @@ object LocalPlayer {
             when (errors.failed(item.toString(), p.hasNextMediaItem())) {
                 StreamErrors.Step.SKIP -> {
                     log("skipped ${t.title}: no extension had it and Spotify cannot play it now")
-                    android.widget.Toast.makeText(Graph.app, Graph.app.getString(app.myspoti.engine.R.string.song_unavailable_skipped, t.title), android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(Graph.app, Graph.app.getString(com.phush.hispoti.engine.R.string.song_unavailable_skipped, t.title), android.widget.Toast.LENGTH_SHORT).show()
                     p.seekToNextMediaItem()
                     p.prepare()
                     p.play()
                 }
                 else -> {
                     log("stopped on ${t.title}: it cannot be played, and the songs after it failed too or none follows")
-                    android.widget.Toast.makeText(Graph.app, Graph.app.getString(app.myspoti.engine.R.string.song_unavailable, t.title), android.widget.Toast.LENGTH_LONG).show()
+                    android.widget.Toast.makeText(Graph.app, Graph.app.getString(com.phush.hispoti.engine.R.string.song_unavailable, t.title), android.widget.Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -411,12 +411,12 @@ object LocalPlayer {
         when (errors.failed(uri.toString(), p.hasNextMediaItem())) {
             StreamErrors.Step.SKIP -> {
                 log("skipped ${t.title}: its file is gone")
-                android.widget.Toast.makeText(Graph.app, Graph.app.getString(app.myspoti.engine.R.string.song_unavailable_skipped, t.title), android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(Graph.app, Graph.app.getString(com.phush.hispoti.engine.R.string.song_unavailable_skipped, t.title), android.widget.Toast.LENGTH_SHORT).show()
                 p.seekToNextMediaItem(); p.prepare(); p.play()
             }
             else -> {
                 log("stopped on ${t.title}: its file is gone, and the songs after it failed too or none follows")
-                android.widget.Toast.makeText(Graph.app, Graph.app.getString(app.myspoti.engine.R.string.song_unavailable, t.title), android.widget.Toast.LENGTH_LONG).show()
+                android.widget.Toast.makeText(Graph.app, Graph.app.getString(com.phush.hispoti.engine.R.string.song_unavailable, t.title), android.widget.Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -458,7 +458,7 @@ object LocalPlayer {
         val whole = shuffle && !isStation && all.size > 1
         val order = if (whole) LocalQueueOrder.shuffledWhole(all, start, isQueued) { it.shuffled() } else all
         if (whole) { tracks.clear(); tracks.addAll(order); unshuffled = all.filterNot(isQueued) }
-        listName = context ?: Graph.app.getString(app.myspoti.engine.R.string.local_files_title)
+        listName = context ?: Graph.app.getString(com.phush.hispoti.engine.R.string.local_files_title)
         listUri = contextUri
         active.value = true
         endFade()
@@ -512,7 +512,7 @@ object LocalPlayer {
     enum class MixState { PREPARING, READY, PREROLL, MIXING, RESTORING }
 
     private class MixRun(
-        var plan: app.myspoti.automix.MixPlan,
+        var plan: com.phush.hispoti.automix.MixPlan,
         val toIndex: Int,
         val toId: String,
         val deck: ExoPlayer,
@@ -544,13 +544,13 @@ object LocalPlayer {
         var recoveryStartedAt = 0L
         /** A data plan's outgoing lanes are armed and the deck's volume up: its automation decides what is heard. */
         var go = false
-        private var incomingLevel: app.myspoti.automix.segue.LaneCurve? = null
+        private var incomingLevel: com.phush.hispoti.automix.segue.LaneCurve? = null
         /** The incoming song's gain in a data plan at [x] of the window. */
         fun segueGainB(x: Double): Double {
             val p = plan.segue ?: return 1.0
-            val c = incomingLevel ?: p.lanes.firstOrNull { it.side == app.myspoti.automix.segue.LaneSide.INCOMING && it.target == app.myspoti.automix.segue.Target.LEVEL }
-                ?.let { app.myspoti.automix.segue.LaneCurve(it) }?.also { incomingLevel = it } ?: return 1.0
-            val u = x * app.myspoti.automix.segue.SegueFormat.T_MAX
+            val c = incomingLevel ?: p.lanes.firstOrNull { it.side == com.phush.hispoti.automix.segue.LaneSide.INCOMING && it.target == com.phush.hispoti.automix.segue.Target.LEVEL }
+                ?.let { com.phush.hispoti.automix.segue.LaneCurve(it) }?.also { incomingLevel = it } ?: return 1.0
+            val u = x * com.phush.hispoti.automix.segue.SegueFormat.T_MAX
             return if (c.isNull(u)) 0.0 else Math.pow(10.0, c.value(u) / 20)
         }
         /** Progress of the mix from the outgoing song's position (1 once it ended). */
@@ -562,9 +562,9 @@ object LocalPlayer {
 
     /** The plan for the song playing → the next one, once both are analysed. */
     private class Planned(
-        val fromIndex: Int, val toId: String, val plan: app.myspoti.automix.MixPlan,
-        val analysisA: app.myspoti.automix.TrackAnalysis? = null,
-        val analysisB: app.myspoti.automix.TrackAnalysis? = null,
+        val fromIndex: Int, val toId: String, val plan: com.phush.hispoti.automix.MixPlan,
+        val analysisA: com.phush.hispoti.automix.TrackAnalysis? = null,
+        val analysisB: com.phush.hispoti.automix.TrackAnalysis? = null,
     ) { val provisional get() = analysisA == null || analysisB == null }
     @Volatile private var planned: Planned? = null
     private var mix: MixRun? = null
@@ -576,14 +576,14 @@ object LocalPlayer {
     private var retryDeckAt = 0L
     private var askedAt = 0L
     /** The analyses for which the policy chose plain playback: no need to ask again every tick. */
-    private var noMixFor: Pair<app.myspoti.automix.TrackAnalysis, app.myspoti.automix.TrackAnalysis>? = null
+    private var noMixFor: Pair<com.phush.hispoti.automix.TrackAnalysis, com.phush.hispoti.automix.TrackAnalysis>? = null
 
     private const val PREPARE_LEAD_MS = 15_000L
     /**
      * How long a deck takes from play to sound (ms), learned at each start (about a second in, once
      * the AudioTrack's timestamps hold) and kept: the deck is started that much earlier.
      */
-    private var startLead = Graph.app.getSharedPreferences("myspoti_prefs", 0).getFloat("automix_start_lead", 120f).toDouble()
+    private var startLead = Graph.app.getSharedPreferences("hispoti_prefs", 0).getFloat("automix_start_lead", 120f).toDouble()
     private const val RUN_UP_MS = 2_500L
 
     /** One AutoMix step (every 200 ms, every 20 ms around a mix). False: no more ticks. */
@@ -673,7 +673,7 @@ object LocalPlayer {
         !com.music.spotui.automix.AutoMix.mixPodcasts && (a?.speech == true || b?.speech == true)
 
     /** The plan for this pair: the analysed one, else (once the end is near) a fade on the songs' lengths. */
-    private fun planFor(p: ExoPlayer, next: Int, nextId: String): app.myspoti.automix.MixPlan? {
+    private fun planFor(p: ExoPlayer, next: Int, nextId: String): com.phush.hispoti.automix.MixPlan? {
         val cur = p.currentMediaItemIndex
         val a = tracks.getOrNull(cur) ?: return null
         val b = tracks.getOrNull(next) ?: return null
@@ -720,11 +720,11 @@ object LocalPlayer {
         val dur = p.duration.takeIf { it > 0 } ?: return null
         if (dur - p.currentPosition > PREPARE_LEAD_MS + RUN_UP_MS + 1000 && preparationFailures < 2) return null
         val settings = com.music.spotui.automix.AutoMix.settings()
-        val wantedLength = if (settings.style == app.myspoti.automix.MixPlan.Style.FADE) settings.smoothSec else 6.0
+        val wantedLength = if (settings.style == com.phush.hispoti.automix.MixPlan.Style.FADE) settings.smoothSec else 6.0
         val exit = maxOf(dur / 1000.0 - wantedLength, (p.currentPosition + MixPreparation.MIN_LEAD_MS + 300) / 1000.0)
         val length = minOf(wantedLength, dur / 1000.0 - exit)
         if (length < 0.35) { planned = null; return null }
-        val plan = app.myspoti.automix.MixPlan(app.myspoti.automix.MixPlan.Style.FADE, exit, rb?.contentStart ?: 0.0, length, 1.0, 0, 0.5, 0.1, 1.0, 0.0,
+        val plan = com.phush.hispoti.automix.MixPlan(com.phush.hispoti.automix.MixPlan.Style.FADE, exit, rb?.contentStart ?: 0.0, length, 1.0, 0, 0.5, 0.1, 1.0, 0.0,
             if (preparationFailures > 0) "fade: recovering a late deck" else "fade: analysis pending")
         planned = Planned(cur, nextId, plan)
         whyNot(refused ?: if (com.music.spotui.automix.AutoMix.frugal()) com.music.spotui.automix.AutoMix.Reason.Frugal else com.music.spotui.automix.AutoMix.Reason.NotAnalyzed)
@@ -733,16 +733,16 @@ object LocalPlayer {
     }
 
     /** A data plan being worked out away from the main thread: weighing the candidates takes long enough to be felt there. */
-    private class SegueWork(val ra: app.myspoti.automix.TrackAnalysis, val rb: app.myspoti.automix.TrackAnalysis) {
+    private class SegueWork(val ra: com.phush.hispoti.automix.TrackAnalysis, val rb: com.phush.hispoti.automix.TrackAnalysis) {
         @Volatile var done = false
-        var plan: app.myspoti.automix.MixPlan? = null
+        var plan: com.phush.hispoti.automix.MixPlan? = null
         var note = ""
     }
     private val segueWorker by lazy { java.util.concurrent.Executors.newSingleThreadExecutor { r -> Thread(r, "segue-plan").apply { isDaemon = true } } }
     private var segueWork: SegueWork? = null
 
     /** Whether [choosePlan] has its answer for this pair; asked for the first time, it starts the work. */
-    private fun segueDecided(a: LocalTrack, b: LocalTrack, ra: app.myspoti.automix.TrackAnalysis, rb: app.myspoti.automix.TrackAnalysis, earliest: Double): Boolean {
+    private fun segueDecided(a: LocalTrack, b: LocalTrack, ra: com.phush.hispoti.automix.TrackAnalysis, rb: com.phush.hispoti.automix.TrackAnalysis, earliest: Double): Boolean {
         if (!com.music.spotui.automix.AutoMix.segueActive) return true
         segueWork?.takeIf { it.ra === ra && it.rb === rb }?.let { return it.done }
         val album = a.album.trim()
@@ -759,7 +759,7 @@ object LocalPlayer {
                 val d = com.music.spotui.automix.AutoMix.decide(sungA, sungB, from, sameAlbum, listener)
                 val voices = "voices ${if (sungA.voiceKnown) "lyrics" else "estimate"}/${if (sungB.voiceKnown) "lyrics" else "estimate"}"
                 work.note = "segue ${d.level} ${d.shape ?: ""} ${d.fingerprint?.take(12) ?: ""} $voices${if (d.attempts.isEmpty()) "" else ": ${d.why}"}"
-                work.plan = app.myspoti.automix.segue.SeguePolicy.timing(d)
+                work.plan = com.phush.hispoti.automix.segue.SeguePolicy.timing(d)
             }.onFailure { work.note = "segue failed: $it"; work.plan = null }
             work.done = true
         }
@@ -770,22 +770,22 @@ object LocalPlayer {
      * A plan's speed as player parameters. Keeping the pitch costs artefacts on music; a change this small
      * is below what is heard as out of tune, so it goes by resampling alone.
      */
-    private fun mixParameters(plan: app.myspoti.automix.MixPlan, speed: Float): androidx.media3.common.PlaybackParameters {
+    private fun mixParameters(plan: com.phush.hispoti.automix.MixPlan, speed: Float): androidx.media3.common.PlaybackParameters {
         val tiny = plan.segue != null && kotlin.math.abs(plan.speedB - 1) <= 0.01
         return if (tiny) androidx.media3.common.PlaybackParameters(speed, speed / rate()) else androidx.media3.common.PlaybackParameters(speed)
     }
 
     /** [analysis] with its voices from the song's timed lyrics, when they are already here. On the plan's thread. */
-    private fun sung(t: LocalTrack, analysis: app.myspoti.automix.TrackAnalysis): app.myspoti.automix.TrackAnalysis {
+    private fun sung(t: LocalTrack, analysis: com.phush.hispoti.automix.TrackAnalysis): com.phush.hispoti.automix.TrackAnalysis {
         val lyrics = com.music.spotui.data.api.LyricsApi.known(com.music.spotui.data.api.LyricsApi.Track(spotifyId(t), t.title, t.artist, t.album, t.durationMs)) ?: return analysis.withLearnedVoices()
         val lines = lyrics.lines.map { l ->
-            app.myspoti.automix.SungSpans.Line(l.timeMs, l.words?.lastOrNull()?.endMs?.takeIf { it > 0 }, l.text.isNotBlank())
+            com.phush.hispoti.automix.SungSpans.Line(l.timeMs, l.words?.lastOrNull()?.endMs?.takeIf { it > 0 }, l.text.isNotBlank())
         }
-        return app.myspoti.automix.SungSpans.of(lines, analysis.duration)?.let(analysis::withSung) ?: analysis.withLearnedVoices()
+        return com.phush.hispoti.automix.SungSpans.of(lines, analysis.duration)?.let(analysis::withSung) ?: analysis.withLearnedVoices()
     }
 
     /** The plan for two analysed songs, once [segueDecided]. With the data plans on, null means the policy chose plain playback. */
-    private fun choosePlan(ra: app.myspoti.automix.TrackAnalysis, rb: app.myspoti.automix.TrackAnalysis, earliest: Double): app.myspoti.automix.MixPlan? {
+    private fun choosePlan(ra: com.phush.hispoti.automix.TrackAnalysis, rb: com.phush.hispoti.automix.TrackAnalysis, earliest: Double): com.phush.hispoti.automix.MixPlan? {
         if (!com.music.spotui.automix.AutoMix.segueActive) return com.music.spotui.automix.AutoMix.planAfter(ra, rb, earliest)
         val work = segueWork ?: return null
         segueWork = null
@@ -811,7 +811,7 @@ object LocalPlayer {
                 MixPreparation.placed(stageA.positionUs, pos), MixPreparation.placed(stageB.positionUs, d.currentPosition),
                 if (run.state == MixState.PREROLL && run.plan.synced) run.errors.lastOrNull() else null)
         if (ready) {
-            stageA!!.arm(plan, app.myspoti.automix.segue.LaneSide.OUTGOING)
+            stageA!!.arm(plan, com.phush.hispoti.automix.segue.LaneSide.OUTGOING)
             d.volume = 1f
             run.go = true
             com.music.spotui.automix.AutoMix.journal("segue armed: the chain is $lead ms before the cue and ${stageA.positionUs / 1000 - pos} ms ahead of the player, the cue ${exitMs - pos} ms away")
@@ -838,7 +838,7 @@ object LocalPlayer {
             return
         }
         run.plan = plan
-        plan.segue?.let { s -> run.eq?.neutral(); segueStages[run.deck]?.arm(s, app.myspoti.automix.segue.LaneSide.INCOMING) }
+        plan.segue?.let { s -> run.eq?.neutral(); segueStages[run.deck]?.arm(s, com.phush.hispoti.automix.segue.LaneSide.INCOMING) }
         run.startMs = (plan.entryB * 1000 - minOf(plan.entryB * 1000, RUN_UP_MS * plan.speedB)).toLong().coerceAtLeast(0L)
         run.deck.playbackParameters = mixParameters(plan, (plan.speedB * rate()).toFloat())
         run.lastSpeed = run.deck.playbackParameters.speed
@@ -874,14 +874,14 @@ object LocalPlayer {
     private const val SKIP_RUN_UP_MS = 600L
 
     /** The skip mix from A's time [posMs] (ms), on what is analysed of both songs. */
-    private fun skipPlan(p: ExoPlayer, next: Int, posMs: Long): app.myspoti.automix.MixPlan {
+    private fun skipPlan(p: ExoPlayer, next: Int, posMs: Long): com.phush.hispoti.automix.MixPlan {
         val a = tracks.getOrNull(p.currentMediaItemIndex)?.let { com.music.spotui.automix.AutoMix.analysis(it.uri) }
         val b = tracks.getOrNull(next)?.let { com.music.spotui.automix.AutoMix.analysis(it.uri) }
         // A skip may stretch more than a natural mix (12 %): it is short, and B is back to its tempo soon after.
-        val s = com.music.spotui.automix.AutoMix.settings().let { app.myspoti.automix.MixPlanner.Settings(maxStretch = maxOf(it.maxStretch, 0.12), lengthBias = it.lengthBias, style = it.style) }
+        val s = com.music.spotui.automix.AutoMix.settings().let { com.phush.hispoti.automix.MixPlanner.Settings(maxStretch = maxOf(it.maxStretch, 0.12), lengthBias = it.lengthBias, style = it.style) }
         val lead = (SKIP_RUN_UP_MS + startLead) / 1000.0
-        if (com.music.spotui.automix.AutoMix.nextStyle == 2) app.myspoti.automix.MixPlanner.planSkipFull(a, b, posMs / 1000.0, lead, s)?.let { return it }
-        return app.myspoti.automix.MixPlanner.planSkip(a, b, posMs / 1000.0, lead, s)
+        if (com.music.spotui.automix.AutoMix.nextStyle == 2) com.phush.hispoti.automix.MixPlanner.planSkipFull(a, b, posMs / 1000.0, lead, s)?.let { return it }
+        return com.phush.hispoti.automix.MixPlanner.planSkip(a, b, posMs / 1000.0, lead, s)
     }
 
     /**
@@ -905,7 +905,7 @@ object LocalPlayer {
     }
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-    private fun prepareDeck(p: ExoPlayer, next: Int, nextId: String, plan: app.myspoti.automix.MixPlan, skip: Boolean = false) {
+    private fun prepareDeck(p: ExoPlayer, next: Int, nextId: String, plan: com.phush.hispoti.automix.MixPlan, skip: Boolean = false) {
         val t = tracks.getOrNull(next) ?: return
         val deck = build(false, deck = true)
         deck.volume = 0f
@@ -915,8 +915,8 @@ object LocalPlayer {
         val start = (plan.entryB * 1000 - runUpB).toLong().coerceAtLeast(0L)
         // A data plan's lanes play in the audio chain, on no effect of the player's session.
         val run = MixRun(plan, next, nextId, deck, (if (plan.segue == null && com.music.spotui.automix.AutoMix.djEq) com.music.spotui.automix.DeckEq.attach(deck.audioSessionId) else null), start, skip)
-        plan.segue?.let { segueStages[deck]?.arm(it, app.myspoti.automix.segue.LaneSide.INCOMING) }
-        run.eq?.set(app.myspoti.automix.MixPlan.KILL, 0.0)
+        plan.segue?.let { segueStages[deck]?.arm(it, com.phush.hispoti.automix.segue.LaneSide.INCOMING) }
+        run.eq?.set(com.phush.hispoti.automix.MixPlan.KILL, 0.0)
         run.lastSpeed = deck.playbackParameters.speed
         run.a = p; run.eqA = deckEq
         mix = run
@@ -925,7 +925,7 @@ object LocalPlayer {
                 if (mix !== run || run.state >= MixState.MIXING || !com.music.spotui.automix.AutoMix.djEq || run.plan.segue != null) return
                 run.eq?.release()
                 run.eq = com.music.spotui.automix.DeckEq.attach(audioSessionId)
-                run.eq?.set(app.myspoti.automix.MixPlan.KILL, 0.0)
+                run.eq?.set(com.phush.hispoti.automix.MixPlan.KILL, 0.0)
             }
             override fun onPlaybackStateChanged(state: Int) {
                 if (mix === run && state == Player.STATE_READY && run.state == MixState.PREPARING) {
@@ -959,7 +959,7 @@ object LocalPlayer {
         if (!plan.synced && !preroll) return
         // A cut between tempos too far apart: B's first downbeat on A's is all there is to hold; after
         // it the two run apart anyway (A is gone within two beats), so B is left at its own pace.
-        if (!preroll && plan.style == app.myspoti.automix.MixPlan.Style.CUT && plan.restoreSec == 0.0) return
+        if (!preroll && plan.style == com.phush.hispoti.automix.MixPlan.Style.CUT && plan.restoreSec == 0.0) return
         val d = run.deck
         if (!d.isPlaying) return
         val aPos = a.currentPosition; val bPos = d.currentPosition
@@ -978,7 +978,7 @@ object LocalPlayer {
             run.firstLocked = true
             // The correction already made by the speed since the start counts too.
             startLead = (startLead - 0.6 * (e - run.corrected) / plan.speedB).coerceIn(0.0, 500.0)
-            Graph.app.getSharedPreferences("myspoti_prefs", 0).edit().putFloat("automix_start_lead", startLead.toFloat()).apply()
+            Graph.app.getSharedPreferences("hispoti_prefs", 0).edit().putFloat("automix_start_lead", startLead.toFloat()).apply()
         }
         if (preroll && kotlin.math.abs(e) > 400 && run.errors.size == 3) {
             d.seekTo((target + 120).toLong().coerceAtLeast(0L)); run.errors.clear(); return
@@ -1070,7 +1070,7 @@ object LocalPlayer {
                 if (left > 500 && a.isPlaying) {
                     // Re-enter gently from the audio actually heard; do not chase an obsolete grid after a stall.
                     segueStages[a]?.disarm(); segueStages[d]?.disarm()
-                    plan = app.myspoti.automix.MixPlan(app.myspoti.automix.MixPlan.Style.FADE, a.currentPosition / 1000.0,
+                    plan = com.phush.hispoti.automix.MixPlan(com.phush.hispoti.automix.MixPlan.Style.FADE, a.currentPosition / 1000.0,
                         d.currentPosition / 1000.0, minOf(4.0, left / 1000.0), 1.0, 0, 0.5, 0.1, run.plan.matchB, 0.0, "fade: incoming buffer recovered")
                     run.plan = plan; run.lastSpeed = 0f
                     run.recoveryGainA = a.volume; run.recoveryStartedAt = android.os.SystemClock.uptimeMillis()
@@ -1079,7 +1079,7 @@ object LocalPlayer {
                 }
             }
             val x = run.progress()
-            val tail = plan.segue?.let { app.myspoti.automix.segue.SegueDeck.tailUs(it) / (plan.length * 1e6) } ?: 0.0
+            val tail = plan.segue?.let { com.phush.hispoti.automix.segue.SegueDeck.tailUs(it) / (plan.length * 1e6) } ?: 0.0
             if (x >= 1.0 + tail || a.playbackState == Player.STATE_ENDED || a.playbackState == Player.STATE_IDLE) {
                 // A is gone.
                 com.music.spotui.automix.AutoMix.journal(String.format("mix done, largest gap %.0f ms", run.worstMs))
@@ -1094,7 +1094,7 @@ object LocalPlayer {
             } else if (plan.segue != null) {
                 // The lanes play in the audio chain; the players stay at full volume and hold the beat.
                 a.volume = 1f; d.volume = 1f
-                if (a.isPlaying) lock(run, a, preroll = false, quiet = run.segueGainB(x) < 0.35 || plan.style == app.myspoti.automix.MixPlan.Style.CUT)
+                if (a.isPlaying) lock(run, a, preroll = false, quiet = run.segueGainB(x) < 0.35 || plan.style == com.phush.hispoti.automix.MixPlan.Style.CUT)
                 return d.playWhenReady
             } else {
                 val lv = plan.levels(x)
@@ -1103,7 +1103,7 @@ object LocalPlayer {
                 d.volume = lv.gainB.toFloat()
                 if (com.music.spotui.automix.AutoMix.djEq) { run.eqA?.set(lv.lowA, lv.highA); run.eq?.set(lv.lowB, lv.highB) }
                 // B low in the mix, or a cut (B whole at once, A out within two beats): corrected fast.
-                if (a.isPlaying) lock(run, a, preroll = false, quiet = lv.gainB < 0.35 || plan.style == app.myspoti.automix.MixPlan.Style.CUT)
+                if (a.isPlaying) lock(run, a, preroll = false, quiet = lv.gainB < 0.35 || plan.style == com.phush.hispoti.automix.MixPlan.Style.CUT)
                 // Paused: the ticks start again with the play (onIsPlayingChanged).
                 return d.playWhenReady
             }
@@ -1228,7 +1228,7 @@ object LocalPlayer {
         val endMs: Long,
         val entryMs: Long,
         val resumeMs: Long,
-        val style: app.myspoti.automix.MixPlan.Style,
+        val style: com.phush.hispoti.automix.MixPlan.Style,
         /** The mix is heard (the deck took over); before it, only planned or being prepared. */
         val mixing: Boolean,
         /** A mix for Next rather than at the song's end. */
@@ -1239,13 +1239,13 @@ object LocalPlayer {
     /** The mix ahead of the song playing, or running; null with none (AutoMix off, Spotify songs, no next song). */
     val mixCue: androidx.compose.runtime.State<MixCue?> get() = cueState
     /** Both songs' analyses for the pulse, kept with the cue (looked up when the pair changes only). */
-    private var cueSongs: Pair<app.myspoti.automix.TrackAnalysis?, app.myspoti.automix.TrackAnalysis?> = null to null
+    private var cueSongs: Pair<com.phush.hispoti.automix.TrackAnalysis?, com.phush.hispoti.automix.TrackAnalysis?> = null to null
     private var cuePair = ""
 
     private fun updateCue() {
         val p = exo
         val run = mix?.takeIf { it.state <= MixState.MIXING }
-        val plan: app.myspoti.automix.MixPlan?
+        val plan: com.phush.hispoti.automix.MixPlan?
         val from: Int; val to: Int
         if (p == null || !active.value || !com.music.spotui.automix.AutoMix.on && run == null) { cueState.value = null; return }
         if (run != null) {
@@ -1291,10 +1291,10 @@ object LocalPlayer {
     }
 
     private const val PULSE_LEAD_MS = 8_000L
-    private val pulseNorms = java.util.WeakHashMap<app.myspoti.automix.TrackAnalysis, FloatArray>()
+    private val pulseNorms = java.util.WeakHashMap<com.phush.hispoti.automix.TrackAnalysis, FloatArray>()
 
     /** One song's beat at its time [t] (s): a 25-ms attack, then a decay over a third of the beat. */
-    private fun beatPulse(an: app.myspoti.automix.TrackAnalysis?, t: Double): Float {
+    private fun beatPulse(an: com.phush.hispoti.automix.TrackAnalysis?, t: Double): Float {
         // Not analysed (a fade on the lengths): a slow breath, at the pace of a slow song.
         if (an == null || an.beats.isEmpty()) return 0.35f + 0.25f * kotlin.math.sin(t * Math.PI * 2 / 1.6).toFloat()
         val beats = an.beats
@@ -1714,7 +1714,7 @@ object LocalPlayer {
         val added = more.map(com.music.spotui.extensions.ExtensionAudio::localTrack).let { if (shuffled) it.shuffled() else it }
         val from = tracks.size
         // Named after the song it goes on from, as Spotify's song radio is.
-        radioName = Graph.app.getString(app.myspoti.engine.R.string.song_radio_name, tracks.lastOrNull { spotifyId(it) == id }?.title ?: current()?.title.orEmpty())
+        radioName = Graph.app.getString(com.phush.hispoti.engine.R.string.song_radio_name, tracks.lastOrNull { spotifyId(it) == id }?.title ?: current()?.title.orEmpty())
         radioSongs += added
         tracks.addAll(added)
         p.addMediaItems(added.map(::item))
@@ -1742,7 +1742,7 @@ object LocalPlayer {
 
     private fun item(t: LocalTrack) = MediaItem.Builder().setUri(t.uri).setMediaId(t.id.toString())
         .setMediaMetadata(MediaMetadata.Builder().setTitle(t.title).setArtist(t.artist).setAlbumTitle(t.album)
-            .setArtworkUri(android.net.Uri.parse(app.myspoti.host.android.Covers.large(t.artUri.toString()))).setDurationMs(t.durationMs.takeIf { it > 0 }).build()).build()
+            .setArtworkUri(android.net.Uri.parse(com.phush.hispoti.host.android.Covers.large(t.artUri.toString()))).setDurationMs(t.durationMs.takeIf { it > 0 }).build()).build()
     /** SongPlayer.repeatMode as this player has it (0 off, 1 the queue, 2 the song for good, 3 the song once; see LocalRepeat). */
     private var repeat = LocalRepeat.OFF
 
@@ -1902,14 +1902,14 @@ object LocalPlayer {
         if (network) return reconnectRadio(p, t)
         radioRetries = 0
         log("${t.title}: not reconnected, the stream itself failed (${error.errorCodeName})")
-        android.widget.Toast.makeText(Graph.app, Graph.app.getString(app.myspoti.engine.R.string.song_unavailable, t.title), android.widget.Toast.LENGTH_LONG).show()
+        android.widget.Toast.makeText(Graph.app, Graph.app.getString(com.phush.hispoti.engine.R.string.song_unavailable, t.title), android.widget.Toast.LENGTH_LONG).show()
     }
 
     private fun reconnectRadio(p: ExoPlayer, t: LocalTrack) {
         if (radioRetries >= RADIO_TRIES) {
             radioRetries = 0
             log("${t.title}: gave up reconnecting after repeated failures")
-            android.widget.Toast.makeText(Graph.app, Graph.app.getString(app.myspoti.engine.R.string.song_unavailable, t.title), android.widget.Toast.LENGTH_LONG).show()
+            android.widget.Toast.makeText(Graph.app, Graph.app.getString(com.phush.hispoti.engine.R.string.song_unavailable, t.title), android.widget.Toast.LENGTH_LONG).show()
             return
         }
         radioRetries++
@@ -1986,7 +1986,7 @@ object LocalPlayer {
 
     private const val LENGTH_GAP_MS = 2_000L
 
-    private fun log(line: String) = app.myspoti.host.android.Logbook.log("local: $line")
+    private fun log(line: String) = com.phush.hispoti.host.android.Logbook.log("local: $line")
 
     /** An error's text without the addresses it may carry. */
     private fun generic(text: String) = text.replace(Regex("\\b\\w+://\\S+"), "<address>").take(200)

@@ -1,8 +1,8 @@
 package com.music.spotui.di
 
-import app.myspoti.host.android.Logbook
-import app.myspoti.host.android.MyspotiRuntime
-import app.myspoti.host.android.PlaybackService
+import com.phush.hispoti.host.android.Logbook
+import com.phush.hispoti.host.android.HispotiRuntime
+import com.phush.hispoti.host.android.PlaybackService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +28,7 @@ object SessionActions {
      * With other accounts kept on the phone, this one is removed and the one used last takes over.
      */
     fun logout(context: android.content.Context) {
-        val host = MyspotiRuntime.host
+        val host = HispotiRuntime.host
         val list = host.accounts.list.value
         if (host.multiProfile && list.others.isNotEmpty()) {
             removeAccount(context, list.active)
@@ -48,18 +48,18 @@ object SessionActions {
     private fun leaveAccount(app: android.content.Context, forget: Boolean) {
         // This account's downloads go aside: the next account on the phone sees none of them.
         val account = com.music.spotui.data.api.ProfileCache.id
-        val key = account?.let { com.music.spotui.data.offline.OfflineAccounts.keyOf(it) } ?: MyspotiRuntime.host.accounts.list.value.current?.key
-        MyspotiRuntime.scope.launch {
+        val key = account?.let { com.music.spotui.data.offline.OfflineAccounts.keyOf(it) } ?: HispotiRuntime.host.accounts.list.value.current?.key
+        HispotiRuntime.scope.launch {
             runCatching { com.music.spotui.data.offline.OfflineAccounts.park(app, account) }
                 .onFailure { Logbook.log("offline: sign-out park failed: ${it.message}") }
         }
-        app.getSharedPreferences("myspoti_prefs", android.content.Context.MODE_PRIVATE)
+        app.getSharedPreferences("hispoti_prefs", android.content.Context.MODE_PRIVATE)
             .edit().putBoolean("LoggedIn", false).remove("CurrentAccountName").apply()
         // Nothing of the account keeps playing or showing: local songs, the clip, the notification.
         LocalPlayer.stop()
         com.music.spotui.video.MusicVideoController.clearSession()
         PlaybackService.end()
-        runCatching { MyspotiRuntime.scope.launch { runCatching { MyspotiRuntime.api.player.pause() } } }
+        runCatching { HispotiRuntime.scope.launch { runCatching { HispotiRuntime.api.player.pause() } } }
         com.music.spotui.ui.screens.ContextViewModel.clearCache()
         com.music.spotui.data.api.Api.HomeCache.clear()
         com.music.spotui.data.api.Api.LikedCache.tracks = null
@@ -81,7 +81,7 @@ object SessionActions {
         else com.music.spotui.data.local.ListenHistory.park(key)
         AutoBrowser.clearSession()
         // The API's token, username and Jam, and the plan: the next account's are read.
-        MyspotiRuntime.accountChanged()
+        HispotiRuntime.accountChanged()
     }
 
     /**
@@ -90,7 +90,7 @@ object SessionActions {
      * profile, signed in as it was left. Without WebView profiles, one account at a time: signs out.
      */
     fun switchAccount(context: android.content.Context, profile: String) {
-        val host = MyspotiRuntime.host
+        val host = HispotiRuntime.host
         if (!host.multiProfile) { logout(context); return }
         val list = host.accounts.list.value
         if (profile == list.active || list.accounts.none { it.profile == profile }) return
@@ -102,7 +102,7 @@ object SessionActions {
 
     /** "Add account": this one stays kept, and Spotify's sign-in page opens in a new profile. Without profiles: signs out. */
     fun addAccount(context: android.content.Context) {
-        val host = MyspotiRuntime.host
+        val host = HispotiRuntime.host
         if (!host.multiProfile) { logout(context); return }
         Logbook.log("account: adding an account")
         leaveAccount(context.applicationContext, forget = false)
@@ -115,7 +115,7 @@ object SessionActions {
      * used last takes over again. False when there is none to go back to.
      */
     fun backToPreviousAccount(context: android.content.Context): Boolean {
-        val host = MyspotiRuntime.host
+        val host = HispotiRuntime.host
         if (!host.multiProfile) return false
         val list = host.accounts.list.value
         val previous = list.others.firstOrNull() ?: return false
@@ -132,7 +132,7 @@ object SessionActions {
      * account is first left for the one used last; the only account left is signed out instead.
      */
     fun removeAccount(context: android.content.Context, profile: String) {
-        val host = MyspotiRuntime.host
+        val host = HispotiRuntime.host
         val list = host.accounts.list.value
         val gone = list.accounts.firstOrNull { it.profile == profile } ?: return
         if (profile == list.active) {

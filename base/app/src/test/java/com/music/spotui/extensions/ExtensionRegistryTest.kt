@@ -1,11 +1,11 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.Action
-import app.myspoti.extensions.ActionRequest
-import app.myspoti.extensions.Area
-import app.myspoti.extensions.Clash
-import app.myspoti.extensions.Manifest
-import app.myspoti.extensions.PermissionRequest
+import com.phush.hispoti.extensions.Action
+import com.phush.hispoti.extensions.ActionRequest
+import com.phush.hispoti.extensions.Area
+import com.phush.hispoti.extensions.Clash
+import com.phush.hispoti.extensions.Manifest
+import com.phush.hispoti.extensions.PermissionRequest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -111,10 +111,10 @@ class ExtensionRegistryTest {
     @Test fun theGitHubRecordIsKeptOnDisk() {
         val m = manifest(2)
         val e = installed(m, setOf("lyrics.provide", "storage")).copy(
-            origin = app.myspoti.extensions.Origin("me/ext", "v1.2", tag = true, commit = "0123456789abcdef0123456789abcdef01234567"),
-            accepted = app.myspoti.extensions.Snapshot.of(manifest(1), "me/ext"),
+            origin = com.phush.hispoti.extensions.Origin("me/ext", "v1.2", tag = true, commit = "0123456789abcdef0123456789abcdef01234567"),
+            accepted = com.phush.hispoti.extensions.Snapshot.of(manifest(1), "me/ext"),
             previous = KeptVersion("1.1", 1, "old", null),
-            pendingUpdate = PendingUpdate(KeptVersion("1.3", 3, "new"), listOf(app.myspoti.extensions.Change(app.myspoti.extensions.Change.Kind.HOST, "x.example"))),
+            pendingUpdate = PendingUpdate(KeptVersion("1.3", 3, "new"), listOf(com.phush.hispoti.extensions.Change(com.phush.hispoti.extensions.Change.Kind.HOST, "x.example"))),
             declinedVersionCode = 3, sourceGone = true,
         )
         val f = Files.createTempFile("registry", ".json").toFile()

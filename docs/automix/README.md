@@ -149,8 +149,8 @@ default, its numbers are unmeasured starting values, and a setting goes back to 
 ## Checking it
 
 The isolated test app builds with `./gradlew --offline :app:assembleDebug -Pabis=arm64-v8a
--PautomixLab -PappVersionCode=3115` from `base/`. It is `app.myspoti.automixlab`, labelled
-"Myspoti Mix Lab", and installs alongside the regular and dev apps with separate data. No audio
+-PautomixLab -PappVersionCode=3115` from `base/`. It is `com.phush.hispoti.automixlab`, labelled
+"Hispoti Mix Lab", and installs alongside the regular and dev apps with separate data. No audio
 files or private benchmark inputs are included in the repository. Test branch status and measured
 results are recorded in [LAB.md](LAB.md).
 

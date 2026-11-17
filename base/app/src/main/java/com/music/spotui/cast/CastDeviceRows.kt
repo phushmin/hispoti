@@ -29,15 +29,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.di.LocalPlayer
 import com.music.spotui.ui.theme.AppAccent
 import com.music.spotui.ui.theme.AppMuted
 import com.music.spotui.ui.theme.AppText
 
 /**
- * The Cast devices of the network in the device picker, under the Spotify Connect devices: Myspoti's
+ * The Cast devices of the network in the device picker, under the Spotify Connect devices: Hispoti's
  * own songs (extensions, downloads, the phone's files) are cast to them. While a Spotify song
  * plays, a tap wakes the device's Spotify receiver ([CastSpotify]) and the song moves to it as a
  * Spotify Connect device; one already listed above under the same name is not repeated. While
@@ -67,7 +67,7 @@ fun CastDeviceRows(onDismiss: () -> Unit) {
         }
     }
     val waking = CastSpotify.waking.value
-    val connectNames = MyspotiRuntime.spotify.devices.devices.collectAsState().value.filter { !it.local }.map { it.name }.toSet()
+    val connectNames = HispotiRuntime.spotify.devices.devices.collectAsState().value.filter { !it.local }.map { it.name }.toSet()
     CastDiscovery.devices.filter { it.id != casting?.id && (ownSong || it.name !in connectNames) }.forEach { d ->
         val detail = when {
             waking?.id == d.id -> stringResource(R.string.cast_connecting)

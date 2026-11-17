@@ -1,11 +1,11 @@
-// Android host: runs the Web Player in a WebView and exposes it as a MyspotiApi, plus the
+// Android host: runs the Web Player in a WebView and exposes it as a HispotiApi, plus the
 // playback service (media session, notification, Android Auto browsing).
 plugins {
     alias(libs.plugins.android.library)
 }
 
 android {
-    namespace = "app.myspoti.host.android"
+    namespace = "com.phush.hispoti.host.android"
     compileSdk = 37
 
     defaultConfig {

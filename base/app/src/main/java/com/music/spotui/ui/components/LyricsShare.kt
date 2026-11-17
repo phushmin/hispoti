@@ -2,7 +2,7 @@ package com.music.spotui.ui.components
 
 import android.content.Context
 import android.content.Intent
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.Lyrics
 import com.music.spotui.di.SongPlayer
 

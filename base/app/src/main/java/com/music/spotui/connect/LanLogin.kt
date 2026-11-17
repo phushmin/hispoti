@@ -1,7 +1,7 @@
 package com.music.spotui.connect
 
 import androidx.compose.runtime.mutableStateOf
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.di.Graph
 import com.music.spotui.di.SongPlayer
 import kotlinx.coroutines.CoroutineScope
@@ -40,9 +40,9 @@ object LanLogin {
                 device.onSuccess { SongPlayer.transferTo(it) }.onFailure {
                     log("failed: ${it.javaClass.simpleName} ${it.message.orEmpty().take(80)}")
                     val message = when {
-                        it is ConnectCode.Failure && it.grouped -> app.myspoti.engine.R.string.lan_sonos_group
-                        it is ConnectCode.Failure -> app.myspoti.engine.R.string.lan_sonos_refused
-                        else -> app.myspoti.engine.R.string.lan_failed
+                        it is ConnectCode.Failure && it.grouped -> com.phush.hispoti.engine.R.string.lan_sonos_group
+                        it is ConnectCode.Failure -> com.phush.hispoti.engine.R.string.lan_sonos_refused
+                        else -> com.phush.hispoti.engine.R.string.lan_failed
                     }
                     android.widget.Toast.makeText(Graph.app, Graph.app.getString(message, d.info.name.ifBlank { d.service }), android.widget.Toast.LENGTH_LONG).show()
                 }
@@ -52,7 +52,7 @@ object LanLogin {
 
     private suspend fun login(d: LanDevice): SongPlayer.ConnectDevice {
         connectDevice(d)?.let { log("already a Spotify Connect device"); return it }
-        val spotify = MyspotiRuntime.spotify
+        val spotify = HispotiRuntime.spotify
         val user = (spotify.raw.service("UserAPI", "getUser") as? JsonObject)?.get("username")?.jsonPrimitive?.contentOrNull.orEmpty()
         val me = android.os.Build.MODEL.ifBlank { "Android" }
         if (d.info.wantsCode) return loginWithCode(d, user, me)
@@ -163,7 +163,7 @@ object LanLogin {
 
     /** [d] among the account's Connect devices: by the id it announced, else by its name. */
     private suspend fun connectDevice(d: LanDevice): SongPlayer.ConnectDevice? {
-        val api = MyspotiRuntime.spotify.devices
+        val api = HispotiRuntime.spotify.devices
         runCatching { api.refresh() }
         val all = api.devices.value.filter { !it.local }
         val x = all.firstOrNull { it.id == d.info.deviceId } ?: all.firstOrNull { d.info.name.isNotBlank() && it.name == d.info.name } ?: return null
@@ -174,5 +174,5 @@ object LanLogin {
     private fun controllerId(name: String): String =
         java.security.MessageDigest.getInstance("MD5").digest(name.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) }
 
-    private fun log(line: String) = app.myspoti.host.android.Logbook.log("lan: login: $line")
+    private fun log(line: String) = com.phush.hispoti.host.android.Logbook.log("lan: login: $line")
 }

@@ -75,7 +75,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
@@ -196,7 +196,7 @@ fun LibraryCreateSheet(navController: NavController, onDismiss: () -> Unit, onLi
 private fun BlendSheet(navController: NavController, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val blends = app.myspoti.host.android.MyspotiRuntime.api.blends
+    val blends = com.phush.hispoti.host.android.HispotiRuntime.api.blends
     var joining by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     fun say(res: Int) = Toast.makeText(context, context.getString(res), Toast.LENGTH_SHORT).show()
@@ -208,11 +208,11 @@ private fun BlendSheet(navController: NavController, onDismiss: () -> Unit) {
             val opened = runCatching {
                 val invitation = blends.invitation(link)
                 when (invitation.state) {
-                    app.myspoti.api.BlendInvitationState.JOINABLE, app.myspoti.api.BlendInvitationState.UNKNOWN -> blends.join(link)
-                    app.myspoti.api.BlendInvitationState.JOINED -> invitation.playlist
-                    app.myspoti.api.BlendInvitationState.WAITING -> { say(R.string.blend_own_invite); null }
-                    app.myspoti.api.BlendInvitationState.FULL -> { say(R.string.blend_full); null }
-                    app.myspoti.api.BlendInvitationState.DELETED -> { say(R.string.blend_deleted); null }
+                    com.phush.hispoti.api.BlendInvitationState.JOINABLE, com.phush.hispoti.api.BlendInvitationState.UNKNOWN -> blends.join(link)
+                    com.phush.hispoti.api.BlendInvitationState.JOINED -> invitation.playlist
+                    com.phush.hispoti.api.BlendInvitationState.WAITING -> { say(R.string.blend_own_invite); null }
+                    com.phush.hispoti.api.BlendInvitationState.FULL -> { say(R.string.blend_full); null }
+                    com.phush.hispoti.api.BlendInvitationState.DELETED -> { say(R.string.blend_deleted); null }
                 }
             }.onFailure {
                 say(if (it is IllegalArgumentException) R.string.blend_bad_link else R.string.blend_failed)
@@ -256,8 +256,8 @@ private fun BlendSheet(navController: NavController, onDismiss: () -> Unit) {
 fun BlendInviteSheet(link: com.music.spotui.data.api.InviteLinks.BlendLink, navController: NavController, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val api = app.myspoti.host.android.MyspotiRuntime.api
-    var invitation by remember(link) { mutableStateOf<app.myspoti.api.BlendInvitation?>(null) }
+    val api = com.phush.hispoti.host.android.HispotiRuntime.api
+    var invitation by remember(link) { mutableStateOf<com.phush.hispoti.api.BlendInvitation?>(null) }
     var failed by remember(link) { mutableStateOf(false) }
     var busy by remember(link) { mutableStateOf(false) }
     fun open(uri: String) { onDismiss(); navController.navigate(playlistRoute(uri.substringAfterLast(':'))) }
@@ -265,7 +265,7 @@ fun BlendInviteSheet(link: com.music.spotui.data.api.InviteLinks.BlendLink, navC
         api.ready.first { it }
         runCatching { api.blends.invitation(link.id) }
             .onSuccess { v ->
-                if (v.state == app.myspoti.api.BlendInvitationState.JOINED && v.playlist != null) open(v.playlist!!)
+                if (v.state == com.phush.hispoti.api.BlendInvitationState.JOINED && v.playlist != null) open(v.playlist!!)
                 else invitation = v
             }
             .onFailure { failed = true }
@@ -277,8 +277,8 @@ fun BlendInviteSheet(link: com.music.spotui.data.api.InviteLinks.BlendLink, navC
         ) {
             val v = invitation
             val inviter = v?.inviter
-            val own = v?.state == app.myspoti.api.BlendInvitationState.WAITING
-            val joinable = v?.state == app.myspoti.api.BlendInvitationState.JOINABLE || v?.state == app.myspoti.api.BlendInvitationState.UNKNOWN
+            val own = v?.state == com.phush.hispoti.api.BlendInvitationState.WAITING
+            val joinable = v?.state == com.phush.hispoti.api.BlendInvitationState.JOINABLE || v?.state == com.phush.hispoti.api.BlendInvitationState.UNKNOWN
             ProfileAvatar(inviter?.imageUrl, inviter?.name, 88.dp)
             Spacer(Modifier.height(16.dp))
             val title = when {
@@ -602,7 +602,7 @@ fun LibraryItemSheet(entry: LibraryEntry, onDismiss: () -> Unit, onChanged: () -
         LibraryEdits.run(context, edit, write = { block(); LibraryFolders.changed() })
         onDismiss()
     }
-    val api = app.myspoti.host.android.MyspotiRuntime.api
+    val api = com.phush.hispoti.host.android.HispotiRuntime.api
     com.music.spotui.ui.components.LookSheet(onDismissRequest = onDismiss, containerColor = SheetColor) {
         Column(Modifier.navigationBarsPadding().padding(bottom = 12.dp)) {
             Text(entry.name, color = AppText, fontSize = 18.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
@@ -626,8 +626,8 @@ fun LibraryItemSheet(entry: LibraryEntry, onDismiss: () -> Unit, onChanged: () -
                     SheetRow(Icons.AutoMirrored.Filled.PlaylistAdd, stringResource(R.string.context_menu_add_to_playlist)) { merging = true }
                 if (entry.isFolder) SheetRow(Icons.Outlined.Delete, stringResource(R.string.folder_delete)) { deleting = true }
             } else {
-                val folders by androidx.compose.runtime.produceState<List<app.myspoti.api.LibraryItem>?>(null) {
-                    value = runCatching { api.library.items(folderUri = null, limit = 200).items.filter { it.kind == app.myspoti.api.MediaKind.FOLDER && it.uri != entry.uri } }
+                val folders by androidx.compose.runtime.produceState<List<com.phush.hispoti.api.LibraryItem>?>(null) {
+                    value = runCatching { api.library.items(folderUri = null, limit = 200).items.filter { it.kind == com.phush.hispoti.api.MediaKind.FOLDER && it.uri != entry.uri } }
                         .getOrDefault(emptyList())
                 }
                 SheetRow(Icons.Outlined.Home, stringResource(R.string.library_top_level)) { act(LibraryEdits.Move(entry, null)) { api.library.moveToFolder(entry.uri, null) } }

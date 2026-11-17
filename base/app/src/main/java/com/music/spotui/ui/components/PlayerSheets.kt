@@ -5,7 +5,7 @@ import com.music.spotui.ui.theme.AppText
 import com.music.spotui.ui.theme.AppMuted
 
 import androidx.compose.ui.res.stringResource
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -134,7 +134,7 @@ fun activeDeviceIcon(): ImageVector {
 }
 
 /**
- * Where the sound comes from while Myspoti's own player plays a song (an extension's stream: its
+ * Where the sound comes from while Hispoti's own player plays a song (an extension's stream: its
  * name and the quality it announced; a download; Spotify's codec and bitrate), shown under the
  * output device; "" while a song is being asked for or on another device.
  */
@@ -169,7 +169,7 @@ private fun spotifyQualityLabel(uri: String): String {
         // stream (later still after a pause or a slow start): asked again until it is known.
         repeat(QUALITY_TRIES) { i ->
             kotlinx.coroutines.delay(if (i == 0) 1500L else 2000L)
-            val (bitrate, mime) = app.myspoti.host.android.MyspotiRuntime.spotify.player.audioInfo()
+            val (bitrate, mime) = com.phush.hispoti.host.android.HispotiRuntime.spotify.player.audioInfo()
             if (bitrate > 0) { value = "${codecName(mime)} · ${bitrate / 1000} kbit/s"; return@produceState }
         }
     }
@@ -278,7 +278,7 @@ fun DevicesSheet(onDismiss: () -> Unit) {
             }
             // Spotify Connect devices of the network that are not logged in to the account yet.
             com.music.spotui.connect.LanDeviceRows()
-            // Cast devices, for Myspoti's own songs (Spotify's go through Spotify Connect above).
+            // Cast devices, for Hispoti's own songs (Spotify's go through Spotify Connect above).
             com.music.spotui.cast.CastDeviceRows(onDismiss)
             JamSection(onDismiss)
             // Bluetooth: pair or pick headphones and speakers in the system settings.
@@ -335,7 +335,7 @@ fun QualitySheet(onDismiss: () -> Unit) {
                     ?.let { com.music.spotui.extensions.ExtensionAudio.qualityOf(it.lastPathSegment.orEmpty()) }
                 ?: ""
         } else {
-            val (bitrate, mime) = app.myspoti.host.android.MyspotiRuntime.spotify.player.audioInfo()
+            val (bitrate, mime) = com.phush.hispoti.host.android.HispotiRuntime.spotify.player.audioInfo()
             if (bitrate <= 0) "" else "${codecName(mime)} · ${bitrate / 1000} kbit/s"
         }
     }
@@ -382,12 +382,12 @@ internal fun codecName(mime: String): String = when {
 /** Spotify Jam: listen together. Free accounts can join (Spotify keeps starting one to Premium). */
 @Composable
 private fun JamSection(onDismiss: () -> Unit) {
-    val jam = app.myspoti.host.android.MyspotiRuntime.api.jam
+    val jam = com.phush.hispoti.host.android.HispotiRuntime.api.jam
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val session by jam.session.collectAsState()
-    val availability by androidx.compose.runtime.produceState<app.myspoti.api.JamAvailability?>(null) {
-        value = runCatching { jam.refresh(); jam.availability() }.getOrDefault(app.myspoti.api.JamAvailability.UNKNOWN)
+    val availability by androidx.compose.runtime.produceState<com.phush.hispoti.api.JamAvailability?>(null) {
+        value = runCatching { jam.refresh(); jam.availability() }.getOrDefault(com.phush.hispoti.api.JamAvailability.UNKNOWN)
     }
     fun failed() = android.widget.Toast.makeText(context, context.getString(R.string.jam_failed), android.widget.Toast.LENGTH_SHORT).show()
     Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)) {
@@ -412,12 +412,12 @@ private fun JamSection(onDismiss: () -> Unit) {
                 }.padding(vertical = 10.dp))
             return@Column
         }
-        if (availability == app.myspoti.api.JamAvailability.AVAILABLE) Text(stringResource(R.string.jam_start), color = Green, fontSize = 15.sp,
+        if (availability == com.phush.hispoti.api.JamAvailability.AVAILABLE) Text(stringResource(R.string.jam_start), color = Green, fontSize = 15.sp,
             modifier = Modifier.fillMaxWidth().clickable {
                 scope.launch { if (runCatching { jam.start() }.isFailure) failed() }
             }.padding(vertical = 10.dp))
         // Spotify refuses to start a Jam on a free account (FREE_USER_NOT_ALLOWED); joining one works.
-        if (availability == app.myspoti.api.JamAvailability.RESTRICTED && session == null) Text(stringResource(R.string.jam_start_premium),
+        if (availability == com.phush.hispoti.api.JamAvailability.RESTRICTED && session == null) Text(stringResource(R.string.jam_start_premium),
             color = AppMuted, fontSize = 13.sp, modifier = Modifier.padding(vertical = 6.dp))
         // Join: scan the QR code another phone shows in its Jam.
         Text(stringResource(R.string.jam_scan), color = Green, fontSize = 15.sp,
@@ -449,13 +449,13 @@ private fun JamSection(onDismiss: () -> Unit) {
 private fun joinJam(context: android.content.Context, raw: String, onDismiss: () -> Unit) {
     fun failed() = android.widget.Toast.makeText(context.applicationContext, context.getString(R.string.jam_failed), android.widget.Toast.LENGTH_SHORT).show()
     onDismiss()
-    app.myspoti.host.android.MyspotiRuntime.scope.launch {
+    com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
         // A short link (spotify.link) is followed to its token first.
         val token = JamLinks.token(raw)
             ?: return@launch kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { failed() }
-        val error = runCatching { app.myspoti.host.android.MyspotiRuntime.api.jam.join(token) }.exceptionOrNull()
+        val error = runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.jam.join(token) }.exceptionOrNull()
         if (error != null && error !is kotlinx.coroutines.CancellationException) {
-            app.myspoti.host.android.Logbook.log("jam: join failed: ${error.message}")
+            com.phush.hispoti.host.android.Logbook.log("jam: join failed: ${error.message}")
             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { failed() }
         }
     }

@@ -1,13 +1,13 @@
 # Look-only extensions (`ui.style`)
 
-A look-only extension changes how Myspoti looks, nothing else: colours, parts of the app it hides,
+A look-only extension changes how Hispoti looks, nothing else: colours, parts of the app it hides,
 the order of the Classic tabs, the text size and a few fixed blocks on Home. Everything is
 **declared** in `manifest.json` under `ui`; the extension never draws and needs no code. The app
 applies the look on its own pages, with its own fonts, icons and spacing.
 
 It is an ordinary extension package (see [API.md](API.md), sections 1 and 2) with one action,
 `ui.style`, and the `ui` object. Everything else in API.md still holds: the install prompt, the
-store, `myspoti-ext pack` and `myspoti-ext check`, the switch and the order on the Installed tab.
+store, `hispoti-ext pack` and `hispoti-ext check`, the switch and the order on the Installed tab.
 
 ## 1. A minimal look
 
@@ -44,7 +44,7 @@ example `home.sections`): the look stays declared, whatever the script does.
 ## 2. The `ui` object
 
 Every field is optional, but `ui` must change something. A value the app cannot use refuses the
-package (`myspoti-ext check` says why); a name this Myspoti does not know (a colour, a part, a
+package (`hispoti-ext check` says why); a name this Hispoti does not know (a colour, a part, a
 selector...) is left aside and `check` warns, so a look written for a newer app still installs.
 
 | Field | Type | What it does |
@@ -125,8 +125,8 @@ own look back at once.
 
 ## 5. Compatibility
 
-- `ui.style` and `ui` are new: an older Myspoti refuses a package that lists `ui.style` (an unknown
+- `ui.style` and `ui` are new: an older Hispoti refuses a package that lists `ui.style` (an unknown
   action), so set `minAppVersion` to the first release that has it if you publish one.
 - A manifest with a `ui` object but without the `ui.style` action installs as before and its `ui`
   is ignored (`check` warns): `ui` was an unknown key until now, and unknown keys are ignored.
-- Nothing about the other actions, hooks or the `myspoti` object changed.
+- Nothing about the other actions, hooks or the `hispoti` object changed.

@@ -1,6 +1,6 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
- * app/src/main/java/com/music/bitchord/ui/utils/IosOverscroll.kt at edc1e6f. Modified for Myspoti, 2026-10.
+ * app/src/main/java/com/music/bitchord/ui/utils/IosOverscroll.kt at edc1e6f. Modified for Hispoti, 2026-10.
  */
 
 /*

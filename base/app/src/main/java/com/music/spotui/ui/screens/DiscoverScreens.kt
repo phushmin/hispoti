@@ -51,9 +51,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.api.best
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.best
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
@@ -108,7 +108,7 @@ internal fun ReleaseTile.route(): String = when (kind) {
 fun NewReleasesScreen(navController: NavController) {
     val followed by produceState<List<ReleaseTile>?>(null) {
         value = runCatching {
-            MyspotiRuntime.api.home.whatsNew(0, 50).items.map { a ->
+            HispotiRuntime.api.home.whatsNew(0, 50).items.map { a ->
                 ReleaseTile(a.uri.substringAfterLast(':'), a.name, a.artists.joinToString(", ") { it.name },
                     a.images.best(300)?.url.orEmpty(), listOfNotNull(a.type.lowercase().replaceFirstChar { it.uppercase() }, a.releaseDate?.take(10)).joinToString(" • "),
                     a.uri.split(':').getOrElse(1) { "album" })

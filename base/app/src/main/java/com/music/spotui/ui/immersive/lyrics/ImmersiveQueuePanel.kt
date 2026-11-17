@@ -1,10 +1,10 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/PlayerQueue.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: the sections (now playing, next in queue, next from the context), placement-only
- * item motion and the fading edges, over Myspoti's SongPlayer.engineQueue. A row is removed
+ * item motion and the fading edges, over Hispoti's SongPlayer.engineQueue. A row is removed
  * by swiping it away, and shuffle and repeat sit in the header as in the queue sheet.
  * A handle on each upcoming row drags it within its section or between them (sh.calvin.reorderable,
  * then SongPlayer.reorder / moveIntoQueue); history and
@@ -65,7 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import android.os.SystemClock
-import app.myspoti.host.android.Logbook
+import com.phush.hispoti.host.android.Logbook
 import kotlinx.coroutines.delay
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -74,7 +74,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.music.spotui.di.Graph

@@ -1,9 +1,9 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * shared/src/jvmSharedMain/kotlin/com/music/bitchord/data/lyrics/LyricLine.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
- * Changes: renamed SweptLine / SweptWord / SweptSyllable so they do not clash with Myspoti's
+ * Changes: renamed SweptLine / SweptWord / SweptSyllable so they do not clash with Hispoti's
  * own lyric entities, which they are built from (see toSwept). The answering vocal, duet
  * sides, translation timing and character stripping are left out for now.
  */
@@ -264,7 +264,7 @@ data class SweptLine(
 private const val UNKNOWN_WORD_MAX_MS = 700L
 
 /**
- * Myspoti's lyric line as the sweep draws it. A word whose end is unknown (0) runs until
+ * Hispoti's lyric line as the sweep draws it. A word whose end is unknown (0) runs until
  * the next word starts, or [nextLineMs] for the last one, for [UNKNOWN_WORD_MAX_MS] at most.
  */
 fun com.music.spotui.data.entity.LyricLine.toSwept(nextLineMs: Long? = null): SweptLine {

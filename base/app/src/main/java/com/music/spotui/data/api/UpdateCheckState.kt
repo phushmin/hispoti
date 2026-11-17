@@ -8,7 +8,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 
 /**
  * What the About section shows about the update check: the spinner, the last answer and the

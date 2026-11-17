@@ -1,9 +1,9 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.ActionRequest
-import app.myspoti.extensions.Manifest
-import app.myspoti.extensions.Setting
-import app.myspoti.extensions.SettingSection
+import com.phush.hispoti.extensions.ActionRequest
+import com.phush.hispoti.extensions.Manifest
+import com.phush.hispoti.extensions.Setting
+import com.phush.hispoti.extensions.SettingSection
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

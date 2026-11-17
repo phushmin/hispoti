@@ -45,11 +45,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
-import app.myspoti.extensions.Ask
-import app.myspoti.extensions.Setting
-import app.myspoti.extensions.Store
-import app.myspoti.extensions.StoreAction
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.Ask
+import com.phush.hispoti.extensions.Setting
+import com.phush.hispoti.extensions.Store
+import com.phush.hispoti.extensions.StoreAction
 import com.music.spotui.extensions.ExtensionStore
 import com.music.spotui.extensions.ExtensionUpdates
 import com.music.spotui.extensions.Extensions
@@ -69,7 +69,7 @@ import kotlinx.serialization.json.jsonPrimitive
  */
 @Composable
 internal fun authorLine(author: String, repo: String?): String {
-    val owner = repo?.let { app.myspoti.extensions.GitHubRepo.parse(it)?.owner }
+    val owner = repo?.let { com.phush.hispoti.extensions.GitHubRepo.parse(it)?.owner }
     return if (owner != null) stringResource(R.string.update_author_owner, author, owner) else stringResource(R.string.update_author_unverified, author)
 }
 
@@ -84,7 +84,7 @@ internal fun RepoChangedWarning() {
 
 /** Icon, name, author, version and category: the top of both detail pages. */
 @Composable
-private fun Header(id: String, name: String, author: String, repo: String?, version: String, category: app.myspoti.extensions.Category, iconUrl: String?, iconBytes: ByteArray?) {
+private fun Header(id: String, name: String, author: String, repo: String?, version: String, category: com.phush.hispoti.extensions.Category, iconUrl: String?, iconBytes: ByteArray?) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
         ExtIcon(id, name, iconUrl, iconBytes, 72.dp)
         Column(Modifier.padding(start = 16.dp)) {
@@ -386,7 +386,7 @@ internal fun saveSetting(id: String, s: Setting, v: String) {
 /**
  * A setting as the editors it is shown with: itself, or for a per-network one
  * ([Setting.splitsByNetwork]) its Wi-Fi value (kept under its key) and its mobile data value (kept
- * under [Setting.cellKey], showing the Wi-Fi value until it is set, as `myspoti.settings.get` reads it).
+ * under [Setting.cellKey], showing the Wi-Fi value until it is set, as `hispoti.settings.get` reads it).
  */
 @Composable
 internal fun networkEditors(id: String, s: Setting): List<Setting> {
@@ -472,13 +472,13 @@ internal fun checkResult(r: ExtensionUpdates.Result): Int = when (r) {
  */
 @Composable
 internal fun UpdateNeedsOk(name: String, from: String, p: com.music.spotui.extensions.PendingUpdate, onAccept: () -> Unit, onKeep: () -> Unit) {
-    com.music.spotui.extensions.ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.INSTALL)
+    com.music.spotui.extensions.ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.INSTALL)
     val critical = p.changes.any { it.critical }
     val tint = if (critical) Warning else AppAccent
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(12.dp)).background(tint.copy(alpha = 0.10f)).padding(12.dp)) {
         // Only the code changed (in a package holding powerful rights): Update / Not now, no risk tick.
-        val codeOnly = p.changes.all { it.kind == app.myspoti.extensions.Change.Kind.CODE }
-        val code = p.changes.firstOrNull { it.kind == app.myspoti.extensions.Change.Kind.CODE }
+        val codeOnly = p.changes.all { it.kind == com.phush.hispoti.extensions.Change.Kind.CODE }
+        val code = p.changes.firstOrNull { it.kind == com.phush.hispoti.extensions.Change.Kind.CODE }
         if (codeOnly && code != null) {
             Text(stringResource(R.string.update_code_title, name, code.added + code.removed, code.added, code.removed), color = AppText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             Text(stringResource(R.string.update_code_body), color = AppMuted, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp, bottom = 6.dp))
@@ -526,7 +526,7 @@ private fun AcceptRow(accept: String, enabled: Boolean, tint: Color, onAccept: (
  */
 @Composable
 internal fun RefusedNeedsOk(refused: List<Ask>, onAccept: () -> Unit) {
-    com.music.spotui.extensions.ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.INSTALL)
+    com.music.spotui.extensions.ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.INSTALL)
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(12.dp)).background(Warning.copy(alpha = 0.10f)).padding(12.dp)) {
         Text(stringResource(R.string.extension_refused_title), color = AppText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         Text(stringResource(R.string.extension_refused_body), color = AppMuted, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp, bottom = 6.dp))
@@ -539,29 +539,29 @@ internal fun RefusedNeedsOk(refused: List<Ask>, onAccept: () -> Unit) {
 }
 
 @Composable
-private fun ChangeRow(c: app.myspoti.extensions.Change) {
+private fun ChangeRow(c: com.phush.hispoti.extensions.Change) {
     val action = c.action
-    val ask = app.myspoti.extensions.Ask(if (c.kind == app.myspoti.extensions.Change.Kind.HOST && c.key == "*") app.myspoti.extensions.Action.NETWORK_ANY else action?.key ?: c.key,
-        if (c.critical) app.myspoti.extensions.Level.CRITICAL else app.myspoti.extensions.Level.NORMAL, c.why, action = action)
+    val ask = com.phush.hispoti.extensions.Ask(if (c.kind == com.phush.hispoti.extensions.Change.Kind.HOST && c.key == "*") com.phush.hispoti.extensions.Action.NETWORK_ANY else action?.key ?: c.key,
+        if (c.critical) com.phush.hispoti.extensions.Level.CRITICAL else com.phush.hispoti.extensions.Level.NORMAL, c.why, action = action)
     val label = action?.let { stringResource(com.music.spotui.extensions.askLabel(ask)) } ?: c.key
     val title = when (c.kind) {
-        app.myspoti.extensions.Change.Kind.ACTION -> stringResource(R.string.extension_change_action, label)
-        app.myspoti.extensions.Change.Kind.HOST -> stringResource(R.string.extension_change_host, if (c.key == "*") stringResource(R.string.extension_change_any_host) else c.key)
-        app.myspoti.extensions.Change.Kind.WRITE -> stringResource(R.string.extension_change_write, c.key)
-        app.myspoti.extensions.Change.Kind.EXCLUSIVE -> stringResource(R.string.extension_change_exclusive, label)
-        app.myspoti.extensions.Change.Kind.WHY -> stringResource(R.string.extension_change_why, label)
-        app.myspoti.extensions.Change.Kind.CODE -> stringResource(R.string.update_code_files, c.key.ifBlank { "main" } + " (+${c.added}/−${c.removed})")
-        app.myspoti.extensions.Change.Kind.REPO -> stringResource(R.string.extension_change_repo, c.key, c.before)
-        app.myspoti.extensions.Change.Kind.AUTHOR -> stringResource(R.string.extension_change_author, c.key, c.before)
-        app.myspoti.extensions.Change.Kind.REPLACES -> stringResource(R.string.extension_change_replaces, c.key)
-        app.myspoti.extensions.Change.Kind.CONFLICTS -> stringResource(R.string.extension_change_conflicts, c.key)
+        com.phush.hispoti.extensions.Change.Kind.ACTION -> stringResource(R.string.extension_change_action, label)
+        com.phush.hispoti.extensions.Change.Kind.HOST -> stringResource(R.string.extension_change_host, if (c.key == "*") stringResource(R.string.extension_change_any_host) else c.key)
+        com.phush.hispoti.extensions.Change.Kind.WRITE -> stringResource(R.string.extension_change_write, c.key)
+        com.phush.hispoti.extensions.Change.Kind.EXCLUSIVE -> stringResource(R.string.extension_change_exclusive, label)
+        com.phush.hispoti.extensions.Change.Kind.WHY -> stringResource(R.string.extension_change_why, label)
+        com.phush.hispoti.extensions.Change.Kind.CODE -> stringResource(R.string.update_code_files, c.key.ifBlank { "main" } + " (+${c.added}/−${c.removed})")
+        com.phush.hispoti.extensions.Change.Kind.REPO -> stringResource(R.string.extension_change_repo, c.key, c.before)
+        com.phush.hispoti.extensions.Change.Kind.AUTHOR -> stringResource(R.string.extension_change_author, c.key, c.before)
+        com.phush.hispoti.extensions.Change.Kind.REPLACES -> stringResource(R.string.extension_change_replaces, c.key)
+        com.phush.hispoti.extensions.Change.Kind.CONFLICTS -> stringResource(R.string.extension_change_conflicts, c.key)
     }
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         ActionTile(ask, 32.dp)
         Column(Modifier.padding(start = 10.dp)) {
             Text(title, color = if (c.critical) Warning else AppText, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             if (c.why.isNotBlank()) Text("“${c.why}”", color = AppText, fontSize = 12.sp)
-            if (c.kind == app.myspoti.extensions.Change.Kind.WHY && c.before.isNotBlank()) Text(stringResource(R.string.extension_change_was, c.before), color = AppMuted, fontSize = 11.sp)
+            if (c.kind == com.phush.hispoti.extensions.Change.Kind.WHY && c.before.isNotBlank()) Text(stringResource(R.string.extension_change_was, c.before), color = AppMuted, fontSize = 11.sp)
         }
     }
 }
@@ -570,15 +570,15 @@ private fun ChangeRow(c: app.myspoti.extensions.Change) {
 @Composable
 private fun ReportButton(id: String, version: String, repo: String?, sha256: String?) {
     val ctx = LocalContext.current
-    TextButton(onClick = { runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(app.myspoti.extensions.GitHub.reportUrl(id, version, repo, sha256)))) } }) {
+    TextButton(onClick = { runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(com.phush.hispoti.extensions.GitHub.reportUrl(id, version, repo, sha256)))) } }) {
         Text(stringResource(R.string.extension_report), color = Warning)
     }
 }
 
-/** 👍 / 👎 on the extension's ratings issue; hidden while the GitHub OAuth app is not set ([app.myspoti.extensions.GitHubAuth.enabled]). */
+/** 👍 / 👎 on the extension's ratings issue; hidden while the GitHub OAuth app is not set ([com.phush.hispoti.extensions.GitHubAuth.enabled]). */
 @Composable
 internal fun RateButtons(repo: String) {
-    if (!app.myspoti.extensions.GitHubAuth.enabled) return
+    if (!com.phush.hispoti.extensions.GitHubAuth.enabled) return
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val ratings by ExtensionStore.ratings.collectAsState()

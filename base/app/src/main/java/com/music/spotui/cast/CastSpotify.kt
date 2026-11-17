@@ -1,7 +1,7 @@
 package com.music.spotui.cast
 
 import androidx.compose.runtime.mutableStateOf
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.di.Graph
 import com.music.spotui.di.SongPlayer
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,7 @@ import java.io.IOException
  * Spotify plays it itself (DRM): nothing goes through the phone, and a free account is refused
  * by Spotify at the transfer, as for any Connect device.
  *
- * The idea is that of the Home Assistant integration Spotcast (Apache-2.0); the code is Myspoti's.
+ * The idea is that of the Home Assistant integration Spotcast (Apache-2.0); the code is Hispoti's.
  */
 object CastSpotify {
     /** The device being woken (the picker shows it connecting). Main thread. */
@@ -47,7 +47,7 @@ object CastSpotify {
                 waking.value = null
                 device.onSuccess { SongPlayer.transferTo(it) }.onFailure {
                     log("failed: ${it.javaClass.simpleName} ${it.message.orEmpty().take(80)}")
-                    android.widget.Toast.makeText(Graph.app, Graph.app.getString(app.myspoti.engine.R.string.cast_spotify_failed, d.name), android.widget.Toast.LENGTH_LONG).show()
+                    android.widget.Toast.makeText(Graph.app, Graph.app.getString(com.phush.hispoti.engine.R.string.cast_spotify_failed, d.name), android.widget.Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -83,7 +83,7 @@ object CastSpotify {
                 if (info != null) break
             }
             val clientId = info?.clientId ?: throw IOException("no answer to getInfo")
-            val answer = MyspotiRuntime.spotify.raw.request("POST", "https://spclient.wg.spotify.com/device-auth/v1/refresh",
+            val answer = HispotiRuntime.spotify.raw.request("POST", "https://spclient.wg.spotify.com/device-auth/v1/refresh",
                 CastProtocol.deviceAuthBody(clientId, id).toByteArray(), mapOf("content-type" to "text/plain;charset=UTF-8"))
             // The token is never logged.
             val blob = (if (answer.status == 200) CastProtocol.deviceAuthToken(answer.body) else null) ?: throw IOException("device-auth ${answer.status}")
@@ -114,7 +114,7 @@ object CastSpotify {
 
     /** [d] among the account's Spotify Connect devices: by the id Spotify gives it, else by name among the Cast ones. */
     private suspend fun connectDevice(d: CastDevice, id: String): SongPlayer.ConnectDevice? {
-        val api = MyspotiRuntime.spotify.devices
+        val api = HispotiRuntime.spotify.devices
         runCatching { api.refresh() }
         val all = api.devices.value.filter { !it.local }
         val x = all.firstOrNull { it.id == id } ?: all.firstOrNull { it.name == d.name && it.type.startsWith("CAST", ignoreCase = true) } ?: return null
@@ -128,7 +128,7 @@ object CastSpotify {
     private fun watch(connectId: String) {
         val mine = held ?: return
         scope.launch {
-            val list = MyspotiRuntime.spotify.devices.devices
+            val list = HispotiRuntime.spotify.devices.devices
             fun playing() = list.value.any { it.id == connectId && it.active }
             withTimeoutOrNull(120_000) { list.first { _ -> playing() } }
             while (held === mine) {
@@ -148,5 +148,5 @@ object CastSpotify {
         log("released the Spotify receiver")
     }
 
-    private fun log(line: String) = app.myspoti.host.android.Logbook.log("cast: spotify: $line")
+    private fun log(line: String) = com.phush.hispoti.host.android.Logbook.log("cast: spotify: $line")
 }

@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.SongsModel
 import com.music.spotui.di.Haptics
 import com.music.spotui.di.SongPlayer
@@ -268,19 +268,19 @@ fun ImmersiveSongOptionsSheet(
 
         val trackUri = "spotify:track:${song.spotifyTrackId}"
         val excluded by produceState<Boolean?>(null, trackUri) {
-            value = if (!hasId) null else runCatching { app.myspoti.host.android.MyspotiRuntime.api.extras.isExcludedFromTaste(listOf(trackUri)).single() }.getOrNull()
+            value = if (!hasId) null else runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.extras.isExcludedFromTaste(listOf(trackUri)).single() }.getOrNull()
         }
         ImmersiveSheetRow(Icons.Rounded.Block, stringResource(if (excluded == true) R.string.include_taste else R.string.exclude_taste), enabled = hasId && excluded != null) {
             val exclude = excluded != true
-            app.myspoti.host.android.MyspotiRuntime.scope.launch {
-                runCatching { app.myspoti.host.android.MyspotiRuntime.api.extras.setExcludedFromTaste(trackUri, exclude) }
+            com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
+                runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.extras.setExcludedFromTaste(trackUri, exclude) }
             }
             Haptics.confirm()
             onDismiss()
         }
         val artistBan by produceState<Pair<String, Boolean>?>(null, trackUri) {
             if (!hasId) return@produceState
-            val api = app.myspoti.host.android.MyspotiRuntime.api
+            val api = com.phush.hispoti.host.android.HispotiRuntime.api
             value = runCatching {
                 val artist = api.catalog.track(trackUri).artists.first().uri
                 artist to api.extras.isArtistBanned(listOf(artist)).single()
@@ -288,8 +288,8 @@ fun ImmersiveSongOptionsSheet(
         }
         ImmersiveSheetRow(Icons.Rounded.Block, stringResource(if (artistBan?.second == true) R.string.artist_unban else R.string.artist_ban), enabled = artistBan != null) {
             val (artist, banned) = artistBan ?: return@ImmersiveSheetRow
-            app.myspoti.host.android.MyspotiRuntime.scope.launch {
-                runCatching { app.myspoti.host.android.MyspotiRuntime.api.extras.setArtistBanned(artist, !banned) }
+            com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
+                runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.extras.setArtistBanned(artist, !banned) }
             }
             toast(context.getString(if (banned) R.string.artist_unbanned else R.string.artist_banned, song.singer.substringBefore(",").trim()))
             Haptics.confirm()
@@ -298,12 +298,12 @@ fun ImmersiveSongOptionsSheet(
         if (song.url.startsWith("episode:")) {
             val episodeUri = "spotify:episode:" + song.url.removePrefix("episode:")
             val saved by produceState<Boolean?>(null, episodeUri) {
-                value = runCatching { app.myspoti.host.android.MyspotiRuntime.api.library.contains(listOf(episodeUri)).single() }.getOrNull()
+                value = runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.library.contains(listOf(episodeUri)).single() }.getOrNull()
             }
             ImmersiveSheetRow(Icons.Rounded.Bookmark, stringResource(if (saved == true) R.string.episode_unsave else R.string.episode_save), enabled = saved != null) {
                 val save = saved != true
-                app.myspoti.host.android.MyspotiRuntime.scope.launch {
-                    runCatching { app.myspoti.host.android.MyspotiRuntime.api.podcasts.setEpisodeSaved(episodeUri, save) }
+                com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
+                    runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.podcasts.setEpisodeSaved(episodeUri, save) }
                 }
                 Haptics.confirm()
                 onDismiss()
@@ -342,7 +342,7 @@ fun ImmersiveSongOptionsSheet(
         }
         // Entries from extensions (menu.items), after the app's own; each names its extension.
         if (hasId) com.music.spotui.extensions.ExtensionMenuEntries(
-            app.myspoti.extensions.Surface.TRACK_MENU, trackUri, song.title, song.singer, onDone = onDismiss,
+            com.phush.hispoti.extensions.Surface.TRACK_MENU, trackUri, song.title, song.singer, onDone = onDismiss,
         )
         Spacer(Modifier.height(12.dp))
     }

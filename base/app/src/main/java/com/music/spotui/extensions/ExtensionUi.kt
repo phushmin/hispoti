@@ -96,19 +96,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
-import app.myspoti.extensions.Action
-import app.myspoti.extensions.Area
-import app.myspoti.extensions.Ask
-import app.myspoti.extensions.Block
-import app.myspoti.extensions.Conflicts
-import app.myspoti.extensions.Hook
-import app.myspoti.extensions.ItemKind
-import app.myspoti.extensions.ProtectedSurface
-import app.myspoti.extensions.Surface
-import app.myspoti.extensions.SurfaceGuard
-import app.myspoti.extensions.Target
-import app.myspoti.extensions.TextStyle
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.Action
+import com.phush.hispoti.extensions.Area
+import com.phush.hispoti.extensions.Ask
+import com.phush.hispoti.extensions.Block
+import com.phush.hispoti.extensions.Conflicts
+import com.phush.hispoti.extensions.Hook
+import com.phush.hispoti.extensions.ItemKind
+import com.phush.hispoti.extensions.ProtectedSurface
+import com.phush.hispoti.extensions.Surface
+import com.phush.hispoti.extensions.SurfaceGuard
+import com.phush.hispoti.extensions.Target
+import com.phush.hispoti.extensions.TextStyle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.music.spotui.ui.theme.AppAccent
@@ -221,7 +221,7 @@ fun areaLabel(area: Area): Int = when (area) {
     Area.OTHER -> R.string.area_other
 }
 
-/** A block's icon name ([app.myspoti.extensions.Blocks.ICONS]) as the app's own icon. */
+/** A block's icon name ([com.phush.hispoti.extensions.Blocks.ICONS]) as the app's own icon. */
 fun blockIcon(name: String): ImageVector = when (name) {
     "add" -> Icons.Rounded.Add
     "album" -> Icons.Rounded.Album
@@ -452,7 +452,7 @@ fun MirrorIndicator() {
 
 /** The extensions' buttons under the player's own controls: a few on screen, the rest behind ⋯. */
 @Composable
-fun ExtensionPlayerButtons(track: app.myspoti.extensions.TrackInfo?) {
+fun ExtensionPlayerButtons(track: com.phush.hispoti.extensions.TrackInfo?) {
     if (!Extensions.isReady || track == null) return
     val input = remember(track) { track.toJson() }
     val context = remember(track) { placeJson("track", track.uri, track.title, track.artist) }

@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/screens/HistoryScreen.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.pages
 
@@ -51,15 +51,15 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.api.MediaKind
-import app.myspoti.api.RecentEntry
-import app.myspoti.api.RecentGroup
-import app.myspoti.api.RecentItem
-import app.myspoti.api.RecentSection
-import app.myspoti.api.best
-import app.myspoti.api.groupRecents
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.MediaKind
+import com.phush.hispoti.api.RecentEntry
+import com.phush.hispoti.api.RecentGroup
+import com.phush.hispoti.api.RecentItem
+import com.phush.hispoti.api.RecentSection
+import com.phush.hispoti.api.best
+import com.phush.hispoti.api.groupRecents
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.di.Haptics
 import com.music.spotui.di.SongPlayer
 import com.music.spotui.ui.components.FastScrollbar
@@ -126,7 +126,7 @@ fun ImmersiveRecentlyPlayedScreen(navController: NavController) {
 
     LaunchedEffect(generation) {
         failure = null
-        runCatching { MyspotiRuntime.api.recents.recentEntries(0, PAGE) }
+        runCatching { HispotiRuntime.api.recents.recentEntries(0, PAGE) }
             .onSuccess { page ->
                 entries = page.items
                 nextOffset = page.nextOffset
@@ -144,7 +144,7 @@ fun ImmersiveRecentlyPlayedScreen(navController: NavController) {
         val offset = nextOffset ?: return@LaunchedEffect
         if (!atEnd || loadingMore) return@LaunchedEffect
         loadingMore = true
-        runCatching { MyspotiRuntime.api.recents.recentEntries(offset, PAGE) }
+        runCatching { HispotiRuntime.api.recents.recentEntries(offset, PAGE) }
             .onSuccess { page ->
                 entries = entries.orEmpty() + page.items
                 nextOffset = page.nextOffset

@@ -90,12 +90,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import app.myspoti.power.EnergySettings
+import com.phush.hispoti.power.EnergySettings
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.SongsModel
 import com.music.spotui.di.Palette
 import com.music.spotui.di.SongPlayer
@@ -539,7 +539,7 @@ fun PlayerScreen(navController: NavController) {
                                 val grow = (1f + (1f - shown) * 0.06f) * beat
                                 scaleX = grow; scaleY = grow
                             },
-                        model = app.myspoti.host.android.Covers.large(cover),
+                        model = com.phush.hispoti.host.android.Covers.large(cover),
                         contentScale = ContentScale.Crop,
                         contentDescription = "")
                     // The song a crossfade fades out, dissolving into this one.
@@ -1407,7 +1407,7 @@ fun PlayerConnectRow(
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )
-                // What the sound is when Myspoti's own player plays it (an extension's stream, a
+                // What the sound is when Hispoti's own player plays it (an extension's stream, a
                 // download); a tap opens what plays and its quality.
                 val source = com.music.spotui.ui.components.playingSourceLabel()
                 var quality by remember { mutableStateOf(false) }
@@ -1523,7 +1523,7 @@ fun openNowPlayingAlbum(playerViewModel: PlayerViewModel, singer: String, scope:
     val trackId = SongPlayer.currentTrackId
     scope.launch {
         val resolved = if (trackId.isBlank()) "" else kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            runCatching { app.myspoti.host.android.MyspotiRuntime.api.catalog.track("spotify:track:$trackId").album?.uri }
+            runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.catalog.track("spotify:track:$trackId").album?.uri }
                 .getOrNull()?.substringAfterLast(":").orEmpty()
         }
         if (resolved.isNotBlank() || albumName.isNotBlank()) navigate(albumRoute(albumName, singer, resolved))

@@ -3,7 +3,7 @@ package com.music.spotui.ui.components
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.automix.AutoMix
 import com.music.spotui.di.Graph
 
@@ -26,11 +26,11 @@ fun autoMixReasonText(reason: AutoMix.Reason?): Int? = when (reason) {
 /** The explanation shown once, the first time AutoMix is picked in Transitions (both looks). */
 object AutoMixIntro {
     private const val KEY = "automix_intro_seen"
-    var seen by mutableStateOf(Graph.app.getSharedPreferences("myspoti_prefs", 0).getBoolean(KEY, false))
+    var seen by mutableStateOf(Graph.app.getSharedPreferences("hispoti_prefs", 0).getBoolean(KEY, false))
         private set
 
     fun markSeen() {
         seen = true
-        Graph.app.getSharedPreferences("myspoti_prefs", 0).edit().putBoolean(KEY, true).apply()
+        Graph.app.getSharedPreferences("hispoti_prefs", 0).edit().putBoolean(KEY, true).apply()
     }
 }

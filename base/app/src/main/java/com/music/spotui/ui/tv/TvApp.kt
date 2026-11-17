@@ -2,9 +2,9 @@
  * The shell, Home shelves and list page follow Apple Music TV
  * (https://github.com/JObersi10/apple-music-tv), GPL-3.0, android/app/src/main/java/com/applemusicktv/ui/
  * AppShell.kt, screens/HomeScreen.kt and screens/PlaylistDetailScreen.kt at 7e5c594.
- * Modified for Myspoti, 2026-11.
+ * Modified for Hispoti, 2026-11.
  *
- * Changes: Myspoti's own data (Home feed, Your Library, search, lists) and engine; one stack of
+ * Changes: Hispoti's own data (Home feed, Your Library, search, lists) and engine; one stack of
  * lists over the open tab instead of a navigation graph; no onboarding, video, radio, settings
  * or update checks (those stay on the phone).
  */
@@ -67,7 +67,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.Api
 import com.music.spotui.data.api.Features
 import com.music.spotui.data.entity.HomeSection

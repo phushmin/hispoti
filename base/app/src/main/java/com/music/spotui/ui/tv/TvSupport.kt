@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.common.BitMatrix
@@ -44,7 +44,7 @@ internal object TvQr {
 }
 
 /**
- * The ways to support Myspoti, at the end of Home. A TV has no browser to send anyone to, so the links
+ * The ways to support Hispoti, at the end of Home. A TV has no browser to send anyone to, so the links
  * are codes for the phone. The block can take the focus, or the remote could never scroll down to it.
  */
 @Composable

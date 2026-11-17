@@ -1,9 +1,9 @@
 package com.music.spotui.ui.screens
 
-import app.myspoti.api.MediaKind
-import app.myspoti.api.RecentEntry
-import app.myspoti.api.RecentItem
-import app.myspoti.api.groupRecents
+import com.phush.hispoti.api.MediaKind
+import com.phush.hispoti.api.RecentEntry
+import com.phush.hispoti.api.RecentItem
+import com.phush.hispoti.api.groupRecents
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

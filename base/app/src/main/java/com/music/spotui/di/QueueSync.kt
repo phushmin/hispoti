@@ -2,8 +2,8 @@ package com.music.spotui.di
 
 import android.os.Handler
 import android.os.Looper
-import app.myspoti.api.ItemKind
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.ItemKind
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.local.LocalTrack
 import com.music.spotui.data.preferences.ConnectMirrorPref
 import kotlinx.coroutines.flow.first
@@ -34,8 +34,8 @@ object QueueSync {
     /** Songs per call: a whole playlist in one call is a long wait for the page. */
     private const val BATCH = 100
 
-    private val api get() = MyspotiRuntime.api
-    private val page get() = MyspotiRuntime.spotify.player
+    private val api get() = HispotiRuntime.api
+    private val page get() = HispotiRuntime.spotify.player
     private val main = Handler(Looper.getMainLooper())
     private val lock = Mutex()
     /** How many of each uri the sync queued on Spotify (or took from there): the ones it may take out again. */
@@ -71,7 +71,7 @@ object QueueSync {
         // The song about to be played from Spotify's queue by the mirror keeps its copy there until then.
         val current = LocalPlayer.current()?.let(LocalPlayer::spotifyIdOf)?.takeIf { it.isNotBlank() }?.let { TRACK_PREFIX + it }
         val spare = current?.takeIf { !ConnectMirror.landedOn(it) }
-        MyspotiRuntime.scope.launch { lock.withLock { runCatching { reconcile(local, spare) }.onFailure { log("not synced: ${it.message}") } } }
+        HispotiRuntime.scope.launch { lock.withLock { runCatching { reconcile(local, spare) }.onFailure { log("not synced: ${it.message}") } } }
     }
 
     private suspend fun reconcile(local: List<String>, spare: String?) {
@@ -134,5 +134,5 @@ object QueueSync {
         return (list.take(at + 1) + taken + next.drop(matched)) to taken
     }
 
-    private fun log(line: String) = app.myspoti.host.android.Logbook.log("queue: $line")
+    private fun log(line: String) = com.phush.hispoti.host.android.Logbook.log("queue: $line")
 }

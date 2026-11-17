@@ -35,13 +35,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.BuildConfig
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.BuildConfig
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.SupportReminder
 import com.music.spotui.ui.theme.AppAccent
 
 const val DISCORD_URL = "https://discord.gg/jXKnGVFnGS"
-private val repo get() = BuildConfig.UPDATE_REPO.ifBlank { "kota-zo/myspoti" }
+private val repo get() = BuildConfig.UPDATE_REPO.ifBlank { "kota-zo/hispoti" }
 
 private fun openUrl(context: Context, url: String) {
     runCatching {
@@ -54,7 +54,7 @@ private fun openUrl(context: Context, url: String) {
 @Composable
 fun AboutSheet(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    com.music.spotui.extensions.ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.ABOUT)
+    com.music.spotui.extensions.ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.ABOUT)
     // Opened in full: half open, it hid the support buttons at the bottom.
     LookSheet(
         onDismissRequest = onDismiss,
@@ -68,7 +68,7 @@ fun AboutSheet(onDismiss: () -> Unit) {
                     modifier = Modifier.size(56.dp).clip(RoundedCornerShape(14.dp)).background(tone(0xFF121212)),
                 )
                 Column(Modifier.padding(start = 14.dp)) {
-                    Text("Myspoti", color = AppText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text("Hispoti", color = AppText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text("${stringResource(R.string.settings_item_version_title)} ${BuildConfig.VERSION_NAME}",
                         color = AppMuted, fontSize = 13.sp)
                 }
@@ -101,12 +101,12 @@ fun GitHubSponsorButton(modifier: Modifier = Modifier, onClick: (() -> Unit)? = 
     ) { Text(stringResource(R.string.support_github_action), color = AppText, fontSize = 16.sp, fontWeight = FontWeight.Bold) }
 }
 
-/** "Support Myspoti" from the profile menu: Ko-fi or GitHub Sponsors, the user picks. */
+/** "Support Hispoti" from the profile menu: Ko-fi or GitHub Sponsors, the user picks. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupportSheet(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    com.music.spotui.extensions.ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.SUPPORT)
+    com.music.spotui.extensions.ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.SUPPORT)
     LookSheet(
         onDismissRequest = onDismiss,
         sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),

@@ -1,8 +1,8 @@
 package com.music.spotui.data.api
 
 import android.content.Context
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.music.spotui.data.entity.LibraryEntry
 
 /**
@@ -25,7 +25,7 @@ object LibraryFolders {
             addedAt = java.time.Instant.now().toString(),
         ))
         LibraryEdits.run(context, edit, write = {
-            val uri = MyspotiRuntime.api.library.createFolder(title)
+            val uri = HispotiRuntime.api.library.createFolder(title)
             LibraryEdits.resolve(edit, edit.entry.copy(spotifyId = uri, folderUri = uri, uri = uri))
             changed()
         }, onDone = onDone)
@@ -36,7 +36,7 @@ object LibraryFolders {
         val title = name.trim()
         if (title.isBlank()) { onDone(false); return }
         LibraryEdits.run(context, LibraryEdits.Rename(uri, title), write = {
-            MyspotiRuntime.api.library.renameFolder(uri, title)
+            HispotiRuntime.api.library.renameFolder(uri, title)
             changed()
         }, onDone = onDone)
     }
@@ -44,7 +44,7 @@ object LibraryFolders {
     /** Deletes a folder (its playlists go to the level above). */
     fun delete(context: Context, uri: String, onDone: (Boolean) -> Unit = {}) {
         LibraryEdits.run(context, LibraryEdits.Remove(uri), write = {
-            MyspotiRuntime.api.library.deleteFolder(uri)
+            HispotiRuntime.api.library.deleteFolder(uri)
             changed()
         }, onDone = onDone)
     }

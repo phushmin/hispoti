@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/PlayerLyrics.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: BitChord's LyricPlayhead / rememberLyricClock, fed by SongPlayer.getCurrentPosition()
  * (already extrapolated, read once per frame) instead of a twice-a-second stamped reading. A

@@ -25,11 +25,11 @@ object OutputLag {
         val now = SystemClock.elapsedRealtime()
         if (now - askedAt > CHECK_MS && asking.compareAndSet(false, true)) {
             askedAt = now
-            app.myspoti.host.android.MyspotiRuntime.scope.launch(Dispatchers.IO) {
+            com.phush.hispoti.host.android.HispotiRuntime.scope.launch(Dispatchers.IO) {
                 try {
                     val route = com.music.spotui.ui.components.AudioRoute.current(Graph.app)
                     val l = if (route.kind == com.music.spotui.ui.components.AudioRoute.Kind.BLUETOOTH) BLUETOOTH_MS else 0L
-                    if (l != lag) app.myspoti.host.android.Logbook.log("sound heard $l ms late (${route.kind.name.lowercase()}): clip and lyrics follow")
+                    if (l != lag) com.phush.hispoti.host.android.Logbook.log("sound heard $l ms late (${route.kind.name.lowercase()}): clip and lyrics follow")
                     lag = l
                 } finally {
                     asking.set(false)

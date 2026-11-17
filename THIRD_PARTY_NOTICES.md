@@ -1,6 +1,6 @@
 # Third-party notices
 
-Myspoti is free software under the GNU General Public License v3.0 (see `LICENSE`).
+Hispoti is free software under the GNU General Public License v3.0 (see `LICENSE`).
 It builds on the projects below; their licences are compatible with the GPL-3.0.
 
 ## Beat This! — MIT
@@ -41,7 +41,7 @@ GPL-3.0-or-later, and say so in their header:
 
 The Immersive UI in `base/app/src/main/java/com/music/spotui/ui/immersive/` (player, lyrics, queue,
 tab bar, top bars, sheets, motion, components, Home, Search, Library, Category, album/playlist, artist, profile, podcast and download pages) is
-adapted from these BitChord files, each named in the header of the Myspoti file that carries it:
+adapted from these BitChord files, each named in the header of the Hispoti file that carries it:
 `sharedUi/.../ui/player/` NowPlayingScreen, PlayerControls, PlayerState, PlayerHost, PlayerLyrics,
 PlayerQueue; `sharedUi/.../ui/components/` Common, SearchField, Skeletons, SongText, OptimizedHaze;
 `sharedUi/.../ui/screens/` HomeScreen, SearchScreen, LibraryScreen, ExploreScreen;
@@ -118,6 +118,6 @@ Project Authors. Cut down to Latin with its weight axis only. Licence text in
 https://chromium.googlesource.com/chromium/src/+/main/components/cast_channel/proto/cast_channel.proto
 
 Copyright The Chromium Authors. Casting to Google Cast devices
-(`base/app/src/main/java/com/music/spotui/cast/`) is Myspoti's own CastV2 sender, without the
+(`base/app/src/main/java/com/music/spotui/cast/`) is Hispoti's own CastV2 sender, without the
 Google Cast SDK. `CastMessage.kt` codes by hand the `CastMessage` message that this file defines
 (its field numbers and types); no Chromium code is included.

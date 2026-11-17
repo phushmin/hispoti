@@ -1,7 +1,7 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.PlaybackEvent
-import app.myspoti.extensions.TrackInfo
+import com.phush.hispoti.extensions.PlaybackEvent
+import com.phush.hispoti.extensions.TrackInfo
 
 /**
  * Turns what the players show, read about once a second, into `playback` events for the

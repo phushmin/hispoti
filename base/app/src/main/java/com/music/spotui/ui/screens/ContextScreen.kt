@@ -95,7 +95,7 @@ import com.music.spotui.di.Palette
 import com.music.spotui.di.SongPlayer
 import com.music.spotui.ui.components.Loader
 import com.music.spotui.ui.navigation.artistRoute
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -106,7 +106,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.withLock
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.filled.AutoAwesome
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.host.android.HispotiRuntime
 
 private val SpotifyGreen: Color get() = com.music.spotui.ui.theme.AppAccent
 private val PageBackground: Color get() = com.music.spotui.ui.theme.AppBackground
@@ -192,9 +192,9 @@ class ContextViewModel(
     /** The page is a playlist the user may change: only there can a track be removed. */
     val editableContext = mutableStateOf(false)
     /** Who can change this playlist: more than one when it is collaborative (their faces in the header). */
-    val members = mutableStateOf<List<app.myspoti.api.PlaylistMember>>(emptyList())
+    val members = mutableStateOf<List<com.phush.hispoti.api.PlaylistMember>>(emptyList())
     /** On a collaborative playlist: who added each row (by row id, then by song). */
-    val adders = mutableStateOf<Map<String, app.myspoti.api.PlaylistMember>>(emptyMap())
+    val adders = mutableStateOf<Map<String, com.phush.hispoti.api.PlaylistMember>>(emptyMap())
     /** Someone else's collaborative playlist this account was never invited to: it can't add to it. */
     val collabLocked = mutableStateOf(false)
     private var key: String? = null
@@ -219,7 +219,7 @@ class ContextViewModel(
         recsJob = viewModelScope.launch(Dispatchers.IO) {
             val inList = p.tracks.mapTo(HashSet()) { it.spotifyTrackId }
             val skip = (inList + recsSeen).map { "spotify:track:$it" }
-            val got = runCatching { MyspotiRuntime.api.playlists.recommended(p.uri, limit = RECS_COUNT, skip = skip) }
+            val got = runCatching { HispotiRuntime.api.playlists.recommended(p.uri, limit = RECS_COUNT, skip = skip) }
                 .getOrDefault(emptyList()).map(api::songOf)
                 .filter { it.spotifyTrackId !in inList && it.spotifyTrackId !in recsSeen }
             got.forEach { recsSeen += it.spotifyTrackId }
@@ -360,7 +360,7 @@ class ContextViewModel(
             if (p.type == "playlist") {
                 val listed = withContext(Dispatchers.IO) { com.music.spotui.data.preferences.getCachedLibraryEntries(Graph.app) }
                 if (com.music.spotui.data.api.LibraryEdits.listedButNotSaved(p.uri, saved, listed)) {
-                    app.myspoti.host.android.Logbook.log("library: ${p.uri} listed but not saved, the list is read again")
+                    com.phush.hispoti.host.android.Logbook.log("library: ${p.uri} listed but not saved, the list is read again")
                     com.music.spotui.data.api.LibraryEdits.reloadSoon()
                 }
             }
@@ -371,14 +371,14 @@ class ContextViewModel(
             runCatching { EditablePlaylists.load().any { it.id == p.uri.substringAfterLast(':') } }.getOrDefault(false)
         }
         if (p.type == "playlist" && !p.isBlend) members.value = withContext(Dispatchers.IO) {
-            runCatching { MyspotiRuntime.api.playlists.members(p.uri) }.getOrDefault(emptyList())
+            runCatching { HispotiRuntime.api.playlists.members(p.uri) }.getOrDefault(emptyList())
         }
         // Collaborative: each song shows who added it (the official app's small face on the row).
         val crew = members.value.associateBy { it.username }
         adders.value = if (crew.size < 2) emptyMap() else withContext(Dispatchers.IO) {
             runCatching {
-                val out = HashMap<String, app.myspoti.api.PlaylistMember>()
-                MyspotiRuntime.api.playlists.addedBy(p.uri).forEach { r ->
+                val out = HashMap<String, com.phush.hispoti.api.PlaylistMember>()
+                HispotiRuntime.api.playlists.addedBy(p.uri).forEach { r ->
                     val m = crew[r.username] ?: return@forEach
                     if (r.rowUid.isNotBlank()) out["row:" + r.rowUid] = m
                     out.putIfAbsent("song:" + r.trackUri.substringAfterLast(':'), m)
@@ -389,7 +389,7 @@ class ContextViewModel(
         // Collaborative yet not editable here: only an invitation link lets this account add songs.
         // Said on the page instead of leaving the user wondering where the + went.
         collabLocked.value = p.type == "playlist" && !p.isBlend && !editableContext.value && withContext(Dispatchers.IO) {
-            runCatching { MyspotiRuntime.api.playlists.access(p.uri) == app.myspoti.api.PlaylistAccess.COLLABORATIVE }.getOrDefault(false)
+            runCatching { HispotiRuntime.api.playlists.access(p.uri) == com.phush.hispoti.api.PlaylistAccess.COLLABORATIVE }.getOrDefault(false)
         }
     }
 
@@ -397,19 +397,19 @@ class ContextViewModel(
      * Owner, from the "Shared with" list: a member becomes a collaborator or a listener, or leaves
      * the playlist ([collaborator] null). The list answers at once; a refusal puts back what Spotify has.
      */
-    fun changeMember(p: ContextPageModel, m: app.myspoti.api.PlaylistMember, collaborator: Boolean?, onDone: (Boolean) -> Unit) {
+    fun changeMember(p: ContextPageModel, m: com.phush.hispoti.api.PlaylistMember, collaborator: Boolean?, onDone: (Boolean) -> Unit) {
         val before = members.value
         members.value = if (collaborator == null) before.filter { it.username != m.username }
         else before.map { if (it.username == m.username) it.copy(isCollaborator = collaborator) else it }
         viewModelScope.launch {
             val ok = withContext(Dispatchers.IO) {
                 runCatching {
-                    if (collaborator == null) MyspotiRuntime.api.playlists.removeMember(p.uri, m.username)
-                    else MyspotiRuntime.api.playlists.setMemberCollaborator(p.uri, m.username, collaborator)
+                    if (collaborator == null) HispotiRuntime.api.playlists.removeMember(p.uri, m.username)
+                    else HispotiRuntime.api.playlists.setMemberCollaborator(p.uri, m.username, collaborator)
                 }.isSuccess
             }
             if (!ok) members.value = withContext(Dispatchers.IO) {
-                runCatching { MyspotiRuntime.api.playlists.members(p.uri) }.getOrDefault(before)
+                runCatching { HispotiRuntime.api.playlists.members(p.uri) }.getOrDefault(before)
             }
             onDone(ok)
         }
@@ -457,7 +457,7 @@ class ContextViewModel(
         viewModelScope.launch {
             val ok = withContext(Dispatchers.IO) {
                 moveWrites.withLock {
-                    runCatching { MyspotiRuntime.api.playlists.moveTracks(current.uri, listOf(move.uid), move.beforeUid) }.isSuccess
+                    runCatching { HispotiRuntime.api.playlists.moveTracks(current.uri, listOf(move.uid), move.beforeUid) }.isSuccess
                 }
             }
             val id = current.uri.substringAfterLast(':')
@@ -554,7 +554,7 @@ class ContextViewModel(
         // Sorted by the user: Spotify plays the list in that order, not the playlist's. An
         // artist's liked songs are a part of Liked Songs: always given, so only they play.
         val order = if (sort.isCustom && p.type != "liked-artist") null else sort.apply(p.tracks).filter { it.spotifyTrackId.isNotBlank() }.map { "spotify:track:${it.spotifyTrackId}" }
-        // Myspoti's shuffle (an option): with shuffle on, every song of the list once, in an order of its own.
+        // Hispoti's shuffle (an option): with shuffle on, every song of the list once, in an order of its own.
         if (com.music.spotui.di.AppShuffle.play(p, song, order)) {
             state.updateSongState(song.coverUri, song.title, song.singer, true, song.id, 0, song.album)
             return
@@ -672,7 +672,7 @@ private fun ContextContent(navController: NavController, vm: ContextViewModel, p
                 leaveAsk = false
                 // As from the playlist menu: the page closes now; a refusal says so and the library is read again.
                 com.music.spotui.data.api.LibraryEdits.run(context, null,
-                    write = { MyspotiRuntime.api.playlists.leave(p.uri) },
+                    write = { HispotiRuntime.api.playlists.leave(p.uri) },
                     onDone = { ok -> if (ok) com.music.spotui.data.api.LibraryEdits.reloadSoon() })
                 navController.navigateUp()
             }) { Text(stringResource(R.string.playlist_leave_button), color = AppDestructive) }
@@ -1284,13 +1284,13 @@ private fun RecommendedRow(song: SongsModel, isCurrent: Boolean, onPlay: () -> U
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 internal fun MembersSheet(
-    members: List<app.myspoti.api.PlaylistMember>,
+    members: List<com.phush.hispoti.api.PlaylistMember>,
     navController: NavController,
     ownPlaylist: Boolean,
     me: String?,
     canLeave: Boolean,
     /** Owner: [collaborator] true/false changes the member's level, null removes the member. */
-    onChange: (app.myspoti.api.PlaylistMember, Boolean?) -> Unit,
+    onChange: (com.phush.hispoti.api.PlaylistMember, Boolean?) -> Unit,
     onLeave: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -1354,7 +1354,7 @@ private fun TrackRow(
     onMore: () -> Unit,
     /** The green check tapped: where the song is saved, to take it out (as in the official app). */
     onSaved: () -> Unit = {},
-    addedBy: app.myspoti.api.PlaylistMember? = null,
+    addedBy: com.phush.hispoti.api.PlaylistMember? = null,
     /** The song can be moved: a drag on this handle carries it. */
     handle: Modifier? = null,
 ) {
@@ -1380,7 +1380,7 @@ private fun TrackRow(
                     if (song.spotifyTrackId.isNotBlank() && !playing.endsWith(song.spotifyTrackId)) {
                         android.widget.Toast.makeText(
                             appContext,
-                            app.myspoti.engine.R.string.track_unavailable_region,
+                            com.phush.hispoti.engine.R.string.track_unavailable_region,
                             android.widget.Toast.LENGTH_LONG,
                         ).show()
                     }
@@ -1495,7 +1495,7 @@ object SmartShuffle {
         recommended.value = recommended.value - id
         if (!list.startsWith("spotify:playlist:")) {
             if (SongPlayer.currentTrackId == id) SongPlayer.setLiked(true)
-            else keepScope.launch { runCatching { MyspotiRuntime.api.library.add(listOf("spotify:track:$id")) } }
+            else keepScope.launch { runCatching { HispotiRuntime.api.library.add(listOf("spotify:track:$id")) } }
             android.widget.Toast.makeText(context, context.getString(R.string.snackbar_added_to_liked_songs), android.widget.Toast.LENGTH_SHORT).show()
             return
         }
@@ -1527,7 +1527,7 @@ object SmartShuffle {
             if (p.type == "liked") {
                 // Spotify's playlist extender refuses Liked Songs: the radios of a few liked songs instead.
                 p.tracks.shuffled().take(3).flatMap { api.getRecommendations(listOf(it.spotifyTrackId)).take(8) }
-            } else runCatching { MyspotiRuntime.api.playlists.recommended(p.uri, limit = 20) }.getOrDefault(emptyList()).map(api::songOf)
+            } else runCatching { HispotiRuntime.api.playlists.recommended(p.uri, limit = 20) }.getOrDefault(emptyList()).map(api::songOf)
                 // Spotify's extender gives nothing for some playlists: the radios of a few of its songs.
                 .ifEmpty { p.tracks.shuffled().take(3).flatMap { runCatching { api.getRecommendations(listOf(it.spotifyTrackId)).take(8) }.getOrDefault(emptyList()) } }
         }.filter { it.spotifyTrackId !in inList }.distinctBy { it.spotifyTrackId }.shuffled()
@@ -1656,9 +1656,9 @@ private fun TrackSortButton(sort: TrackOrder, onSort: (TrackOrder) -> Unit) {
 @OptIn(com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi::class)
 @Composable
 private fun SimilarAlbums(navController: NavController, firstTrackId: String, albumUri: String) {
-    val albums by androidx.compose.runtime.produceState(emptyList<app.myspoti.api.Album>(), firstTrackId) {
+    val albums by androidx.compose.runtime.produceState(emptyList<com.phush.hispoti.api.Album>(), firstTrackId) {
         if (firstTrackId.isBlank()) return@produceState
-        value = runCatching { app.myspoti.host.android.MyspotiRuntime.api.catalog.similarAlbums("spotify:track:$firstTrackId", 12) }
+        value = runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.catalog.similarAlbums("spotify:track:$firstTrackId", 12) }
             .getOrDefault(emptyList()).filter { it.uri != albumUri }
     }
     if (albums.isEmpty()) return

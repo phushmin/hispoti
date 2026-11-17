@@ -28,8 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
-import app.myspoti.extensions.StoreAction
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.StoreAction
 import com.music.spotui.ui.immersive.Immersive
 import com.music.spotui.ui.immersive.components.immersiveClickable
 import com.music.spotui.ui.immersive.shell.ImmersiveTopBar

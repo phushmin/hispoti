@@ -52,7 +52,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.di.Palette
 import com.music.spotui.di.SongPlayer
 import com.music.spotui.ui.theme.AppBackground
@@ -214,7 +214,7 @@ fun MiniPlayer() {
 
     // The Canvas of the song playing is looked up and loaded now, so the full player
     // opens on it directly instead of showing the cover first.
-    val energy by app.myspoti.power.EnergySettings.state.collectAsStateWithLifecycle()
+    val energy by com.phush.hispoti.power.EnergySettings.state.collectAsStateWithLifecycle()
     LaunchedEffect(np.uri, energy.policy.allowCanvas, com.music.spotui.data.DataSaver.active) {
         val id = np.uri.removePrefix("spotify:track:").takeIf { np.uri.startsWith("spotify:track:") } ?: return@LaunchedEffect
         if (!energy.policy.allowCanvas || com.music.spotui.data.DataSaver.active) return@LaunchedEffect

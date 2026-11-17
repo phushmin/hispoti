@@ -40,26 +40,26 @@ class UpdateCheckerTest {
         // An older release: one APK named after the version, whichever channel the release is.
         val legacy = org.json.JSONObject("""{"tag_name":"v2.0.0-beta.4","assets":[
             {"name":"checksums.txt","browser_download_url":"https://x/c.txt"},
-            {"name":"myspoti-2.0.0-beta.4.apk","browser_download_url":"https://x/myspoti.apk"}]}""")
-        assertEquals("https://x/myspoti.apk", UpdateChecker.apkAsset(legacy, beta = true, abis = arm64))
-        assertEquals("https://x/myspoti.apk", UpdateChecker.apkAsset(legacy, beta = false, abis = arm64))
+            {"name":"hispoti-2.0.0-beta.4.apk","browser_download_url":"https://x/hispoti.apk"}]}""")
+        assertEquals("https://x/hispoti.apk", UpdateChecker.apkAsset(legacy, beta = true, abis = arm64))
+        assertEquals("https://x/hispoti.apk", UpdateChecker.apkAsset(legacy, beta = false, abis = arm64))
         val both = org.json.JSONObject("""{"tag_name":"v2.2.1","assets":[
-            {"name":"myspoti-stable-2.2.1.apk","browser_download_url":"https://x/stable.apk"},
-            {"name":"myspoti-beta-2.2.1.apk","browser_download_url":"https://x/beta.apk"}]}""")
+            {"name":"hispoti-stable-2.2.1.apk","browser_download_url":"https://x/stable.apk"},
+            {"name":"hispoti-beta-2.2.1.apk","browser_download_url":"https://x/beta.apk"}]}""")
         assertEquals("https://x/beta.apk", UpdateChecker.apkAsset(both, beta = true, abis = arm64))
         assertEquals("https://x/stable.apk", UpdateChecker.apkAsset(both, beta = false, abis = arm64))
         // Only the other channel's APK, or an unrelated .apk: no link, never the wrong build.
         val other = org.json.JSONObject("""{"tag_name":"v2.2.1","assets":[
-            {"name":"myspoti-stable-2.2.1.apk","browser_download_url":"https://x/stable.apk"},
+            {"name":"hispoti-stable-2.2.1.apk","browser_download_url":"https://x/stable.apk"},
             {"name":"something-else.apk","browser_download_url":"https://x/else.apk"}]}""")
         assertEquals("", UpdateChecker.apkAsset(other, beta = true, abis = arm64))
         assertEquals("", UpdateChecker.apkAsset(org.json.JSONObject("{}"), beta = true, abis = arm64))
     }
     @Test fun findsTheApkOfThisPhonesAbi() {
         val split = org.json.JSONObject("""{"tag_name":"v2.3.0-beta.1","assets":[
-            {"name":"myspoti-beta-2.3.0-beta.1-armeabi-v7a.apk","browser_download_url":"https://x/beta-v7a.apk"},
-            {"name":"myspoti-beta-2.3.0-beta.1-arm64-v8a.apk","browser_download_url":"https://x/beta-arm64.apk"},
-            {"name":"myspoti-stable-2.3.0-beta.1-arm64-v8a.apk","browser_download_url":"https://x/stable-arm64.apk"}]}""")
+            {"name":"hispoti-beta-2.3.0-beta.1-armeabi-v7a.apk","browser_download_url":"https://x/beta-v7a.apk"},
+            {"name":"hispoti-beta-2.3.0-beta.1-arm64-v8a.apk","browser_download_url":"https://x/beta-arm64.apk"},
+            {"name":"hispoti-stable-2.3.0-beta.1-arm64-v8a.apk","browser_download_url":"https://x/stable-arm64.apk"}]}""")
         // A 64-bit phone that also runs armeabi-v7a takes arm64-v8a, whatever the assets' order.
         assertEquals("https://x/beta-arm64.apk", UpdateChecker.apkAsset(split, beta = true, abis = arm64))
         assertEquals("https://x/beta-v7a.apk", UpdateChecker.apkAsset(split, beta = true, abis = listOf("armeabi-v7a", "armeabi")))
@@ -71,22 +71,22 @@ class UpdateCheckerTest {
         assertEquals("", UpdateChecker.apkAsset(split, beta = true, abis = emptyList()))
         // A release from before the ABI split: the channel's APK without a suffix, as before.
         val single = org.json.JSONObject("""{"tag_name":"v2.2.1","assets":[
-            {"name":"myspoti-stable-2.2.1.apk","browser_download_url":"https://x/stable.apk"}]}""")
+            {"name":"hispoti-stable-2.2.1.apk","browser_download_url":"https://x/stable.apk"}]}""")
         assertEquals("https://x/stable.apk", UpdateChecker.apkAsset(single, beta = false, abis = listOf("armeabi-v7a")))
     }
     @Test fun findsTheClearlyNamedApks() {
         val r = org.json.JSONObject("""{"tag_name":"v2.4.0","assets":[
-            {"name":"Myspoti-2.4.0-TV.apk","browser_download_url":"https://x/tv.apk"},
-            {"name":"Myspoti-2.4.0-universal.apk","browser_download_url":"https://x/universal.apk"},
-            {"name":"Myspoti-2.4.0-ARMv7.apk","browser_download_url":"https://x/v7.apk"},
-            {"name":"Myspoti-2.4.0-ARMv8.apk","browser_download_url":"https://x/v8.apk"},
-            {"name":"myspoti-stable-2.4.0-arm64-v8a.apk","browser_download_url":"https://x/legacy-v8.apk"}]}""")
+            {"name":"Hispoti-2.4.0-TV.apk","browser_download_url":"https://x/tv.apk"},
+            {"name":"Hispoti-2.4.0-universal.apk","browser_download_url":"https://x/universal.apk"},
+            {"name":"Hispoti-2.4.0-ARMv7.apk","browser_download_url":"https://x/v7.apk"},
+            {"name":"Hispoti-2.4.0-ARMv8.apk","browser_download_url":"https://x/v8.apk"},
+            {"name":"hispoti-stable-2.4.0-arm64-v8a.apk","browser_download_url":"https://x/legacy-v8.apk"}]}""")
         assertEquals("https://x/v8.apk", UpdateChecker.apkAsset(r, beta = false, abis = listOf("arm64-v8a", "armeabi-v7a", "armeabi")))
         assertEquals("https://x/v7.apk", UpdateChecker.apkAsset(r, beta = false, abis = listOf("armeabi-v7a", "armeabi")))
         // A stable release has no beta APK.
         assertEquals("", UpdateChecker.apkAsset(r, beta = true, abis = listOf("arm64-v8a")))
         val b = org.json.JSONObject("""{"tag_name":"v2.4.0-beta.2","assets":[
-            {"name":"Myspoti-Beta-2.4.0-beta.2-ARMv8.apk","browser_download_url":"https://x/b8.apk"}]}""")
+            {"name":"Hispoti-Beta-2.4.0-beta.2-ARMv8.apk","browser_download_url":"https://x/b8.apk"}]}""")
         assertEquals("https://x/b8.apk", UpdateChecker.apkAsset(b, beta = true, abis = listOf("arm64-v8a")))
         assertEquals("", UpdateChecker.apkAsset(b, beta = false, abis = listOf("arm64-v8a")))
     }

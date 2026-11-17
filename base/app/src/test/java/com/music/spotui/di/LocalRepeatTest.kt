@@ -28,7 +28,7 @@ class LocalRepeatTest {
         assertEquals(2, LocalRepeat.pageMode(LocalRepeat.ONE))
         assertEquals(2, LocalRepeat.pageMode(LocalRepeat.ONCE))
         // The mode is Spotify's Repeat ordinal for the first three.
-        assertEquals(app.myspoti.api.Repeat.TRACK.ordinal, LocalRepeat.pageMode(LocalRepeat.ONCE))
+        assertEquals(com.phush.hispoti.api.Repeat.TRACK.ordinal, LocalRepeat.pageMode(LocalRepeat.ONCE))
         assertEquals(0, LocalRepeat.pageMode(-1))
     }
 
@@ -63,7 +63,7 @@ class LocalRepeatTest {
         // The only song of the queue too: once, then the queue's end (its song radio).
         assertEquals(LocalRepeat.End.REPLAY, LocalRepeat.atEnd(LocalRepeat.ONCE, 1, replayed = false))
         assertEquals(LocalRepeat.End.ONCE_DONE, LocalRepeat.atEnd(LocalRepeat.ONCE, 1, replayed = true))
-        // Repeat once still pauses at the end in both turns: Myspoti decides, never the player.
+        // Repeat once still pauses at the end in both turns: Hispoti decides, never the player.
         assertTrue(LocalRepeat.loopsSong(LocalRepeat.ONCE, 50))
     }
 

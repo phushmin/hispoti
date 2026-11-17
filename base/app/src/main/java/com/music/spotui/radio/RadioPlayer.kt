@@ -35,7 +35,7 @@ object RadioPlayer {
         started = station
         LocalPlayer.play(
             listOf(track(station)), 0,
-            context = Graph.app.getString(app.myspoti.engine.R.string.live_radio_title), contextUri = "",
+            context = Graph.app.getString(com.phush.hispoti.engine.R.string.live_radio_title), contextUri = "",
         )
         scope.launch { RadioBrowserApi.reportClick(station.stationUuid) }
     }
@@ -56,7 +56,7 @@ object RadioPlayer {
         val homepage = station.homepage.takeIf { it.startsWith("https://") || it.startsWith("http://") }
         val text = listOfNotNull(station.name, homepage).joinToString("\n")
         val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
-        context.startActivity(Intent.createChooser(send, context.getString(app.myspoti.engine.R.string.action_share_label)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        context.startActivity(Intent.createChooser(send, context.getString(com.phush.hispoti.engine.R.string.action_share_label)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     /** The synthetic song id LocalPlayer/SongPlayer show [station] under, to match against Graph.currentSongState. */
@@ -65,7 +65,7 @@ object RadioPlayer {
     private fun track(station: RadioStation) = LocalTrack(
         id = stableId(station), uri = android.net.Uri.parse(station.streamUrl),
         title = station.name, artist = station.tags.firstOrNull()?.ifBlank { null } ?: station.country,
-        album = Graph.app.getString(app.myspoti.engine.R.string.live_radio_title), durationMs = 0L,
+        album = Graph.app.getString(com.phush.hispoti.engine.R.string.live_radio_title), durationMs = 0L,
         artUri = station.favicon.takeIf { it.isNotBlank() }?.let(android.net.Uri::parse)
             ?: android.net.Uri.parse("android.resource://${Graph.app.packageName}/drawable/live_radio_cover"),
         isRadio = true,

@@ -8,7 +8,7 @@ import java.util.Locale
 
 /**
  * The app's own Logcat lines of the last minutes, for beta testers to paste in a bug report:
- * only Myspoti's own tags and crashes (not the system's codec, window and WebView chatter),
+ * only Hispoti's own tags and crashes (not the system's codec, window and WebView chatter),
  * without the lines that repeat with no news.
  * An app can always read its own process's logs; nothing leaves the phone unless the user
  * copies or shares the text. Tokens, e-mails and account ids are masked.
@@ -26,14 +26,14 @@ object BetaLogs {
                 .redirectErrorStream(true).start()
             process.inputStream.bufferedReader().use { it.readText() }.also { process.waitFor() }
         }.getOrElse { "logcat unavailable: ${it.message}" }
-        val header = "Myspoti ${app.myspoti.engine.BuildConfig.VERSION_NAME} · Android ${android.os.Build.VERSION.RELEASE} (SDK ${android.os.Build.VERSION.SDK_INT}) · " +
+        val header = "Hispoti ${com.phush.hispoti.engine.BuildConfig.VERSION_NAME} · Android ${android.os.Build.VERSION.RELEASE} (SDK ${android.os.Build.VERSION.SDK_INT}) · " +
             "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} · last $minutes min\n\n"
         header + sanitize(useful(text)).takeLast(MAX_CHARS)
     }
 
-    /** The app's log tags (Myspoti = the Web Player bridge). */
+    /** The app's log tags (Hispoti = the Web Player bridge). */
     private val TAGS = listOf(
-        "Myspoti", "MspPlayer", "Api", "player", "Offline", "OfflineLists", "Extensions",
+        "Hispoti", "MspPlayer", "Api", "player", "Offline", "OfflineLists", "Extensions",
         "DashFlacRemux", "SpotifySync", "LyricsApi", "LyricTranslate", "MusicVideo",
         "ScreenCache", "AppUpdater",
     )
@@ -51,7 +51,7 @@ object BetaLogs {
         var lastStatus = ""
         return text.lineSequence().filter { line ->
             if (noise.any { it.containsMatchIn(line) }) return@filter false
-            val status = line.substringAfter(" status ", "").takeIf { line.contains(" Myspoti : status ") }
+            val status = line.substringAfter(" status ", "").takeIf { line.contains(" Hispoti : status ") }
             if (status != null) { if (status == lastStatus) return@filter false; lastStatus = status }
             true
         }.joinToString("\n")

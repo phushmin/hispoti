@@ -39,7 +39,7 @@ import com.music.spotui.ui.navigation.navigateSingleTop
 fun App() {
     val navController = rememberNavController()
 
-    // Debug and beta builds: `myspoti-cli nav <route>` (see CliReceiver).
+    // Debug and beta builds: `hispoti-cli nav <route>` (see CliReceiver).
     LaunchedEffect(Unit) { com.music.spotui.cli.CliReceiver.nav.collect { r -> runCatching { navController.navigate(r) } } }
     // A page the onboarding asked for ("See the extensions").
     LaunchedEffect(Unit) {
@@ -58,7 +58,7 @@ fun App() {
     val invite by com.music.spotui.data.api.InviteLinks.pending.collectAsState()
     LaunchedEffect(invite) {
         val i = invite?.takeIf { !it.opened } ?: return@LaunchedEffect
-        app.myspoti.host.android.MyspotiRuntime.api.ready.first { it }
+        com.phush.hispoti.host.android.HispotiRuntime.api.ready.first { it }
         i.opened = true
         navController.navigateSingleTop(com.music.spotui.ui.navigation.playlistRoute(i.playlistId))
     }
@@ -190,7 +190,7 @@ private fun SupportPrompt() {
     var show by androidx.compose.runtime.remember { mutableStateOf(false) }
     androidx.compose.runtime.LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(12_000)
-        val signedIn = context.getSharedPreferences("myspoti_prefs", android.content.Context.MODE_PRIVATE).getBoolean("LoggedIn", false)
+        val signedIn = context.getSharedPreferences("hispoti_prefs", android.content.Context.MODE_PRIVATE).getBoolean("LoggedIn", false)
         show = signedIn && !updateCardOpen.value && com.music.spotui.data.api.SupportReminder.isDue(context)
     }
     if (!show) return
@@ -211,7 +211,7 @@ private fun SupportPrompt() {
 @Composable
 private fun SupportDialog(supporter: Boolean, onSupport: () -> Unit, onSponsor: () -> Unit, onDecline: () -> Unit, onSupported: (com.music.spotui.data.api.SupportReminder.Level) -> Unit) {
     // The owner's reminder: no extension draws, listens or acts over it.
-    com.music.spotui.extensions.ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.SUPPORT)
+    com.music.spotui.extensions.ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.SUPPORT)
     var choosing by androidx.compose.runtime.remember { mutableStateOf(false) }
     androidx.compose.ui.window.Dialog(onDismissRequest = onDecline) {
         androidx.compose.foundation.layout.Column(
@@ -223,20 +223,20 @@ private fun SupportDialog(supporter: Boolean, onSupport: () -> Unit, onSponsor: 
                 .padding(horizontal = 24.dp, vertical = 28.dp),
         ) {
             androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(app.myspoti.engine.R.drawable.ic_launcher_foreground),
+                painter = androidx.compose.ui.res.painterResource(com.phush.hispoti.engine.R.drawable.ic_launcher_foreground),
                 contentDescription = null,
                 modifier = Modifier.size(72.dp).clip(androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
                     .background(tone(0xFF181818)),
             )
             androidx.compose.material3.Text(
-                androidx.compose.ui.res.stringResource(if (supporter) app.myspoti.engine.R.string.supporter_thanks_title else app.myspoti.engine.R.string.support_title),
+                androidx.compose.ui.res.stringResource(if (supporter) com.phush.hispoti.engine.R.string.supporter_thanks_title else com.phush.hispoti.engine.R.string.support_title),
                 color = AppText, fontFamily = com.music.spotui.ui.theme.AppSans,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 20.sp,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 modifier = Modifier.padding(top = 18.dp),
             )
             androidx.compose.material3.Text(
-                androidx.compose.ui.res.stringResource(if (supporter) app.myspoti.engine.R.string.supporter_thanks_body else app.myspoti.engine.R.string.support_body),
+                androidx.compose.ui.res.stringResource(if (supporter) com.phush.hispoti.engine.R.string.supporter_thanks_body else com.phush.hispoti.engine.R.string.support_body),
                 color = AppText.copy(alpha = 0.8f),
                 fontFamily = com.music.spotui.ui.theme.AppSans, fontSize = 14.sp, lineHeight = 20.sp,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -253,14 +253,14 @@ private fun SupportDialog(supporter: Boolean, onSupport: () -> Unit, onSponsor: 
                     .background(com.music.spotui.ui.theme.AppAccent),
             ) {
                 androidx.compose.material3.Text(
-                    androidx.compose.ui.res.stringResource(if (supporter) app.myspoti.engine.R.string.support_again else app.myspoti.engine.R.string.support_action),
+                    androidx.compose.ui.res.stringResource(if (supporter) com.phush.hispoti.engine.R.string.support_again else com.phush.hispoti.engine.R.string.support_action),
                     color = androidx.compose.ui.graphics.Color.Black, fontFamily = com.music.spotui.ui.theme.AppSans,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 16.sp,
                 )
             }
             com.music.spotui.ui.components.GitHubSponsorButton(Modifier.padding(top = 10.dp), onClick = onSponsor)
             androidx.compose.material3.Text(
-                androidx.compose.ui.res.stringResource(app.myspoti.engine.R.string.support_decline),
+                androidx.compose.ui.res.stringResource(com.phush.hispoti.engine.R.string.support_decline),
                 color = AppText, fontFamily = com.music.spotui.ui.theme.AppSans,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 15.sp,
                 modifier = Modifier.padding(top = 8.dp).pressable(0.96f, onClick = onDecline).padding(horizontal = 24.dp, vertical = 12.dp),
@@ -271,7 +271,7 @@ private fun SupportDialog(supporter: Boolean, onSupport: () -> Unit, onSponsor: 
                     modifier = Modifier.padding(top = 8.dp),
                 ) { com.music.spotui.ui.components.SupportChoice(onChosen = onSupported) }
                 else androidx.compose.material3.Text(
-                    androidx.compose.ui.res.stringResource(app.myspoti.engine.R.string.supporter_i_supported),
+                    androidx.compose.ui.res.stringResource(com.phush.hispoti.engine.R.string.supporter_i_supported),
                     color = AppText.copy(alpha = 0.6f), fontFamily = com.music.spotui.ui.theme.AppSans,
                     fontSize = 13.sp,
                     modifier = Modifier.pressable(0.96f) { choosing = true }.padding(horizontal = 24.dp, vertical = 8.dp),
@@ -306,7 +306,7 @@ private fun UpdatePrompt() {
     }
     updateCardOpen.value = release != null
     val r = release ?: return
-    com.music.spotui.extensions.ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.UPDATE)
+    com.music.spotui.extensions.ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.UPDATE)
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val updater = com.music.spotui.data.api.AppUpdater
     val state by updater.state.collectAsState()
@@ -326,10 +326,10 @@ private fun UpdatePrompt() {
     val res = context.resources
     val status = when (val s = state) {
         is com.music.spotui.data.api.AppUpdater.State.Downloading ->
-            res.getString(app.myspoti.engine.R.string.update_downloading, (s.progress.coerceAtLeast(0f) * 100).toInt())
-        com.music.spotui.data.api.AppUpdater.State.Installing -> res.getString(app.myspoti.engine.R.string.update_installing)
-        com.music.spotui.data.api.AppUpdater.State.NeedsPermission -> res.getString(app.myspoti.engine.R.string.update_needs_permission)
-        is com.music.spotui.data.api.AppUpdater.State.Failed -> res.getString(app.myspoti.engine.R.string.update_failed, s.message)
+            res.getString(com.phush.hispoti.engine.R.string.update_downloading, (s.progress.coerceAtLeast(0f) * 100).toInt())
+        com.music.spotui.data.api.AppUpdater.State.Installing -> res.getString(com.phush.hispoti.engine.R.string.update_installing)
+        com.music.spotui.data.api.AppUpdater.State.NeedsPermission -> res.getString(com.phush.hispoti.engine.R.string.update_needs_permission)
+        is com.music.spotui.data.api.AppUpdater.State.Failed -> res.getString(com.phush.hispoti.engine.R.string.update_failed, s.message)
         com.music.spotui.data.api.AppUpdater.State.Idle -> null
     }
     val busy = state is com.music.spotui.data.api.AppUpdater.State.Downloading || state == com.music.spotui.data.api.AppUpdater.State.Installing
@@ -339,9 +339,9 @@ private fun UpdatePrompt() {
         status = status,
         progress = (state as? com.music.spotui.data.api.AppUpdater.State.Downloading)?.progress,
         button = res.getString(when (state) {
-            com.music.spotui.data.api.AppUpdater.State.NeedsPermission -> app.myspoti.engine.R.string.update_allow
-            is com.music.spotui.data.api.AppUpdater.State.Failed -> app.myspoti.engine.R.string.update_retry
-            else -> app.myspoti.engine.R.string.version_sunsetting_dialog_cta_update
+            com.music.spotui.data.api.AppUpdater.State.NeedsPermission -> com.phush.hispoti.engine.R.string.update_allow
+            is com.music.spotui.data.api.AppUpdater.State.Failed -> com.phush.hispoti.engine.R.string.update_retry
+            else -> com.phush.hispoti.engine.R.string.version_sunsetting_dialog_cta_update
         }),
         onUpdate = {
             when {
@@ -381,20 +381,20 @@ private fun UpdateDialog(
                 .padding(horizontal = 24.dp, vertical = 28.dp),
         ) {
             androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(app.myspoti.engine.R.drawable.ic_launcher_foreground),
+                painter = androidx.compose.ui.res.painterResource(com.phush.hispoti.engine.R.drawable.ic_launcher_foreground),
                 contentDescription = null,
                 modifier = Modifier.size(72.dp).clip(androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
                     .background(tone(0xFF181818)),
             )
             androidx.compose.material3.Text(
-                androidx.compose.ui.res.stringResource(app.myspoti.engine.R.string.main_update_available),
+                androidx.compose.ui.res.stringResource(com.phush.hispoti.engine.R.string.main_update_available),
                 color = AppText, fontFamily = com.music.spotui.ui.theme.AppSans,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 20.sp,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 modifier = Modifier.padding(top = 18.dp),
             )
             androidx.compose.material3.Text(
-                "Myspoti $version", color = AppText.copy(alpha = 0.7f),
+                "Hispoti $version", color = AppText.copy(alpha = 0.7f),
                 fontFamily = com.music.spotui.ui.theme.AppSans, fontSize = 15.sp, modifier = Modifier.padding(top = 6.dp),
             )
             // What's new (the release's CHANGELOG section), scrollable if long.
@@ -436,7 +436,7 @@ private fun UpdateDialog(
                 )
             }
             androidx.compose.material3.Text(
-                androidx.compose.ui.res.stringResource(app.myspoti.engine.R.string.age_assurance_intro_cta_not_now),
+                androidx.compose.ui.res.stringResource(com.phush.hispoti.engine.R.string.age_assurance_intro_cta_not_now),
                 color = AppText, fontFamily = com.music.spotui.ui.theme.AppSans,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 15.sp,
                 modifier = Modifier.padding(top = 8.dp).pressable(0.96f, onClick = onLater).padding(horizontal = 24.dp, vertical = 12.dp),

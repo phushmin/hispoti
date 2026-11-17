@@ -10,7 +10,7 @@ import androidx.media3.datasource.DataSourceException
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.datasource.HttpUtil
-import app.myspoti.extensions.ExtensionMediaHttp
+import com.phush.hispoti.extensions.ExtensionMediaHttp
 import java.io.IOException
 import java.io.InputStream
 

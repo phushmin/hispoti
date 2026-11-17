@@ -59,7 +59,7 @@ class AudioRouteTest {
     }
 
     private class Refused(val code: Int) : java.io.IOException("HTTP $code")
-    private fun stream(n: Int) = app.myspoti.extensions.AudioStream("https://cdn.example.com/$n.m4a", emptyMap(), null, null)
+    private fun stream(n: Int) = com.phush.hispoti.extensions.AudioStream("https://cdn.example.com/$n.m4a", emptyMap(), null, null)
 
     @Test fun aRefusedAddressIsAskedForOnceMoreThenFailsCleanly() {
         val status = { t: Throwable -> (t as? Refused)?.code }
@@ -71,7 +71,7 @@ class AudioRouteTest {
         assertEquals(listOf(false, true), asked)
         // Refused twice: one retry only, then a NoAudioException (the player does not retry it).
         asked.clear(); n = 0
-        val twice = runCatching { AudioRoute.openStream({ again -> asked += again; stream(++n) }, { _: app.myspoti.extensions.AudioStream -> throw Refused(401) }, status) }.exceptionOrNull()
+        val twice = runCatching { AudioRoute.openStream({ again -> asked += again; stream(++n) }, { _: com.phush.hispoti.extensions.AudioStream -> throw Refused(401) }, status) }.exceptionOrNull()
         assertTrue(twice is NoAudioException && AudioRoute.isNoAudio(twice))
         assertEquals(listOf(false, true), asked)
         // Wrapped in another error: still seen.
@@ -79,7 +79,7 @@ class AudioRouteTest {
         AudioRoute.openStream({ again -> asked += again; stream(++n) }, { s -> if (s.url.endsWith("1.m4a")) throw java.io.IOException("open", Refused(403)) else 1L }, status)
         assertEquals(listOf(false, true), asked)
         // No other address: fails.
-        val none = runCatching { AudioRoute.openStream({ again -> if (again) null else stream(1) }, { _: app.myspoti.extensions.AudioStream -> throw Refused(403) }, status) }.exceptionOrNull()
+        val none = runCatching { AudioRoute.openStream({ again -> if (again) null else stream(1) }, { _: com.phush.hispoti.extensions.AudioStream -> throw Refused(403) }, status) }.exceptionOrNull()
         assertTrue(none is NoAudioException)
         // Gone (404, 410): asked again too, once.
         for (code in listOf(404, 410)) {
@@ -89,7 +89,7 @@ class AudioRouteTest {
         }
         // Another error (500, a network failure) is not retried.
         asked.clear()
-        val other = runCatching { AudioRoute.openStream({ again -> asked += again; stream(1) }, { _: app.myspoti.extensions.AudioStream -> throw Refused(500) }, status) }.exceptionOrNull()
+        val other = runCatching { AudioRoute.openStream({ again -> asked += again; stream(1) }, { _: com.phush.hispoti.extensions.AudioStream -> throw Refused(500) }, status) }.exceptionOrNull()
         assertTrue(other is Refused && !AudioRoute.isNoAudio(other))
         assertEquals(listOf(false), asked)
         // No answer at all.

@@ -60,7 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.preferences.DownloadQuality
 import com.music.spotui.data.preferences.StreamingQuality
 import com.music.spotui.data.preferences.getDownloadQuality
@@ -162,7 +162,7 @@ private fun SettingsRoot(navController: NavController, open: (SettingsPage) -> U
         com.music.spotui.extensions.Extensions.manifest(e.id)?.settings?.takeIf { it.isNotEmpty() }?.let { e to it }
     }
     val crossfade = com.music.spotui.data.preferences.CrossfadePref.seconds
-    val audioLine = com.music.spotui.ui.screens.sourceLineSummary(app.myspoti.extensions.Action.AUDIO_SOURCE)
+    val audioLine = com.music.spotui.ui.screens.sourceLineSummary(com.phush.hispoti.extensions.Action.AUDIO_SOURCE)
     // The search button: a field over the page, the rows of every page it finds, a tap opens one.
     var query by rememberSaveable { mutableStateOf<String?>(null) }
     BackHandler(enabled = query != null) { query = null }
@@ -252,11 +252,11 @@ private fun SourcesPage(navController: NavController, back: () -> Unit) {
     val withSettings = registry.extensions.mapNotNull { e ->
         com.music.spotui.extensions.Extensions.manifest(e.id)?.settings?.takeIf { it.isNotEmpty() }?.let { e to it }
     }
-    val none = com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.AUDIO_SOURCE).isEmpty() &&
-        com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.DOWNLOAD_SOURCE).isEmpty()
+    val none = com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.AUDIO_SOURCE).isEmpty() &&
+        com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE).isEmpty()
     ImmersivePage(title = stringResource(R.string.settings_sources_tab), onBack = back) {
-        sourcesGroup(app.myspoti.extensions.Action.AUDIO_SOURCE, navController)
-        sourcesGroup(app.myspoti.extensions.Action.DOWNLOAD_SOURCE, navController)
+        sourcesGroup(com.phush.hispoti.extensions.Action.AUDIO_SOURCE, navController)
+        sourcesGroup(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE, navController)
         // The installed extensions that declare settings, each opening its page.
         immersiveGroup("extension-settings", headerRes = if (withSettings.isEmpty()) null else R.string.ext_settings_header) {
             withSettings.forEach { (e, settings) ->
@@ -286,9 +286,9 @@ private val ImmersiveSourceLook = com.music.spotui.ui.screens.SourceLook(
     Immersive.Text, Immersive.TextSecondary, Immersive.Accent, Immersive.BodyStrong, Immersive.Caption)
 
 /** The order a source action asks extensions in, as a card ([com.music.spotui.ui.screens.SourceOrderList]); nothing without any such extension. */
-private fun androidx.compose.foundation.lazy.LazyListScope.sourcesGroup(action: app.myspoti.extensions.Action, navController: NavController) {
+private fun androidx.compose.foundation.lazy.LazyListScope.sourcesGroup(action: com.phush.hispoti.extensions.Action, navController: NavController) {
     if (com.music.spotui.extensions.Extensions.sources(action).isEmpty()) return
-    val audio = action == app.myspoti.extensions.Action.AUDIO_SOURCE
+    val audio = action == com.phush.hispoti.extensions.Action.AUDIO_SOURCE
     immersiveGroup("sources:${action.key}",
         headerRes = if (audio) R.string.sources_audio_title else R.string.sources_download_title,
         footerRes = if (audio) R.string.sources_audio_footer else R.string.sources_download_footer) {
@@ -301,12 +301,12 @@ private fun androidx.compose.foundation.lazy.LazyListScope.sourcesGroup(action: 
 }
 
 /** Where the order of [action] is now: one row, with that order in a line, to the Sources page. */
-private fun androidx.compose.foundation.lazy.LazyListScope.sourcesLink(action: app.myspoti.extensions.Action, open: (SettingsPage) -> Unit) {
+private fun androidx.compose.foundation.lazy.LazyListScope.sourcesLink(action: com.phush.hispoti.extensions.Action, open: (SettingsPage) -> Unit) {
     if (com.music.spotui.extensions.Extensions.sources(action).isEmpty()) return
     immersiveGroup("sources-link:${action.key}") {
         row {
             ImmersiveGroupRow(
-                stringResource(if (action == app.myspoti.extensions.Action.AUDIO_SOURCE) R.string.sources_audio_title else R.string.sources_download_title),
+                stringResource(if (action == com.phush.hispoti.extensions.Action.AUDIO_SOURCE) R.string.sources_audio_title else R.string.sources_download_title),
                 detail = com.music.spotui.ui.screens.sourceLineSummary(action), chevron = true, onClick = { open(SettingsPage.Sources) },
             )
         }
@@ -319,15 +319,15 @@ private fun PlaybackPage(navController: NavController, open: (SettingsPage) -> U
     val wifi = getStreamingQuality(ctx, false)
     val cell = getStreamingQuality(ctx, true)
     val label = { q: StreamingQuality -> StreamingChoices.first { it.first == q }.second }
-    var headsetSkip by remember { mutableStateOf(app.myspoti.host.android.PlaybackService.skipsOnEpisodes(ctx)) }
-    var keepPlaying by remember { mutableStateOf(app.myspoti.host.android.PlaybackService.keepsPlayingOnClose(ctx)) }
+    var headsetSkip by remember { mutableStateOf(com.phush.hispoti.host.android.PlaybackService.skipsOnEpisodes(ctx)) }
+    var keepPlaying by remember { mutableStateOf(com.phush.hispoti.host.android.PlaybackService.keepsPlayingOnClose(ctx)) }
     val crossfade = com.music.spotui.data.preferences.CrossfadePref.seconds
     // The first source of the audio order, when it is an extension announcing settings here:
     // they show, and Spotify's quality (kept, still used for what Spotify plays) leaves the screen.
     val registry by com.music.spotui.extensions.Extensions.registry.collectAsStateWithLifecycle()
     // A source picked in the player for this session leads too ([com.music.spotui.extensions.SessionSource]).
     val session by com.music.spotui.extensions.Extensions.sessionSource.collectAsStateWithLifecycle()
-    val ext = remember(registry, session) { com.music.spotui.extensions.Extensions.sectionPlacement(app.myspoti.extensions.SettingSection.PLAYBACK) }
+    val ext = remember(registry, session) { com.music.spotui.extensions.Extensions.sectionPlacement(com.phush.hispoti.extensions.SettingSection.PLAYBACK) }
     val extHeader = ext?.let { stringResource(R.string.ext_section_settings, it.name) }
     ImmersivePage(title = stringResource(R.string.settings_section_playback), onBack = back) {
         if (ext != null && extHeader != null) extensionSectionGroup(ext, extHeader)
@@ -354,10 +354,10 @@ private fun PlaybackPage(navController: NavController, open: (SettingsPage) -> U
             }
             row {
                 ImmersiveSwitchRow(
-                    stringResource(R.string.myspoti_shuffle_title),
+                    stringResource(R.string.hispoti_shuffle_title),
                     checked = com.music.spotui.data.preferences.AppShufflePref.on,
                     onChecked = { com.music.spotui.data.preferences.AppShufflePref.set(ctx, it) },
-                    detail = stringResource(R.string.myspoti_shuffle_detail),
+                    detail = stringResource(R.string.hispoti_shuffle_detail),
                 )
             }
             row {
@@ -381,14 +381,14 @@ private fun PlaybackPage(navController: NavController, open: (SettingsPage) -> U
             row {
                 ImmersiveSwitchRow(
                     stringResource(R.string.settings_keep_playing_title), checked = keepPlaying,
-                    onChecked = { keepPlaying = it; app.myspoti.host.android.PlaybackService.setKeepsPlayingOnClose(ctx, it) },
+                    onChecked = { keepPlaying = it; com.phush.hispoti.host.android.PlaybackService.setKeepsPlayingOnClose(ctx, it) },
                     detail = stringResource(R.string.settings_keep_playing_detail),
                 )
             }
             row {
                 ImmersiveSwitchRow(
                     stringResource(R.string.settings_headset_skip_title), checked = headsetSkip,
-                    onChecked = { headsetSkip = it; app.myspoti.host.android.PlaybackService.setSkipsOnEpisodes(ctx, it) },
+                    onChecked = { headsetSkip = it; com.phush.hispoti.host.android.PlaybackService.setSkipsOnEpisodes(ctx, it) },
                     detail = stringResource(R.string.settings_headset_skip_detail),
                 )
             }
@@ -396,7 +396,7 @@ private fun PlaybackPage(navController: NavController, open: (SettingsPage) -> U
         // What other devices see of this phone, and a Jam joined here.
         immersiveGroup("connect", headerRes = R.string.settings_section_connect) {
             // Songs an extension streams, played by Spotify too (unheard): counted there, seen by Connect.
-            if (com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.AUDIO_SOURCE).isNotEmpty()) row {
+            if (com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.AUDIO_SOURCE).isNotEmpty()) row {
                 ImmersiveSwitchRow(
                     stringResource(R.string.settings_connect_mirror_title),
                     checked = com.music.spotui.data.preferences.ConnectMirrorPref.on,
@@ -432,7 +432,7 @@ private fun PlaybackPage(navController: NavController, open: (SettingsPage) -> U
                 )
             }
         }
-        sourcesLink(app.myspoti.extensions.Action.AUDIO_SOURCE, open)
+        sourcesLink(com.phush.hispoti.extensions.Action.AUDIO_SOURCE, open)
         // Podcasts: SponsorBlock (SponsorBlockGroup.kt).
         sponsorBlockGroup()
     }
@@ -508,7 +508,7 @@ private fun StreamingPage(cellular: Boolean, back: () -> Unit) {
     val ctx = LocalContext.current
     var current by remember(cellular) { mutableStateOf(getStreamingQuality(ctx, cellular)) }
     // Very high is the Web Player's Premium level: offered with a Premium account, kept while chosen.
-    val premium by app.myspoti.spotify.AccountPlan.premium.collectAsState()
+    val premium by com.phush.hispoti.spotify.AccountPlan.premium.collectAsState()
     val choices = StreamingChoices.filter { it.first != StreamingQuality.VERY_HIGH || premium == true || current == StreamingQuality.VERY_HIGH }
     ImmersivePage(
         title = stringResource(if (cellular) R.string.quality_streaming_cell_title else R.string.quality_streaming_wifi_title),
@@ -663,7 +663,7 @@ private fun DownloadsPage(navController: NavController, open: (SettingsPage) -> 
     // The first extension of the download order, when it announces settings here; its role quality
     // takes the place of the app's (kept, and still passed to every extension as `quality`).
     val registry by com.music.spotui.extensions.Extensions.registry.collectAsStateWithLifecycle()
-    val ext = remember(registry) { com.music.spotui.extensions.Extensions.sectionPlacement(app.myspoti.extensions.SettingSection.DOWNLOADS) }
+    val ext = remember(registry) { com.music.spotui.extensions.Extensions.sectionPlacement(com.phush.hispoti.extensions.SettingSection.DOWNLOADS) }
     val extHeader = ext?.let { stringResource(R.string.ext_section_settings, it.name) }
     ImmersivePage(title = stringResource(R.string.settings_section_downloads), onBack = back) {
         if (ext?.hidesAppQuality != true) immersiveGroup("quality", footerRes = R.string.quality_download_detail) {
@@ -675,8 +675,8 @@ private fun DownloadsPage(navController: NavController, open: (SettingsPage) -> 
         }
         if (ext != null && extHeader != null) extensionSectionGroup(ext, extHeader)
         // Where downloads come from: the download-source extensions, in the order they are asked.
-        sourcesLink(app.myspoti.extensions.Action.DOWNLOAD_SOURCE, open)
-        if (com.music.spotui.extensions.Extensions.sources(app.myspoti.extensions.Action.DOWNLOAD_SOURCE).isEmpty()) immersiveGroup("source") {
+        sourcesLink(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE, open)
+        if (com.music.spotui.extensions.Extensions.sources(com.phush.hispoti.extensions.Action.DOWNLOAD_SOURCE).isEmpty()) immersiveGroup("source") {
             row {
                 ImmersiveGroupRow(
                     stringResource(R.string.downloads_source_row_title),
@@ -792,17 +792,17 @@ private fun DownloadQualityPage(back: () -> Unit) {
 @Composable
 private fun DataPage(back: () -> Unit) {
     val ctx = LocalContext.current
-    val energy by app.myspoti.power.EnergySettings.state.collectAsStateWithLifecycle()
+    val energy by com.phush.hispoti.power.EnergySettings.state.collectAsStateWithLifecycle()
     // Battery optimization off = music and Connect keep going with the screen off.
-    var exempt by remember { mutableStateOf(app.myspoti.power.BatteryExemption.isExempt(ctx)) }
+    var exempt by remember { mutableStateOf(com.phush.hispoti.power.BatteryExemption.isExempt(ctx)) }
     androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-        exempt = app.myspoti.power.BatteryExemption.isExempt(ctx)
+        exempt = com.phush.hispoti.power.BatteryExemption.isExempt(ctx)
     }
     ImmersivePage(title = stringResource(R.string.settings_section_data), onBack = back) {
         immersiveGroup("data") {
             row {
                 ImmersiveSwitchRow(stringResource(R.string.energy_saver_title), checked = energy.manualSaver,
-                    onChecked = app.myspoti.power.EnergySettings::setSaver, detail = stringResource(R.string.energy_saver_summary))
+                    onChecked = com.phush.hispoti.power.EnergySettings::setSaver, detail = stringResource(R.string.energy_saver_summary))
             }
             row {
                 ImmersiveSwitchRow(stringResource(R.string.data_saver_title), checked = com.music.spotui.data.DataSaver.enabled,
@@ -813,16 +813,16 @@ private fun DataPage(back: () -> Unit) {
                     stringResource(R.string.background_playback_title), checked = exempt,
                     onChecked = {
                         if (exempt) ctx.startActivity(android.content.Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
-                        else app.myspoti.power.BatteryExemption.request(ctx)
+                        else com.phush.hispoti.power.BatteryExemption.request(ctx)
                     },
                     detail = stringResource(if (exempt) R.string.background_playback_on else R.string.background_playback_off),
                 )
             }
             // Samsung's "Sleeping apps" is a second list: the app has to be in Never sleeping apps too.
-            if (app.myspoti.power.BatteryExemption.isSamsung()) row {
+            if (com.phush.hispoti.power.BatteryExemption.isSamsung()) row {
                 ImmersiveGroupRow(
                     stringResource(R.string.background_playback_open), detail = stringResource(R.string.background_playback_samsung),
-                    chevron = true, onClick = { app.myspoti.power.BatteryExemption.openAppSettings(ctx) },
+                    chevron = true, onClick = { com.phush.hispoti.power.BatteryExemption.openAppSettings(ctx) },
                 )
             }
         }
@@ -835,7 +835,7 @@ private fun DataPage(back: () -> Unit) {
 private fun DisplayPage(open: (SettingsPage) -> Unit, back: () -> Unit) {
     val ctx = LocalContext.current
     var canvasWifiOnly by remember { mutableStateOf(com.music.spotui.data.preferences.isCanvasWifiOnly(ctx)) }
-    val energy by app.myspoti.power.EnergySettings.state.collectAsStateWithLifecycle()
+    val energy by com.phush.hispoti.power.EnergySettings.state.collectAsStateWithLifecycle()
     val look = com.music.spotui.data.preferences.LookPref.look
     val rotation = com.music.spotui.data.preferences.OrientationPref.mode
     val language = remember { com.music.spotui.data.AppLanguage.current(ctx) }
@@ -880,14 +880,14 @@ private fun DisplayPage(open: (SettingsPage) -> Unit, back: () -> Unit) {
             }
             row {
                 ImmersiveSwitchRow(stringResource(R.string.settings_amoled_theme), checked = energy.blackPreference,
-                    onChecked = app.myspoti.power.EnergySettings::setBlackBackground, detail = stringResource(R.string.settings_amoled_theme_subtitle))
+                    onChecked = com.phush.hispoti.power.EnergySettings::setBlackBackground, detail = stringResource(R.string.settings_amoled_theme_subtitle))
             }
             // The looping visuals, as in the Classic settings: off while the energy saver holds them.
             row {
                 ImmersiveSwitchRow(stringResource(R.string.settings_item_canvas_title),
                     checked = energy.canvasEnabled && !energy.policy.saverEnabled,
                     enabled = !energy.policy.saverEnabled,
-                    onChecked = app.myspoti.power.EnergySettings::setCanvasEnabled,
+                    onChecked = com.phush.hispoti.power.EnergySettings::setCanvasEnabled,
                     detail = stringResource(if (energy.policy.saverEnabled) R.string.energy_saver_summary else R.string.video_settings_canvas_subtitle))
             }
             row {
@@ -1091,7 +1091,7 @@ private fun AppPage(navController: NavController, back: () -> Unit) {
                     append(check.lastCheckedText)
                 }
                 ImmersiveGroupRow(
-                    stringResource(R.string.settings_about_version, app.myspoti.engine.BuildConfig.VERSION_NAME),
+                    stringResource(R.string.settings_about_version, com.phush.hispoti.engine.BuildConfig.VERSION_NAME),
                     detail = detail,
                     detailColor = if (check.isError) Immersive.Destructive else Immersive.TextSecondary,
                     onClick = if (known != null) ({ com.music.spotui.updateRelease.value = known }) else null,
@@ -1110,7 +1110,7 @@ private fun AppPage(navController: NavController, back: () -> Unit) {
                 ImmersiveGroupRow(
                     stringResource(R.string.restart_player_title), detail = stringResource(R.string.restart_player_detail),
                     onClick = {
-                        app.myspoti.host.android.MyspotiRuntime.host.reload()
+                        com.phush.hispoti.host.android.HispotiRuntime.host.reload()
                         android.widget.Toast.makeText(ctx, ctx.getString(R.string.restart_player_done), android.widget.Toast.LENGTH_SHORT).show()
                     },
                 )
@@ -1119,7 +1119,7 @@ private fun AppPage(navController: NavController, back: () -> Unit) {
                 ImmersiveGroupRow(
                     stringResource(R.string.diagnostic_export_title), detail = stringResource(R.string.diagnostic_export_detail),
                     onClick = {
-                        val file = runCatching { app.myspoti.host.android.Logbook.export(ctx) }.getOrNull()
+                        val file = runCatching { com.phush.hispoti.host.android.Logbook.export(ctx) }.getOrNull()
                         if (file != null) shareDiagnosticReport(ctx, file)
                         else android.widget.Toast.makeText(ctx, ctx.getString(R.string.diagnostic_export_failed), android.widget.Toast.LENGTH_SHORT).show()
                     },

@@ -2,14 +2,14 @@ package com.music.spotui.data.api
 
 import android.content.Context
 import android.util.Log
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.host.android.HispotiRuntime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.LibraryEntry
 import java.util.concurrent.ConcurrentHashMap
 
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
 object SpotifySync {
     private const val TAG = "SpotifySync"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private val api get() = MyspotiRuntime.api
+    private val api get() = HispotiRuntime.api
 
     fun addTrackToPlaylist(context: Context, playlistId: String, trackId: String, onDone: (Boolean) -> Unit = {}) {
         if (playlistId.isBlank() || trackId.isBlank()) { onDone(false); return }
@@ -92,7 +92,7 @@ object SpotifySync {
     private val visibilityWrites = Mutex()
 
     /** Who may see or change a playlist (public, private, collaborative), as chosen. [onDone] gets whether Spotify took it. */
-    fun setPlaylistAccess(uri: String, access: app.myspoti.api.PlaylistAccess, onDone: (Boolean) -> Unit = {}) {
+    fun setPlaylistAccess(uri: String, access: com.phush.hispoti.api.PlaylistAccess, onDone: (Boolean) -> Unit = {}) {
         scope.launch {
             val ok = visibilityWrites.withLock {
                 runCatching { api.playlists.setAccess(uri, access) }
@@ -157,8 +157,8 @@ object SpotifySync {
         }, onDone = { ok -> onDone(ok && trackAdded) })
     }
 
-    private suspend fun allTracks(uri: String): List<app.myspoti.api.Track> {
-        val out = ArrayList<app.myspoti.api.Track>()
+    private suspend fun allTracks(uri: String): List<com.phush.hispoti.api.Track> {
+        val out = ArrayList<com.phush.hispoti.api.Track>()
         var offset = 0
         while (true) {
             val page = api.playlists.tracks(uri, offset, 100)

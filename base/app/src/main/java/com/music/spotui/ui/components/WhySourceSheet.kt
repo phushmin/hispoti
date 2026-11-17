@@ -15,8 +15,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
-import app.myspoti.extensions.PlayAttempt
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.extensions.PlayAttempt
 import com.music.spotui.extensions.Extensions
 import com.music.spotui.ui.theme.AppMuted
 import com.music.spotui.ui.theme.AppText

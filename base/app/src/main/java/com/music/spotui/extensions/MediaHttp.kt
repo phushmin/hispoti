@@ -1,7 +1,7 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.ExtensionMediaHttp
-import app.myspoti.host.android.Logbook
+import com.phush.hispoti.extensions.ExtensionMediaHttp
+import com.phush.hispoti.host.android.Logbook
 
 /** The app's one door for fetching an address an extension gave (see [ExtensionMediaHttp]); a refused hop goes to the log. */
 internal object MediaHttp {

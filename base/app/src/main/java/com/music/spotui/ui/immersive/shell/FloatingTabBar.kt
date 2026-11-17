@@ -1,11 +1,11 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * app/src/main/java/com/music/bitchord/ui/components/floatingtabbar/FloatingTabBar.kt at edc1e6f.
- * Modified for Myspoti, 2026-10: only the expanded layout is kept (the tab pill and the standalone
+ * Modified for Hispoti, 2026-10: only the expanded layout is kept (the tab pill and the standalone
  * tab; no inline/accessory states and no shared transitions, the mini player is stacked above the
  * bar by the host), the pill is BitChord's refracting lens while Liquid Glass is on and the plain
  * lifted pill of GlassSelectionPill.kt otherwise, haptics and "reduce animation" come from the
- * system, and the surfaces are Myspoti's glass (immersiveGlassSurface). The minimized (inline)
+ * system, and the surfaces are Hispoti's glass (immersiveGlassSurface). The minimized (inline)
  * state lives in ImmersiveChrome.kt.
  */
 

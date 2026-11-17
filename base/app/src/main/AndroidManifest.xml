@@ -30,14 +30,14 @@
     <uses-feature android:name="android.hardware.wifi" android:required="false" />
 
     <application
-        android:name="app.myspoti.MyspotiApplication"
+        android:name="com.phush.hispoti.HispotiApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="${appLabel}"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:banner="@drawable/tv_banner"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Myspoti"
+        android:theme="@style/Theme.Hispoti"
         android:usesCleartextTraffic="false">
         <!-- Samsung DeX: the app keeps running (and playing) when the window moves to or from DeX. -->
         <meta-data android:name="com.samsung.android.keepalive.density" android:value="true" />
@@ -75,7 +75,7 @@
             android:value="true" />
 
 
-        <!-- Debug and beta builds only (cliEnabled, build.gradle.kts): tools/myspoti-cli drives the app over adb.
+        <!-- Debug and beta builds only (cliEnabled, build.gradle.kts): tools/hispoti-cli drives the app over adb.
              DUMP is held by the adb shell, not by other apps. -->
         <receiver
             android:name="com.music.spotui.cli.CliReceiver"
@@ -88,7 +88,7 @@
         </receiver>
 
         <activity
-            android:name="app.myspoti.MainActivity"
+            android:name="com.phush.hispoti.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="unspecified"
@@ -96,7 +96,7 @@
             android:supportsPictureInPicture="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|keyboard|navigation|density"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.Myspoti">
+            android:theme="@style/Theme.Hispoti">
             <!-- Desktop windows (Samsung DeX, freeform): opens in a landscape window, resizable. -->
             <layout
                 android:defaultWidth="1100dp"
@@ -145,7 +145,7 @@
              them = remove the LAUNCHER filter from MainActivity and uncomment these aliases.
         <activity-alias
             android:name=".ui.LauncherGreen"
-            android:targetActivity="app.myspoti.MainActivity"
+            android:targetActivity="com.phush.hispoti.MainActivity"
             android:exported="true"
             android:enabled="true"
             android:icon="@mipmap/ic_launcher"
@@ -157,7 +157,7 @@
         </activity-alias>
         <activity-alias
             android:name=".ui.LauncherBlue"
-            android:targetActivity="app.myspoti.MainActivity"
+            android:targetActivity="com.phush.hispoti.MainActivity"
             android:exported="true"
             android:enabled="false"
             android:icon="@mipmap/ic_launcher_blue"
@@ -169,7 +169,7 @@
         </activity-alias>
         <activity-alias
             android:name=".ui.LauncherPurple"
-            android:targetActivity="app.myspoti.MainActivity"
+            android:targetActivity="com.phush.hispoti.MainActivity"
             android:exported="true"
             android:enabled="false"
             android:icon="@mipmap/ic_launcher_purple"
@@ -181,7 +181,7 @@
         </activity-alias>
         <activity-alias
             android:name=".ui.LauncherPink"
-            android:targetActivity="app.myspoti.MainActivity"
+            android:targetActivity="com.phush.hispoti.MainActivity"
             android:exported="true"
             android:enabled="false"
             android:icon="@mipmap/ic_launcher_pink"
@@ -193,7 +193,7 @@
         </activity-alias>
         <activity-alias
             android:name=".ui.LauncherOrange"
-            android:targetActivity="app.myspoti.MainActivity"
+            android:targetActivity="com.phush.hispoti.MainActivity"
             android:exported="true"
             android:enabled="false"
             android:icon="@mipmap/ic_launcher_orange"
@@ -210,7 +210,7 @@
             android:name="com.music.spotui.ui.screens.AccountBrowser"
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:theme="@style/Theme.Myspoti" />
+            android:theme="@style/Theme.Hispoti" />
         <!-- Per-app language on Android 12 and older (AppCompat stores the choice). -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

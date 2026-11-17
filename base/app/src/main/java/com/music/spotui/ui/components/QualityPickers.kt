@@ -37,7 +37,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.preferences.DownloadQuality
 import com.music.spotui.data.preferences.StreamingQuality
 import com.music.spotui.data.preferences.getDownloadQuality
@@ -53,7 +53,7 @@ fun StreamingQualityPicker(modifier: Modifier = Modifier, cellular: Boolean = fa
     // Very high (256 kbit/s) is the Web Player's level for Premium accounts: offered once the plan
     // read says Premium (reported: no higher quality with a Premium account), and kept in the
     // list while chosen (another account of the phone may be the free one).
-    val premium by app.myspoti.spotify.AccountPlan.premium.collectAsState()
+    val premium by com.phush.hispoti.spotify.AccountPlan.premium.collectAsState()
     QualityGroup(
         title = stringResource(title),
         detail = stringResource(R.string.quality_streaming_detail),

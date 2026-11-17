@@ -1,6 +1,6 @@
 package com.music.spotui.ui.components
 
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 
 import androidx.compose.ui.res.stringResource
 

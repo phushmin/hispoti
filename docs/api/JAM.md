@@ -2,7 +2,7 @@
 
 Captured on 2026-11-03 from the Spotify desktop app 1.3.4 (its web layer over CDP), the host on a
 Premium account; the same calls are what the Web Player's `SocialConnectAPI` service sends, and
-what Myspoti goes through (`SpotifyJam`, `api-spotify/.../SpotifyMore.kt`). Host:
+what Hispoti goes through (`SpotifyJam`, `api-spotify/.../SpotifyMore.kt`). Host:
 `{region}-spclient.spotify.com`, JSON, the page's token.
 
 | Action | Call | Notes |
@@ -19,10 +19,10 @@ what Myspoti goes through (`SpotifyJam`, `api-spotify/.../SpotifyMore.kt`). Host
 Measured on the phone on 2026-11-03 (free account, host on Premium): `LISTEN_AND_CONTROL` answered
 403 `{"code":7,"message":"User not allowed to join session"}`, `CONTROL` 200. The Web Player's join
 dialog offers the same two: "Continue on this device" (`REMOTE`) and "Play from the host's speaker"
-(`IN_PERSON`). Myspoti asks for the first and takes the second when Spotify refuses it, and the Jam
+(`IN_PERSON`). Hispoti asks for the first and takes the second when Spotify refuses it, and the Jam
 sheet says where the music plays (`JamSession.listensHere`).
 
-Checked from Myspoti's own code on a free account (`host-cdp` JamLiveTest, the desktop app as the
+Checked from Hispoti's own code on a free account (`host-cdp` JamLiveTest, the desktop app as the
 host): `current_or_new` answers 403 `FREE_USER_NOT_ALLOWED` (a free account cannot start a Jam), the
 join answers 200 with `CONTROL`. With `local_device_id` set to the page's own Connect device, the
 member's commands (next, a list, pause, resume) go to `connect-state/v1/player/command/from/<device>/to/social-connect-<session>`

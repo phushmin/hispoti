@@ -16,7 +16,7 @@ import java.io.File
  * never cleared from here.
  */
 object AppStorage {
-    private const val PREFS = "myspoti_prefs"
+    private const val PREFS = "hispoti_prefs"
     private const val KEY_MEDIA_MB = "media_cache_mb"
     private const val MEDIA_DEFAULT_MB = 256
 

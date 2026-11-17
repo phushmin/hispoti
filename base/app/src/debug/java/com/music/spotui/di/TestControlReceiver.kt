@@ -10,7 +10,7 @@ import kotlinx.serialization.json.jsonObject
 /**
  * Debug builds only: the playback test (tools/playback_test.py) sends the app's own
  * commands, as a tap would, with
- * `adb shell am broadcast -a app.myspoti.TEST -p app.myspoti.dev --es cmd <cmd> ...`.
+ * `adb shell am broadcast -a com.phush.hispoti.TEST -p com.phush.hispoti.dev --es cmd <cmd> ...`.
  * cmd: play (--es track <uri> --es context <uri>), resume, pause, next, previous, seek (--el ms <n>).
  * cmd: download (--es id <spotify id> --es title T --es artist A --ei ms <duration>), playdownloaded (--es id).
  * cmd: screenon (--ez on false to release) holds the screen on for a long run: One UI does not
@@ -33,11 +33,11 @@ class TestControlReceiver : BroadcastReceiver() {
             "gql" -> {
                 val op = intent.getStringExtra("op").orEmpty()
                 val variables = intent.getStringExtra("vars").orEmpty().ifBlank { "{}" }
-                app.myspoti.host.android.MyspotiRuntime.scope.launch {
+                com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
                     runCatching {
-                        app.myspoti.host.android.MyspotiRuntime.spotify.raw.gql(
+                        com.phush.hispoti.host.android.HispotiRuntime.spotify.raw.gql(
                             op,
-                            app.myspoti.spotify.bridge.Bridge.json.parseToJsonElement(variables).jsonObject,
+                            com.phush.hispoti.spotify.bridge.Bridge.json.parseToJsonElement(variables).jsonObject,
                         )
                     }.onSuccess { Log.i("MspPlayer", "gql $op vars=$variables -> ${it.toString().take(4000)}") }
                         .onFailure { Log.i("MspPlayer", "gql $op vars=$variables failed: $it") }
@@ -53,12 +53,12 @@ class TestControlReceiver : BroadcastReceiver() {
             "crossfade" -> com.music.spotui.data.preferences.CrossfadePref.set(context, intent.getIntExtra("secs", 0))
             "uitrace" -> {
                 val secs = intent.getIntExtra("secs", 30).coerceIn(1, 600)
-                app.myspoti.host.android.MyspotiRuntime.scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                com.phush.hispoti.host.android.HispotiRuntime.scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                     val song = Graph.currentSongState
                     val end = android.os.SystemClock.elapsedRealtime() + secs * 1000L
                     while (android.os.SystemClock.elapsedRealtime() < end) {
                         val now = System.currentTimeMillis()
-                        val e = app.myspoti.host.android.MyspotiRuntime.spotify.player.state.value
+                        val e = com.phush.hispoti.host.android.HispotiRuntime.spotify.player.state.value
                         Log.i("MspTrace", "t=${android.os.SystemClock.elapsedRealtime()} ui_pos=${SongPlayer.getCurrentPosition()} " +
                             "ui_dur=${SongPlayer.getDuration()} ui_play=${SongPlayer.isPlaying()} ui_uri=${SongPlayer.nowPlaying.value.uri} " +
                             "ui_cover=${song.coverUri.value.substringAfterLast('/')} eng_uri=${e?.item?.uri} " +
@@ -70,24 +70,24 @@ class TestControlReceiver : BroadcastReceiver() {
                 }
             }
             "seek" -> SongPlayer.seekTo(intent.getLongExtra("ms", 0L))
-            "screenon" -> context.getSharedPreferences("myspoti_prefs", Context.MODE_PRIVATE)
+            "screenon" -> context.getSharedPreferences("hispoti_prefs", Context.MODE_PRIVATE)
                 .edit().putBoolean("keep_screen_on", intent.getBooleanExtra("on", true)).apply()
             // Debug builds: the same report the Settings row writes, so an unattended run can check
             // that the export really produces a readable file (and where it lands).
             "diagnose" -> runCatching {
-                val file = app.myspoti.host.android.Logbook.export(context)
+                val file = com.phush.hispoti.host.android.Logbook.export(context)
                 Log.i("MspPlayer", "diagnostic report: ${file.absolutePath} (${file.length()} bytes)")
             }.onFailure { Log.i("MspPlayer", "diagnostic report failed: $it") }
             // Debug: the friend feed on each host and the typed result, as shapes and counts only
             // (no friend's name or track leaves the phone's log).
-            "friends" -> app.myspoti.host.android.MyspotiRuntime.scope.launch {
-                val spotify = app.myspoti.host.android.MyspotiRuntime.spotify
+            "friends" -> com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
+                val spotify = com.phush.hispoti.host.android.HispotiRuntime.spotify
                 for (host in listOf("guc-spclient.spotify.com", "spclient.wg.spotify.com")) {
                     runCatching { spotify.raw.get("https://$host/presence-view/v1/buddylist") }
                         .onSuccess { Log.i("MspPlayer", "buddylist $host -> ${shape(it)}") }
                         .onFailure { Log.i("MspPlayer", "buddylist $host failed: $it") }
                 }
-                runCatching { app.myspoti.host.android.MyspotiRuntime.api.users.friendActivity() }
+                runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.users.friendActivity() }
                     .onSuccess { l -> Log.i("MspPlayer", "friendActivity -> ${l.size} friend(s), now=${l.count { it.isNowPlaying() }}, " +
                         "withTrack=${l.count { it.track != null }}, withContext=${l.count { it.contextName != null }}, withCover=${l.count { it.trackImageUrl != null }}") }
                     .onFailure { Log.i("MspPlayer", "friendActivity failed: $it") }
@@ -95,14 +95,14 @@ class TestControlReceiver : BroadcastReceiver() {
             // Debug: the account's Spotify top lists per window (counts and totals only).
             "extlist" -> com.music.spotui.extensions.Extensions.registry.value.extensions
                 .forEach { Log.i("MspPlayer", "extension ${it.id} ${it.version} enabled=${it.enabled} source=${it.source}") }
-            "extuninstall" -> app.myspoti.host.android.MyspotiRuntime.scope.launch {
+            "extuninstall" -> com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
                 val id = intent.getStringExtra("id").orEmpty()
                 if (com.music.spotui.extensions.Extensions.registry.value.find(id) == null) Log.i("MspPlayer", "extension $id: not installed")
                 else { com.music.spotui.extensions.Extensions.uninstall(id); Log.i("MspPlayer", "extension $id: uninstalled") }
             }
-            "top" -> app.myspoti.host.android.MyspotiRuntime.scope.launch {
-                app.myspoti.api.TimeRange.entries.forEach { r ->
-                    runCatching { app.myspoti.host.android.MyspotiRuntime.api.users.top(r, 50) }
+            "top" -> com.phush.hispoti.host.android.HispotiRuntime.scope.launch {
+                com.phush.hispoti.api.TimeRange.entries.forEach { r ->
+                    runCatching { com.phush.hispoti.host.android.HispotiRuntime.api.users.top(r, 50) }
                         .onSuccess { Log.i("MspPlayer", "top $r -> artists=${it.artists.size}/${it.artistTotal} tracks=${it.tracks.size}/${it.trackTotal}") }
                         .onFailure { Log.i("MspPlayer", "top $r failed: $it") }
                 }

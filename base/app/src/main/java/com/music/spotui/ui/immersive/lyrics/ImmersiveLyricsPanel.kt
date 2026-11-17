@@ -1,10 +1,10 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/PlayerLyrics.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: LyricsPanel's list, PanelVoice, the gap dots, the loading skeleton and the
- * scroll lead / stagger, fed by Myspoti's LyricsViewModel. Myspoti's lyrics are mostly
+ * scroll lead / stagger, fed by Hispoti's LyricsViewModel. Hispoti's lyrics are mostly
  * line-synced, so a line lights whole (BitChord's line-level path) and the word sweep runs
  * only where a line has words. Particles and the player-controls hand-off are left out for now.
  * A line's backing vocals, romanization and translation (the Classic look's, from the same
@@ -100,7 +100,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.lifecycle.viewmodel.compose.viewModel
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.entity.LyricLine
 import com.music.spotui.data.entity.Lyrics
 import com.music.spotui.data.preferences.LyricsRomanizationPref

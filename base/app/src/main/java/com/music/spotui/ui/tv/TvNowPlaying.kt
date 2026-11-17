@@ -2,11 +2,11 @@
  * Adapted from Apple Music TV (https://github.com/JObersi10/apple-music-tv), GPL-3.0,
  * android/app/src/main/java/com/applemusicktv/ui/screens/NowPlayingScreen.kt at 7e5c594
  * (NowPlayingScreen, PlayerProgressBar, rememberSmoothProgressMs).
- * Modified for Myspoti, 2026-11.
+ * Modified for Hispoti, 2026-11.
  *
- * Changes: Myspoti's player state and actions (rememberImmersivePlayer), its mesh backdrop from
+ * Changes: Hispoti's player state and actions (rememberImmersivePlayer), its mesh backdrop from
  * the cover instead of the beat-driven orbs, its lyrics panel; shuffle, repeat and like on the
- * transport row instead of an options menu; Myspoti's queue panel and Connect devices beside the
+ * transport row instead of an options menu; Hispoti's queue panel and Connect devices beside the
  * lyrics; the artist opens its page; no motion cover, sleep timer, live radio, screensaver or
  * full-screen lyrics.
  */
@@ -81,7 +81,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.components.ArtistChooser
 import com.music.spotui.ui.immersive.lyrics.ImmersiveLyricsPanel
 import com.music.spotui.ui.immersive.lyrics.ImmersiveQueuePanel

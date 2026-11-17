@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/screens/ExploreScreen.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  */
 package com.music.spotui.ui.immersive.screens
 
@@ -36,8 +36,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -57,7 +57,7 @@ internal data class BrowseTile(val key: String, val title: String, val color: Co
 internal fun rememberBrowseTiles(): List<BrowseTile> {
     val newReleases = stringResource(R.string.browse_new_releases)
     val tiles by produceState(initialValue = emptyList<BrowseTile>()) {
-        val categories = runCatching { MyspotiRuntime.api.home.categories() }.getOrDefault(emptyList())
+        val categories = runCatching { HispotiRuntime.api.home.categories() }.getOrDefault(emptyList())
         value = listOf(BrowseTile(ImmersiveNewReleasesGenre, newReleases, Color(0xFFE8115B), "")) +
             categories
                 .filter { Features.PODCASTS || !it.title.contains("odcast", ignoreCase = true) }

@@ -1,7 +1,7 @@
 package com.music.spotui.extensions
 
-import app.myspoti.extensions.PlaybackEvent
-import app.myspoti.extensions.TrackInfo
+import com.phush.hispoti.extensions.PlaybackEvent
+import com.phush.hispoti.extensions.TrackInfo
 import com.music.spotui.extensions.PlaybackTracker.Snapshot
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

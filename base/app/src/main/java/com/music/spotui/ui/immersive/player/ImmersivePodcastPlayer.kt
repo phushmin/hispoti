@@ -67,7 +67,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -210,7 +210,7 @@ fun ImmersivePodcastPlayer(navController: NavController) {
                     .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { openShow() }
                     .titleMarquee(iterations = Int.MAX_VALUE),
             )
-            // What the sound is when Myspoti's own player plays it; a tap opens its quality.
+            // What the sound is when Hispoti's own player plays it; a tap opens its quality.
             if (sourceLabel.isNotBlank()) Text(
                 text = sourceLabel,
                 style = Immersive.Caption.copy(lineHeight = 14.sp),

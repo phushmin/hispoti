@@ -47,14 +47,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.api.WhatsNewContent
-import app.myspoti.api.WhatsNewItem
-import app.myspoti.api.WhatsNewSections
-import app.myspoti.api.WhatsNewState
-import app.myspoti.api.best
-import app.myspoti.api.whatsNewSections
-import app.myspoti.engine.R
-import app.myspoti.host.android.MyspotiRuntime
+import com.phush.hispoti.api.WhatsNewContent
+import com.phush.hispoti.api.WhatsNewItem
+import com.phush.hispoti.api.WhatsNewSections
+import com.phush.hispoti.api.WhatsNewState
+import com.phush.hispoti.api.best
+import com.phush.hispoti.api.whatsNewSections
+import com.phush.hispoti.engine.R
+import com.phush.hispoti.host.android.HispotiRuntime
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -111,7 +111,7 @@ internal fun rememberWhatsNewFeed(content: WhatsNewContent, attempt: Int): Whats
             var offset: Int? = 0
             while (offset != null && items.size < MAX_ITEMS) {
                 val current: Int = offset
-                val page = MyspotiRuntime.api.home.whatsNewFeed(current, PAGE, content)
+                val page = HispotiRuntime.api.home.whatsNewFeed(current, PAGE, content)
                 items += page.items
                 offset = page.nextOffset?.takeIf { it > current }
             }
@@ -121,7 +121,7 @@ internal fun rememberWhatsNewFeed(content: WhatsNewContent, attempt: Int): Whats
                 // Split before marking: what was unseen stays under "New" on this visit.
                 feed.sections = whatsNewSections(items)
                 val unseen = items.filter { it.state == WhatsNewState.NEW }.map { it.id }
-                if (unseen.isNotEmpty()) runCatching { MyspotiRuntime.api.home.markWhatsNewSeen(unseen) }
+                if (unseen.isNotEmpty()) runCatching { HispotiRuntime.api.home.markWhatsNewSeen(unseen) }
             }
             .onFailure { feed.failure = it.message ?: it.toString() }
     }
@@ -148,7 +148,7 @@ internal fun WhatsNewItem.togglePlay(state: WhatsNewPlayback) {
         state.playing -> SongPlayer.pause()
         state.current -> SongPlayer.play()
         album == null -> SongPlayer.playSong("episode:$id")
-        else -> MyspotiRuntime.scope.launch {
+        else -> HispotiRuntime.scope.launch {
             val page = withTimeoutOrNull(15_000) {
                 Graph.api.getAlbumPage(id).first { it is Response.Error || (it is Response.Success && it.data.tracks.isNotEmpty()) }
             }

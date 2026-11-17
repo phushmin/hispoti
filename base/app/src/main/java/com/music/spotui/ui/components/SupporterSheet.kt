@@ -44,7 +44,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.data.api.SupportReminder
 import com.music.spotui.data.api.SupportReminder.Accent
 import com.music.spotui.data.preferences.LookPref
@@ -96,7 +96,7 @@ fun SupportChoice(onChosen: (Level) -> Unit) {
 @Composable
 fun SupporterSheet(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    com.music.spotui.extensions.ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.SUPPORT)
+    com.music.spotui.extensions.ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.SUPPORT)
     var choosing by remember { mutableStateOf(false) }
     val level = SupportReminder.level
     // Opened in full: half open, it hid the support buttons at the bottom.

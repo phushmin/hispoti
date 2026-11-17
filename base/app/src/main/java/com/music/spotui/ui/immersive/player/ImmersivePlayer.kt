@@ -1,7 +1,7 @@
 /*
  * Adapted from BitChord (https://github.com/kushagrasinghx/BitChord), GPL-3.0-or-later,
  * sharedUi/src/jvmSharedMain/kotlin/com/music/bitchord/ui/player/NowPlayingScreen.kt at edc1e6f.
- * Modified for Myspoti, 2026-10.
+ * Modified for Hispoti, 2026-10.
  *
  * Changes: only the portrait layout is taken: the artwork with its step back on pause, the move
  * of the artwork to a small header (title beside it) when the lyrics or the queue open, the
@@ -9,7 +9,7 @@
  * sheet's drag to close. The full-bleed banner, Canvas clips, BitChord's track-swipe on the cover,
  * version switching, the lyric strip and the dock are left out. The landscape layout (cover beside
  * the controls), the Canvas behind the player (with the cover opening into it) and the swipe
- * along the cover that changes track (the mini player's) are Myspoti's own.
+ * along the cover that changes track (the mini player's) are Hispoti's own.
  */
 package com.music.spotui.ui.immersive.player
 
@@ -101,7 +101,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -547,7 +547,7 @@ private val CanvasShade = Brush.verticalGradient(
 private fun rememberImmersiveCanvas(state: ImmersivePlayerState): String? {
     val context = LocalContext.current
     val vm: com.music.spotui.ui.viewmodel.PlayerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-    val energy by app.myspoti.power.EnergySettings.state.collectAsStateWithLifecycle()
+    val energy by com.phush.hispoti.power.EnergySettings.state.collectAsStateWithLifecycle()
     val allowed = energy.policy.allowCanvas && !com.music.spotui.data.DataSaver.active &&
         !(com.music.spotui.data.DataSaver.metered && com.music.spotui.data.preferences.isCanvasWifiOnly(context))
     val trackId = state.trackId
@@ -657,7 +657,7 @@ private fun RowScope.PlayerCredits(
                     .titleMarquee(enabled = scrolls, iterations = Int.MAX_VALUE),
             )
         }
-        // What the sound is when Myspoti's own player plays it (an extension's stream, a
+        // What the sound is when Hispoti's own player plays it (an extension's stream, a
         // download); a tap opens what plays and its quality. Same state as the Classic player.
         if (!state.adPlaying && sourceShown) Text(
             text = sourceLabel.ifEmpty { " " },

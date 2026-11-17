@@ -3,8 +3,8 @@ package com.music.spotui.extensions
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.security.keystore.StrongBoxUnavailableException
-import app.myspoti.extensions.Attestation
-import app.myspoti.extensions.Enrollment
+import com.phush.hispoti.extensions.Attestation
+import com.phush.hispoti.extensions.Enrollment
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.PrivateKey
@@ -13,7 +13,7 @@ import java.security.spec.ECGenParameterSpec
 import java.util.Base64
 
 /**
- * `myspoti.attest` ([app.myspoti.extensions.Action.ATTEST]): one EC P-256 signing key per
+ * `hispoti.attest` ([com.phush.hispoti.extensions.Action.ATTEST]): one EC P-256 signing key per
  * extension in the AndroidKeyStore, under the alias [Attestation.alias] of its id, so an
  * extension can only ever reach its own. The key is made with the challenge the extension's server
  * gave, StrongBox first and the TEE when the phone has none, and the keystore's attestation chain
@@ -52,7 +52,7 @@ object ExtensionAttestation : Attestation {
 
     override fun sign(extensionId: String, data: ByteArray): String {
         val key = keyStore().getKey(Attestation.alias(extensionId), null) as? PrivateKey
-            ?: throw IllegalStateException("not enrolled: call myspoti.attest.enroll(challenge) first")
+            ?: throw IllegalStateException("not enrolled: call hispoti.attest.enroll(challenge) first")
         val signature = Signature.getInstance("SHA256withECDSA").apply { initSign(key); update(data) }.sign()
         return Base64.getEncoder().encodeToString(signature)
     }

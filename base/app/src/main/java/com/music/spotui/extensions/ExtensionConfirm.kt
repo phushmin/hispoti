@@ -15,13 +15,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.myspoti.engine.R
+import com.phush.hispoti.engine.R
 import com.music.spotui.ui.theme.AppAccent
 import com.music.spotui.ui.theme.AppMuted
 import com.music.spotui.ui.theme.AppText
 import com.music.spotui.ui.theme.tone
-import app.myspoti.extensions.Consent
-import app.myspoti.extensions.RawGrant
+import com.phush.hispoti.extensions.Consent
+import com.phush.hispoti.extensions.RawGrant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -65,7 +65,7 @@ fun ExtensionConfirmHost() {
     WelcomeNotice()
     val waiting by ExtensionConfirm.waiting.collectAsState()
     val q = waiting.firstOrNull() ?: return
-    ProtectedSurfaceEffect(app.myspoti.extensions.ProtectedSurface.CONFIRM)
+    ProtectedSurfaceEffect(com.phush.hispoti.extensions.ProtectedSurface.CONFIRM)
     AlertDialog(
         onDismissRequest = { ExtensionConfirm.answer(q, false) },
         containerColor = tone(0xFF282828),
