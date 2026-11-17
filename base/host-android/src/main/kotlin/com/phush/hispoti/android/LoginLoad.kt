@@ -56,7 +56,7 @@ enum class LoginLoad {
 
         /**
          * A page of the sign-in: Spotify's account and challenge pages, a `/login` path on a
-         * Spotify host, and a third-party sign-in provider (Google, Facebook, Apple) that Spotify
+         * Spotify host, and third-party sign-in providers (Google, Facebook, Apple) that Spotify
          * hands the flow to. Judged on the host and the path, not on the whole address: a player
          * address that merely carries one of these names in its query (a `continue=` back to the
          * login) is not a sign-in page, and was taken for one.
@@ -66,11 +66,8 @@ enum class LoginLoad {
             val host = uri.host?.lowercase() ?: return false
             if (host == "accounts.spotify.com" || host == "challenge.spotify.com") return true
             if (host.endsWith(".spotify.com") && uri.path?.contains("/login") == true) return true
-            return OAUTH_HOSTS.any { host == it || host.endsWith(".$it") }
+            return false
         }
-
-        /** The third-party sign-in providers Spotify's own page can hand the flow to. */
-        private val OAUTH_HOSTS = listOf("accounts.google.com", "google.com", "gstatic.com", "googleusercontent.com", "facebook.com", "apple.com")
 
         private fun hostOf(url: String?): String? =
             runCatching { java.net.URI((url ?: return null).substringBefore('#').substringBefore('?')).host?.lowercase() }.getOrNull()
