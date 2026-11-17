@@ -254,8 +254,12 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         // it rode on the audio files themselves and on Spotify's telemetry, so a single rule on
         // Spotify's side would flag every Hispoti install. The androidx API was made to allow that
         // header for a few origins; an empty allowlist is what suppresses it everywhere.
-        androidx.webkit.WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, emptySet())
-        Logbook.log("x-requested-with: off for every origin")
+        try {
+            androidx.webkit.WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, emptySet())
+            Logbook.log("x-requested-with: off for every origin")
+        } catch (e: UnsupportedOperationException) {
+            Logbook.log("x-requested-with: cannot be turned off on this WebView")
+        }
         // Client hints must agree with the desktop user agent: by default the WebView announces
         // "Android WebView" / mobile in Sec-CH-UA headers and navigator.userAgentData. Set
         // unconditionally (WebSettingsCompat is a no-op on APIs that lack the feature) so every
@@ -264,17 +268,21 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         val brands = fingerprint.brands.map {
             androidx.webkit.UserAgentMetadata.BrandVersion.Builder().setBrand(it.name).setMajorVersion(it.major).setFullVersion(it.fullVersion).build()
         }
-        androidx.webkit.WebSettingsCompat.setUserAgentMetadata(settings, androidx.webkit.UserAgentMetadata.Builder()
-            .setBrandVersionList(brands)
-            .setFullVersion(fingerprint.fullVersion)
-            .setPlatform("Linux")
-            .setPlatformVersion(fingerprint.kernel)
-            .setArchitecture("x86")
-            .setBitness(64)
-            .setMobile(false)
-            .setModel("")
-            .setWow64(false)
-            .build())
+        try {
+            androidx.webkit.WebSettingsCompat.setUserAgentMetadata(settings, androidx.webkit.UserAgentMetadata.Builder()
+                .setBrandVersionList(brands)
+                .setFullVersion(fingerprint.fullVersion)
+                .setPlatform("Linux")
+                .setPlatformVersion(fingerprint.kernel)
+                .setArchitecture("x86")
+                .setBitness(64)
+                .setMobile(false)
+                .setModel("")
+                .setWow64(false)
+                .build())
+        } catch (e: UnsupportedOperationException) {
+            Logbook.log("client hints: cannot be turned off on this WebView")
+        }
         Logbook.log("client hints: ${fingerprint.secChUa} (platform ${fingerprint.kernel})")
         // The page plays the audio: its renderer keeps its priority when the screen is off.
         setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false)
