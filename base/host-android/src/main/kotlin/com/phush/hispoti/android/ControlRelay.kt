@@ -148,7 +148,7 @@ internal class ControlRelay(private val view: WebView) {
             reply(id, doc, 0, "{}", "")
             return
         }
-        val built = relayHeaders(given, identity, UserAgents.random(view.context), fallbackLanguage, "")
+        val built = relayHeaders(given, identity, view.settings.userAgentString, fallbackLanguage, "")
         // The registration goes out as the real Web Player sends it, except for its name: the phone's
         // own (see [deviceName]) replaces "Web Player (Chrome)".
         val registration = body != null && com.phush.hispoti.spotify.bridge.AdBlock.isDeviceRegistration(method, url)
