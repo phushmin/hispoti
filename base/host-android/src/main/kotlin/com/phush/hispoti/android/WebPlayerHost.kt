@@ -266,10 +266,9 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
             Logbook.log("x-requested-with: cannot be turned off on this WebView")
         }
         // The page plays the audio: its renderer keeps its priority when the screen is off.
-        setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false)        // The page plays the audio: its renderer keeps its priority when the screen is off.
         setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false)
         // Playback control requests leave from the app, without the WebView's X-Requested-With.
-        relay = ControlRelay(this, fingerprint).also {
+        relay = ControlRelay(this).also {
             it.onDeviceRegistered = { drmAsked = true; main.removeCallbacks(drmWatch) }
             it.install()
         }

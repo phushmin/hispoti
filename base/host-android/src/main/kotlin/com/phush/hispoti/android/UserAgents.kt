@@ -3,7 +3,6 @@ package com.phush.hispoti.host.android
 import android.content.Context
 import java.io.File
 import java.net.URL
-import java.util.concurrent.TimeUnit
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -22,7 +21,7 @@ internal object UserAgents {
     /** The source the official Web Player announces for its user agents. */
     private const val SOURCE_URL = "https://cdn.jsdelivr.net/npm/top-user-agents@latest/src/index.json"
     /** TTL for the cache (24 hours). */
-    private const val CACHE_TTL_MS = TimeUnit.HOURS.toMillis(24L)
+    private const val CACHE_TTL_MS = 24 * 60 * 60 * 1000L
     /** File name for the cached agent, stored per-install. */
     private const val CACHE_FILE = "user_agents.txt"
 
