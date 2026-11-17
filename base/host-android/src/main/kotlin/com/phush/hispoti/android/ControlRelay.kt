@@ -537,9 +537,13 @@ internal class ControlRelay(private val view: WebView) {
          * bodies, see the notes).
          *
          * Login and consent hosts stay out: their flows post forms and redirect, and a relay would
-         * have to reproduce every step exactly to sign in.
+         * have to reproduce every step exactly to sign in. Everything else on spotify.com goes
+         * through OkHttp (no X-Requested-With, system DNS that follows the VPN). Chromium's own
+         * WebView resolver doesn't, which left `apresolve.spotify.com`, `open.spotify.com/api/...`
+         * and `clienttoken.spotify.com` failing with ERR_NAME_NOT_RESOLVED — the bridge then never
+         * became ready and the sign-in looped on the loading screen forever.
          */
-        private val RELAYED = Regex("^https://[a-z0-9-]+(\\.[a-z0-9-]+)*\\.spotify\\.com/(connect-state|track-playback)/v1/")
+        private val RELAYED = Regex("^https://([a-z0-9-]+\\.)*spotify\\.com/")
         private val NOT_RELAYED = Regex("^https://(accounts|challenge|www)\\.spotify\\.com/")
 
         /**
@@ -843,7 +847,7 @@ internal class ControlRelay(private val view: WebView) {
                 if (window.__mspMuted || window.__mspHushed) { this.muted = false; this.volume = 0.001; }
                 return play.apply(this, arguments);
               };
-              const relayed = /^https:\/\/([a-z0-9-]+\.)*spotify\.com\/(connect-state|track-playback)\/v1\//;
+              const relayed = /^https:\/\/([a-z0-9-]+\.)*spotify\.com\//;
               const notRelayed = /^https:\/\/(accounts|challenge|www)\.spotify\.com\//;
               // The play reports (REPORTS on the host side), relayed only once this page's device
               // is registered: until then the page boots exactly as in 2.0.1.
