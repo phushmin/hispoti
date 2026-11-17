@@ -123,26 +123,47 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
     /** JS injected at document-start to override navigator properties that WebView's
      * client-hints API silently fails to set (UnsupportedOperationException on this
      * WebView version). Mirrors the exact values set via setUserAgentMetadata above so
-     * every JS check sees the same desktop Chrome identity the UA claims. */
+     * every JS check sees the same desktop Chrome identity the UA claims.
+     * navigator.userAgentData / platform / vendor are getters on their prototypes, so an
+     * own-property defineProperty is the only way to shadow them reliably. */
     private val navigatorOverride = """
-        (function(){delete navigator.userAgentData;
-        navigator.userAgentData={
+        (function(){
+        var def=function(o,k,v){try{Object.defineProperty(o,k,{value:v,writable:true,configurable:true,enumerable:true})}catch(e){}};
+        var uad={
             brands:[
-                {name:"Google Chrome",major:"${fingerprint.major}",fullVersion:"${fingerprint.fullVersion}"},
-                {name:"Chromium",major:"${fingerprint.major}",fullVersion:"${fingerprint.fullVersion}"},
-                {name:"Not A Brand",major:"0",fullVersion:"0"}
+                {brand:"Google Chrome",version:"${fingerprint.major}"},
+                {brand:"Chromium",version:"${fingerprint.major}"},
+                {brand:"Not A.Brand",version:"99"}
             ],
             mobile:false,
             platform:"Linux",
-            platformVersion:"${fingerprint.kernel}",
             architecture:"x86",
-            bitness:64,
-            minVersion:"${fingerprint.major}.0.0.0"
+            bitness:"64",
+            platformVersion:"${fingerprint.kernel}",
+            fullVersionList:[
+                {brand:"Google Chrome",version:"${fingerprint.fullVersion}"},
+                {brand:"Chromium",version:"${fingerprint.fullVersion}"},
+                {brand:"Not A.Brand",version:"99.0.0.0"}
+            ],
+            fullVersion:"${fingerprint.fullVersion}",
+            models:[],
+            getHighEntropyValues:function(hints){
+                var all={brands:uad.brands,mobile:uad.mobile,platform:uad.platform,platformVersion:uad.platformVersion,
+                    architecture:uad.architecture,bitness:uad.bitness,fullVersionList:uad.fullVersionList,
+                    fullVersion:uad.fullVersion,models:uad.models,wow64:false};
+                var out={};
+                (hints||[]).forEach(function(k){out[k]=all[k]});
+                return Promise.resolve(out);
+            },
+            toJSON:function(){return {brands:uad.brands,mobile:uad.mobile,platform:uad.platform}}
         };
-        navigator.platform="Linux x86_64";
-        navigator.maxTouchPoints=0;
-        navigator.hardwareConcurrency=8;
-        navigator.vendor="Google Chrome";
+        def(navigator,"userAgentData",uad);
+        def(navigator,"platform","Linux x86_64");
+        def(navigator,"maxTouchPoints",0);
+        def(navigator,"hardwareConcurrency",8);
+        def(navigator,"vendor","Google Chrome");
+        def(navigator,"webdriver",false);
+        def(navigator,"deviceMemory",8);
         })()
     """.trimIndent()
 
@@ -376,10 +397,12 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         // throws UnsupportedOperationException), so the page's JS still reads navigator.userAgentData
         // and navigator.platform as "Android WebView". Override them at document start, before the
         // page runs, so every JS check sees the same desktop Chrome identity the UA string claims.
+        // Also inject immediately (inline) so that even navigations in flight after this view is
+        // created get the override, not only future document-start injections.
         val docStart = androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT)
         if (docStart) androidx.webkit.WebViewCompat.addDocumentStartJavaScript(this, navigatorOverride, setOf("https://open.spotify.com", "https://accounts.spotify.com", "https://accounts.google.com"))
-        else evaluateJavascript(navigatorOverride, null)
-        Logbook.log("navigator override: ${if (docStart) "document start" else "inline"}")
+        evaluateJavascript(navigatorOverride, null)
+        Logbook.log("navigator override: ${if (docStart) "document start + inline" else "inline"}")
         webViewClient = object : WebViewClient() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
                 val url = request.url.toString()
