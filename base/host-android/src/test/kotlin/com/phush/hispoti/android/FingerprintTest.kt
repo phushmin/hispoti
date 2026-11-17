@@ -44,4 +44,11 @@ class FingerprintTest {
         assertEquals("en", Fingerprint.acceptLanguage(listOf("en")))
         assertFalse(Fingerprint.acceptLanguage(List(12) { "l$it" }).contains(";q=0.0"))
     }
+
+    @Test fun `UA Chrome version matches WebView engine version`() {
+        val ua = "Mozilla/5.0 (Linux; Android 15; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.7727.92 Mobile Safari/537.36"
+        val matched = Fingerprint.matchUaToEngine(ua, 157, 8103, 50)
+        assertTrue(matched.contains("Chrome/157.0.8103.50"))
+        assertFalse(matched.contains("Chrome/147"))
+    }
 }

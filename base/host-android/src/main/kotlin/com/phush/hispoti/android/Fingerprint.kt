@@ -83,10 +83,19 @@ internal data class Fingerprint(
             }.getOrNull()
             val (major, build, patch) = parseEngine(engineVersion) ?: parseEngine(FALLBACK_ENGINE)!!
             return Fingerprint(
-                userAgent = UserAgents.random(context),
+                userAgent = matchUaToEngine(UserAgents.random(context), major, build, patch),
                 fullVersion = "$major.$build.$patch",
                 platformVersion = android.os.Build.VERSION.RELEASE,
             )
         }
+
+        /**
+         * The user agent's Chrome version must match the WebView's Chromium version: the page's
+         * `navigator.userAgentData` reports the real one (the brands above), and a UA that
+         * contradicts it is what a server-side gate spots — Spotify reset the connection when
+         * the UA said Chrome/147 and the brands said Chromium/157.
+         */
+        internal fun matchUaToEngine(ua: String, major: Int, build: Int, patch: Int): String =
+            ua.replace(Regex("Chrome/\\d+\\.\\d+\\.\\d+\\.\\d+"), "Chrome/$major.0.$build.$patch")
     }
 }
