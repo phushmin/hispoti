@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
+import android.os.Message
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -16,6 +17,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebViewClient
+import androidx.webkit.WebViewCompat
 import com.phush.hispoti.spotify.bridge.AdBlock
 import com.phush.hispoti.spotify.bridge.BridgeHost
 import kotlinx.coroutines.CompletableDeferred
@@ -117,6 +119,32 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
      */
     internal val fingerprint = Fingerprint.of(context)
     val userAgent: String get() = fingerprint.userAgent
+
+    /** JS injected at document-start to override navigator properties that WebView's
+     * client-hints API silently fails to set (UnsupportedOperationException on this
+     * WebView version). Mirrors the exact values set via setUserAgentMetadata above so
+     * every JS check sees the same desktop Chrome identity the UA claims. */
+    private val navigatorOverride = """
+        (function(){delete navigator.userAgentData;
+        navigator.userAgentData={
+            brands:[
+                {name:"Google Chrome",major:"${fingerprint.major}",fullVersion:"${fingerprint.fullVersion}"},
+                {name:"Chromium",major:"${fingerprint.major}",fullVersion:"${fingerprint.fullVersion}"},
+                {name:"Not A Brand",major:"0",fullVersion:"0"}
+            ],
+            mobile:false,
+            platform:"Linux",
+            platformVersion:"${fingerprint.kernel}",
+            architecture:"x86",
+            bitness:64,
+            minVersion:"${fingerprint.major}.0.0.0"
+        };
+        navigator.platform="Linux x86_64";
+        navigator.maxTouchPoints=0;
+        navigator.hardwareConcurrency=8;
+        navigator.vendor="Google Chrome";
+        })()
+    """.trimIndent()
 
     init {
         // Debug builds only: lets desktop tools (chrome://inspect, CDP) look at the page.
@@ -248,6 +276,9 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
             cacheMode = WebSettings.LOAD_DEFAULT
             loadWithOverviewMode = true
             useWideViewPort = true
+            // Some OAuth checks open the sign-in in a window (window.open): without this the popup
+            // is dropped and the flow stalls.
+            setSupportMultipleWindows(true)
         }
         // The WebView stamps every request the page makes with "X-Requested-With: <our package>".
         // No browser does that, and it is measured on the wire ([tools/cdp.py] --trace --headers):
@@ -315,7 +346,40 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                 val allowed = request.resources.filter { it == PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID }
                 if (allowed.isNotEmpty()) request.grant(allowed.toTypedArray()) else request.deny()
             }
+
+            /**
+             * A window.open from the page (the sign-in's "Continue with Google" or the account
+             * switch's popup) is a throwaway: it only learns where the new window goes, then that
+             * address is the callback (done) or loads here; no second window is ever shown.
+             */
+            override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
+                val probe = WebView(view.context)
+                WebViewCompat.setProfile(probe, profile)
+                probe.webViewClient = object : WebViewClient() {
+                    private var taken = false
+                    private fun take(url: String) {
+                        if (taken) return
+                        taken = true
+                        probe.stopLoading()
+                        if (url.startsWith("https://") || url.startsWith("http://")) view.loadUrl(url)
+                        probe.post { probe.destroy() }
+                    }
+                    override fun shouldOverrideUrlLoading(v: WebView, request: WebResourceRequest): Boolean { take(request.url.toString()); return true }
+                    override fun onPageStarted(v: WebView, url: String, favicon: Bitmap?) { if (url != "about:blank") take(url) }
+                }
+                (resultMsg.obj as WebView.WebViewTransport).webView = probe
+                resultMsg.sendToTarget()
+                return true
+            }
         }
+        // The androidx client-hints API is a no-op on some WebViews (this device's 157.0.8103.50
+        // throws UnsupportedOperationException), so the page's JS still reads navigator.userAgentData
+        // and navigator.platform as "Android WebView". Override them at document start, before the
+        // page runs, so every JS check sees the same desktop Chrome identity the UA string claims.
+        val docStart = androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT)
+        if (docStart) androidx.webkit.WebViewCompat.addDocumentStartJavaScript(this, navigatorOverride, setOf("https://open.spotify.com", "https://accounts.spotify.com", "https://accounts.google.com"))
+        else evaluateJavascript(navigatorOverride, null)
+        Logbook.log("navigator override: ${if (docStart) "document start" else "inline"}")
         webViewClient = object : WebViewClient() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
                 val url = request.url.toString()
