@@ -254,12 +254,8 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         // it rode on the audio files themselves and on Spotify's telemetry, so a single rule on
         // Spotify's side would flag every Hispoti install. The androidx API was made to allow that
         // header for a few origins; an empty allowlist is what suppresses it everywhere.
-        if (androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
-            androidx.webkit.WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, emptySet())
-            Logbook.log("x-requested-with: off for every origin")
-        } else {
-            Logbook.log("x-requested-with: cannot be turned off on this WebView")
-        }
+        androidx.webkit.WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, emptySet())
+        Logbook.log("x-requested-with: off for every origin")
         // Client hints must agree with the desktop user agent: by default the WebView announces
         // "Android WebView" / mobile in Sec-CH-UA headers and navigator.userAgentData. Set
         // unconditionally (WebSettingsCompat is a no-op on APIs that lack the feature) so every
