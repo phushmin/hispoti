@@ -65,7 +65,10 @@ enum class LoginLoad {
             val host = uri.host?.lowercase() ?: return false
             if (host == "accounts.spotify.com" || host == "challenge.spotify.com") return true
             if (uri.path?.contains("/login") == true) return true
-            return host == "accounts.google.com" || host == "facebook.com" || host.endsWith(".facebook.com") || host == "appleid.apple.com"
+            // Not Google/Facebook/Apple: those are third-party OAuth providers, and Google refuses
+            // OAuth in an embedded WebView ("browser not secure"). Spotube's plugin logs in directly
+            // at accounts.spotify.com (email/password), and so does Hispoti now.
+            return false
         }
 
         private fun hostOf(url: String?): String? =

@@ -167,6 +167,47 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         })()
     """.trimIndent()
 
+    /**
+     * The sign-in page's third-party "Continue with Google / Facebook / Apple" buttons are the only
+     * way into an OAuth provider whose login refuses embedded browsers ("This browser or app may not
+     * be secure"). They are removed from the page: Hispoti signs in with email/password at
+     * accounts.spotify.com, and the provider buttons are gone, not merely dead.
+     */
+    private val socialLoginBlock = """
+        (function(){
+        var NEEDLE=/continue with|sign in with|log in with|log in|continue/i;
+        var PROVIDERS=/google|facebook|apple|phone|sms/i;
+        function hide(el){
+            var p=el;
+            while(p&&p!==document.body){
+                var tag=(p.tagName||'').toLowerCase();
+                if(tag==='button'||(p.getAttribute&&p.getAttribute('role')==='button')||(tag==='a'&&p.getAttribute('href'))){break}
+                p=p.parentElement;
+            }
+            var t=p||el;
+            if(t&&t.style){t.style.setProperty('display','none','important')}
+        }
+        function scan(){
+            try{
+                var els=document.querySelectorAll('button,a,div[role="button"],span');
+                for(var i=0;i<els.length;i++){
+                    var el=els[i];
+                    var txt=(el.innerText||'').trim().toLowerCase();
+                    if(!txt||txt.length>64){continue}
+                    if(NEEDLE.test(txt)&&PROVIDERS.test(txt)){hide(el)}
+                }
+            }catch(e){}
+        }
+        function attach(){
+            scan();
+            try{var mo=new MutationObserver(function(){setTimeout(scan,250)});mo.observe(document.documentElement,{childList:true,subtree:true})}
+            catch(e){}
+        }
+        if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',attach)}
+        else{attach()}
+    })()
+    """.trimIndent()
+
     init {
         // Debug builds only: lets desktop tools (chrome://inspect, CDP) look at the page.
         if (debuggable) WebView.setWebContentsDebuggingEnabled(true)
@@ -382,6 +423,13 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                         if (taken) return
                         taken = true
                         probe.stopLoading()
+                        // Do not open third-party OAuth hosts in the WebView:
+                        val host = runCatching { android.net.Uri.parse(url).host?.lowercase() }.getOrNull()
+                        if (host == "accounts.google.com" || host == "facebook.com" || host == "appleid.apple.com") {
+                            Logbook.log("blocked OAuth navigation to $url")
+                            probe.post { probe.destroy() }
+                            return
+                        }
                         if (url.startsWith("https://") || url.startsWith("http://")) view.loadUrl(url)
                         probe.post { probe.destroy() }
                     }
@@ -400,7 +448,8 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
         // Also inject immediately (inline) so that even navigations in flight after this view is
         // created get the override, not only future document-start injections.
         val docStart = androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT)
-        if (docStart) androidx.webkit.WebViewCompat.addDocumentStartJavaScript(this, navigatorOverride, setOf("https://open.spotify.com", "https://accounts.spotify.com", "https://accounts.google.com"))
+        if (docStart) androidx.webkit.WebViewCompat.addDocumentStartJavaScript(this, navigatorOverride, setOf("https://open.spotify.com", "https://accounts.spotify.com"))
+        if (docStart) androidx.webkit.WebViewCompat.addDocumentStartJavaScript(this, socialLoginBlock, setOf("https://accounts.spotify.com"))
         evaluateJavascript(navigatorOverride, null)
         Logbook.log("navigator override: ${if (docStart) "document start + inline" else "inline"}")
         webViewClient = object : WebViewClient() {
@@ -536,9 +585,9 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
 
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val host = request.url.host.orEmpty()
-                // Stay on Spotify's own pages (player, login, consent); open nothing else.
+                // Stay on Spotify's own pages (player, login, consent, audio); open nothing else.
                 // Exact or subdomain match: "evilspotify.com" must not count as Spotify.
-                val allowed = listOf("spotify.com", "spotify.net", "scdn.co", "google.com", "facebook.com", "apple.com")
+                val allowed = listOf("spotify.com", "spotify.net", "scdn.co")
                     .any { host == it || host.endsWith(".$it") }
                 // And only over https: a plain http link to those hosts, or any other scheme, stays out.
                 // The page's own loads (loadUrl, about:blank) do not come through here.
