@@ -846,7 +846,7 @@ internal class ControlRelay(private val view: WebView) {
                 if (window.__mspMuted || window.__mspHushed) { this.muted = false; this.volume = 0.001; }
                 return play.apply(this, arguments);
               };
-              const relayed = /^https:\/\/([a-z0-9-]+\.)*spotify\.com\/(connect-state|track-playback)\/v1\/|^https:\/\/open\.spotify\.com\/api\//|^https:\/\/clienttoken\.spotify\.com\//|^https:\/\/apresolve\.spotify\.com\//;
+              const relayed = /^https:\/\/([a-z0-9-]+\.)*spotify\.com\/(connect-state|track-playback)\/v1|^https:\/\/open\.spotify\.com\/api|^https:\/\/clienttoken\.spotify\.com|^https:\/\/apresolve\.spotify\.com/;
               const notRelayed = /^https:\/\/(accounts|challenge|www)\.spotify\.com\//;
               // The play reports (REPORTS on the host side), relayed only once this page's device
               // is registered: until then the page boots exactly as in 2.0.1.
