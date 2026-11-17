@@ -30,7 +30,7 @@ class FingerprintTest {
     }
 
     @Test fun `an unreadable WebView version falls back to a plausible Chrome`() {
-        val (major, build, _) = Fingerprint.parseEngine("not a version") ?: (0 to 0 to 0)
+        val (major, build, _) = Fingerprint.parseEngine("not a version") ?: Triple(0, 0, 0)
         assertEquals(0, major)
         assertEquals(0, build)
         assertNull(Fingerprint.parseEngine("141.0"))
