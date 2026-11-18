@@ -114,7 +114,7 @@ internal class ControlRelay(private val view: WebView) {
                 "check" -> " wsReplaced=${m.optBoolean("wsReplaced")} wsName=${m.optString("wsName")} isTop=${m.optBoolean("isTop")} href=${m.optString("href")}"
                 "constructor" -> " url=${m.optString("url")} matched=${m.optBoolean("matched")} net=${m.optBoolean("net")}"
                 "fetch-passthrough", "xhr-open" -> " url=${m.optString("url")} method=${m.optString("method", "")}"
-                "jserror", "jsreject", "console-error" -> " msg=${m.optString("message")} stack=${m.optString("stack")}"
+                "jserror", "jsreject", "console-error" -> " msg=${m.optString("message")} file=${m.optString("file")} line=${m.optInt("line", 0)} stack=${m.optString("stack")}"
                 else -> ""
             }
             Logbook.log("ws-debug: ${m.optString("msg")} hasNet=${m.optBoolean("hasNet", false)}$extra")
