@@ -147,7 +147,10 @@ internal class ControlRelay(private val view: WebView) {
             "ws-send" -> {
                 val sock = webSockets[m.optInt("id", -1)] ?: return
                 val payload = m.optString("payload", "")
-                if (m.optBoolean("binary")) sock.send(ByteString.decodeBase64(payload) ?: return)
+                if (m.optBoolean("binary")) {
+                    val decoded = runCatching { java.util.Base64.getDecoder().decode(payload) }.getOrNull() ?: return
+                    sock.send(ByteString.of(*decoded))
+                }
                 else sock.send(payload)
                 return
             }
