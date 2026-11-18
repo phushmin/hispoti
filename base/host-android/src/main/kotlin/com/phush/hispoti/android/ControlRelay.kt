@@ -109,6 +109,10 @@ internal class ControlRelay(private val view: WebView) {
     /** `{id, url, method, headers, body}` from the page's wrapped `fetch`. */
     private fun onMessage(json: String) {
         val m = runCatching { JSONObject(json) }.getOrNull() ?: return
+        if (m.optString("type") == "ws-debug") {
+            Logbook.log("ws-debug: ${m.optString("msg")} url=${m.optString("url")} matched=${m.optBoolean("matched")} hasNet=${m.optBoolean("hasNet", false)}")
+            return
+        }
         if (m.optString("type") == "identity") {
             identity = m.optJSONObject("value")
             Logbook.log("page identity: ${identity.toString().take(320)}")
@@ -893,7 +897,7 @@ internal class ControlRelay(private val view: WebView) {
         /** Wraps window.fetch; the same pattern as [RELAYED]. */
         private val SCRIPT = """
             (() => {
-              console.log('[msp-ws] SCRIPT starting');
+              try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'script-start', hasNet: !!window.HispotiNet })); } catch (e) {}
               if (window.__mspNetInstalled || !window.HispotiNet) return;
               window.__mspNetInstalled = true;
               // The identity this page really presents, read from the browser itself and handed to
@@ -1068,9 +1072,9 @@ internal class ControlRelay(private val view: WebView) {
                 constructor(url, protocols) {
                 const u = String(url);
                 const matched = wsProxy.test(u) && !!window.HispotiNet;
-                console.log('[msp-ws] constructor url=' + u + ' matched=' + matched + ' wsProxy.test=' + wsProxy.test(u) + ' HispotiNet=' + !!window.HispotiNet);
+                try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'constructor', url: u, matched: matched, net: !!window.HispotiNet })); } catch (e) {}
                 if (!matched) {
-                  console.log('[msp-ws] constructor falling back to NativeWS');
+                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'constructor-fallback', url: u })); } catch (e) {}
                   return new NativeWS(url, protocols);
                 }
                   this.__id = ++wsSeq;
@@ -1117,6 +1121,7 @@ internal class ControlRelay(private val view: WebView) {
               ProxiedWebSocket.prototype.CLOSING = 2;
               ProxiedWebSocket.prototype.CLOSED = 3;
               window.WebSocket = ProxiedWebSocket;
+              try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'replaced' })); } catch (e) {}
               console.log('[msp-ws] replaced window.WebSocket');
             })();
         """.trimIndent()
