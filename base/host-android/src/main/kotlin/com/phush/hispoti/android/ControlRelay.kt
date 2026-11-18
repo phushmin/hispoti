@@ -893,6 +893,7 @@ internal class ControlRelay(private val view: WebView) {
         /** Wraps window.fetch; the same pattern as [RELAYED]. */
         private val SCRIPT = """
             (() => {
+              console.log('[msp-ws] SCRIPT starting');
               if (window.__mspNetInstalled || !window.HispotiNet) return;
               window.__mspNetInstalled = true;
               // The identity this page really presents, read from the browser itself and handed to
@@ -1065,10 +1066,13 @@ internal class ControlRelay(private val view: WebView) {
               };
               class ProxiedWebSocket {
                 constructor(url, protocols) {
-                  const u = String(url);
-                  const matched = wsProxy.test(u) && !!window.HispotiNet;
-                  console.log('[msp-ws] constructor url=' + u + ' matched=' + matched + ' HispotiNet=' + !!window.HispotiNet);
-                  if (!matched) return new NativeWS(url, protocols);
+                const u = String(url);
+                const matched = wsProxy.test(u) && !!window.HispotiNet;
+                console.log('[msp-ws] constructor url=' + u + ' matched=' + matched + ' wsProxy.test=' + wsProxy.test(u) + ' HispotiNet=' + !!window.HispotiNet);
+                if (!matched) {
+                  console.log('[msp-ws] constructor falling back to NativeWS');
+                  return new NativeWS(url, protocols);
+                }
                   this.__id = ++wsSeq;
                   this.__url = String(url);
                   this.__ready = 0;
