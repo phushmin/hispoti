@@ -468,7 +468,7 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                 // (the WebView's Chromium resolver mis-routes open.spotifycdn.com through the VPN's
                 // fake-IP and the script load ends in a cross-origin "Script error."; the relay's
                 // OkHttp, the system resolver, gets the same content the phone's curl does).
-                if (url.startsWith("https://open.spotifycdn.com/cdn/build/mobile-web-player/") && request.url.path?.endsWith(".js") == true) {
+                if (url.startsWith("https://open.spotifycdn.com/") && request.url.path?.endsWith(".js") == true) {
                     Logbook.log("player script fetched here: ${url.substringAfterLast('/').take(80)}")
                     return playerScriptHttp.fetchScript(request)
                 }
