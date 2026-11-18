@@ -2,6 +2,7 @@ package com.phush.hispoti.host.android
 
 import android.os.Handler
 import android.os.Looper
+import android.webkit.CookieManager
 import android.webkit.WebView
 import com.phush.hispoti.spotify.bridge.IpFamily
 import com.phush.hispoti.spotify.bridge.RelayRoute
@@ -15,11 +16,14 @@ import okhttp3.OkHttpClient
 import okhttp3.brotli.Brotli
 import okhttp3.zstd.Zstd
 import okio.BufferedSource
+import okio.ByteString
 import okio.InflaterSource
 import okio.Source
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -138,9 +142,90 @@ internal class ControlRelay(private val view: WebView) {
             }
             return
         }
+        when (m.optString("type")) {
+            "ws-open" -> { openWebSocket(m); return }
+            "ws-send" -> {
+                val sock = webSockets[m.optInt("id", -1)] ?: return
+                val payload = m.optString("payload", "")
+                if (m.optBoolean("binary")) sock.send(ByteString.decodeBase64(payload) ?: return)
+                else sock.send(payload)
+                return
+            }
+            "ws-close" -> {
+                val sock = webSockets[m.optInt("id", -1)] ?: return
+                sock.close(m.optInt("code", 1000), m.optString("reason", "").ifEmpty { null })
+                return
+            }
+        }
         val id = m.optInt("id", -1).takeIf { it >= 0 } ?: return
         val body = if (m.isNull("body")) null else m.optString("body")
         send(id, m.optString("doc"), m.optString("url"), m.optString("method", "GET"), m.optJSONObject("headers") ?: JSONObject(), body)
+    }
+
+    /**
+     * The page's WebSockets to Spotify hosts, opened here over OkHttp (system resolver, works
+     * through the VPN; the WebView's own Chromium resolver cannot resolve them there — measured
+     * `ERR_NAME_NOT_RESOLVED` on open.spotify.com). The dealer's frames travel back and forth;
+     * every other WebSocket in the page stays the WebView's own (see the script in [SCRIPT]).
+     */
+    private val webSockets = java.util.concurrent.ConcurrentHashMap<Int, WebSocket>()
+
+    /** A connection of its own: no compression interceptor, keepalive pings. */
+    private val wsClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .pingInterval(20, TimeUnit.SECONDS)
+            .build()
+    }
+
+    /** Opens one of the page's WebSockets here and wires its events back to the page. */
+    private fun openWebSocket(m: JSONObject) {
+        val id = m.optInt("id", -1)
+        if (id < 0) return
+        val url = m.optString("url")
+        val doc = m.optString("doc")
+        webSockets.remove(id)?.close(1000, "replaced")
+        val builder = Request.Builder().url(url)
+            .header("Origin", "https://open.spotify.com")
+        (identity?.optString("userAgent")?.takeIf { it.isNotEmpty() } ?: view.settings.userAgentString)
+            .let { builder.header("User-Agent", it) }
+        val protocols = m.optJSONArray("protocols")
+        if (protocols != null && protocols.length() > 0) {
+            val list = (0 until protocols.length()).mapNotNull { protocols.optString(it).takeIf { s -> s.isNotEmpty() } }
+            if (list.isNotEmpty()) builder.header("Sec-WebSocket-Protocol", list.joinToString(", "))
+        }
+        val cookie = runCatching { CookieManager.getInstance().getCookie(url) }.getOrNull()
+        if (!cookie.isNullOrBlank()) builder.header("Cookie", cookie)
+        Logbook.log("relay ws #$id opening ${shortPath(url)}")
+        val socket = wsClient.newWebSocket(builder.build(), object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                Logbook.log("relay ws #$id open")
+                wsDone(id, doc, "open", "", "")
+            }
+
+            override fun onMessage(webSocket: WebSocket, text: String) = wsDone(id, doc, "msg", text, "")
+
+            override fun onMessage(webSocket: WebSocket, bytes: ByteString) = wsDone(id, doc, "msg", bytes.base64(), "binary")
+
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                webSockets.remove(id)
+                Logbook.log("relay ws #$id closed $code")
+                wsDone(id, doc, "close", code.toString(), reason)
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                webSockets.remove(id)
+                Logbook.log("relay ws #$id failed: ${t.message}")
+                wsDone(id, doc, "error", t.message ?: "failed", "")
+            }
+        })
+        webSockets[id] = socket
+    }
+
+    /** Tells the page one event on one of its WebSockets; [a]/[b] carry the event's data. */
+    private fun wsDone(id: Int, doc: String, event: String, a: String, b: String) {
+        val script = "window.__mspWsDone && window.__mspWsDone($id, ${JSONObject.quote(event)}, ${JSONObject.quote(a)}, ${JSONObject.quote(b)}, ${JSONObject.quote(doc)})"
+        main.post { view.evaluateJavascript(script, null) }
     }
 
     private fun send(id: Int, doc: String, url: String, method: String, given: JSONObject, body: String?) {
@@ -939,6 +1024,89 @@ internal class ControlRelay(private val view: WebView) {
                   window.HispotiNet.postMessage(JSON.stringify({ id, doc, url, method, headers, body: body == null ? null : body }));
                 });
               };
+              // Spotify Connect's dealer WebSocket (and any other WebSocket to a Spotify host) goes
+              // through the host: the WebView's own resolver cannot resolve Spotify hosts through the
+              // VPN's fake-IP (measured: ERR_NAME_NOT_RESOLVED on open.spotify.com), while the host's
+              // OkHttp (system resolver) can. The page's new WebSocket() to a wss://*.spotify.com host
+              // is opened by the host over OkHttp; frames travel back and forth here. Every other
+              // WebSocket is left to the WebView untouched.
+              const wsProxy = /^wss:\/\/([a-z0-9-]+\.)*spotify\.com(\/|$)/i;
+              const NativeWS = window.WebSocket;
+              const wsSockets = new Map();
+              let wsSeq = 0;
+              window.__mspWsDone = (id, event, a, b, from) => {
+                if (from !== doc) return;
+                const s = wsSockets.get(id);
+                if (!s) return;
+                if (event === 'open') { s.__ready = 1; s.__fire('open'); return; }
+                if (event === 'msg') {
+                  let data = a;
+                  if (b === 'binary') {
+                    const bin = atob(a);
+                    const arr = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+                    data = s.binaryType === 'arraybuffer' ? arr.buffer : new Blob([arr]);
+                  }
+                  s.__ready = 1;
+                  s.__fire('message', new MessageEvent('message', { data: data, origin: s.__url }));
+                  return;
+                }
+                if (event === 'close') {
+                  if (s.__ready === 3) return;
+                  s.__ready = 3;
+                  s.__fire('close', new CloseEvent('close', { code: Number(a) || 1000, reason: b || '', wasClean: false }));
+                  wsSockets.delete(id);
+                  return;
+                }
+                if (event === 'error') s.__fire('error', new Event('error'));
+              };
+              class ProxiedWebSocket {
+                constructor(url, protocols) {
+                  if (!wsProxy.test(String(url)) || !window.HispotiNet) return new NativeWS(url, protocols);
+                  this.__id = ++wsSeq;
+                  this.__url = String(url);
+                  this.__ready = 0;
+                  this.__listeners = [];
+                  this.binaryType = 'blob';
+                  this.protocol = '';
+                  this.extensions = '';
+                  wsSockets.set(this.__id, this);
+                  const list = protocols == null ? null : (Array.isArray(protocols) ? protocols : [protocols]);
+                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-open', id: this.__id, doc: doc, url: this.__url, protocols: list })); } catch (e) { /* host gone */ }
+                }
+                get readyState() { return this.__ready; }
+                get bufferedAmount() { return 0; }
+                __fire(ev, arg) {
+                  try { const fn = this['on' + ev]; if (typeof fn === 'function') fn.call(this, arg); } catch (e) { /* handler threw */ }
+                  for (const l of this.__listeners) if (l[0] === ev) { try { l[1].call(this, arg); } catch (e) { /* listener threw */ } }
+                }
+                __post(o) { try { window.HispotiNet.postMessage(JSON.stringify(Object.assign({ type: 'ws-send', id: this.__id, doc: doc }, o))); } catch (e) { /* host gone */ } }
+                send(data) {
+                  if (this.__ready === 3) throw new DOMException('WebSocket is already in CLOSING or CLOSED state', 'InvalidStateError');
+                  if (this.__ready !== 1) return;
+                  if (typeof data === 'string') { this.__post({ payload: data, binary: false }); return; }
+                  if (data instanceof ArrayBuffer) { this.__post({ payload: btoa(String.fromCharCode.apply(null, new Uint8Array(data))), binary: true }); return; }
+                  if (ArrayBuffer.isView(data)) { this.__post({ payload: btoa(String.fromCharCode.apply(null, new Uint8Array(data.buffer, data.byteOffset, data.byteLength))), binary: true }); return; }
+                  if (typeof Blob !== 'undefined' && data instanceof Blob) { data.arrayBuffer().then(buf => this.__post({ payload: btoa(String.fromCharCode.apply(null, new Uint8Array(buf))), binary: true })); return; }
+                  this.__post({ payload: String(data), binary: false });
+                }
+                close(code, reason) {
+                  if (this.__ready >= 2) return;
+                  this.__ready = 2;
+                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-close', id: this.__id, doc: doc, code: code || 1000, reason: reason || '' })); } catch (e) { /* host gone */ }
+                }
+                addEventListener(t, cb, opts) { this.__listeners.push([t, cb, opts]); }
+                removeEventListener(t, cb) { this.__listeners = this.__listeners.filter(l => !(l[0] === t && l[1] === cb)); }
+              }
+              ProxiedWebSocket.CONNECTING = 0;
+              ProxiedWebSocket.OPEN = 1;
+              ProxiedWebSocket.CLOSING = 2;
+              ProxiedWebSocket.CLOSED = 3;
+              ProxiedWebSocket.prototype.CONNECTING = 0;
+              ProxiedWebSocket.prototype.OPEN = 1;
+              ProxiedWebSocket.prototype.CLOSING = 2;
+              ProxiedWebSocket.prototype.CLOSED = 3;
+              window.WebSocket = ProxiedWebSocket;
             })();
         """.trimIndent()
     }
