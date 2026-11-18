@@ -113,6 +113,7 @@ internal class ControlRelay(private val view: WebView) {
             val extra = when (m.optString("msg")) {
                 "check" -> " wsReplaced=${m.optBoolean("wsReplaced")} wsName=${m.optString("wsName")} isTop=${m.optBoolean("isTop")} href=${m.optString("href")}"
                 "constructor" -> " url=${m.optString("url")} matched=${m.optBoolean("matched")} net=${m.optBoolean("net")}"
+                "fetch-passthrough", "xhr-open" -> " url=${m.optString("url")} method=${m.optString("method", "")}"
                 else -> ""
             }
             Logbook.log("ws-debug: ${m.optString("msg")} hasNet=${m.optBoolean("hasNet", false)}$extra")
@@ -1028,7 +1029,10 @@ internal class ControlRelay(private val view: WebView) {
                 const body = init && init.body;
                 const report = registered && !!url && reports.test(url) && typeof body === 'string' &&
                   ((init && init.method) || 'GET').toUpperCase() === 'POST';
-                if (!url || !(relayed.test(url) || report) || notRelayed.test(url) || (body != null && typeof body !== 'string')) return original.apply(this, arguments);
+                if (!url || !(relayed.test(url) || report) || notRelayed.test(url) || (body != null && typeof body !== 'string')) {
+                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'fetch-passthrough', url: url })); } catch (e) {}
+                  return original.apply(this, arguments);
+                }
                 if (window.__mspDirect && command.test(url)) return direct(url, init);
                 const headers = {};
                 new Headers((init && init.headers) || {}).forEach((v, k) => { headers[k] = v; });
@@ -1038,6 +1042,12 @@ internal class ControlRelay(private val view: WebView) {
                   pending.set(id, { resolve, reject, url, init, method });
                   window.HispotiNet.postMessage(JSON.stringify({ id, doc, url, method, headers, body: body == null ? null : body }));
                 });
+              };
+              // XHR diagnostics: some transports use XMLHttpRequest instead of fetch.
+              const xhrOpen = XMLHttpRequest.prototype.open;
+              XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+                try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'xhr-open', url: String(url), method: String(method) })); } catch (e) {}
+                return xhrOpen.apply(this, [method, url, ...rest]);
               };
               } // end if (window.HispotiNet)
               // Spotify Connect's dealer WebSocket (and any other WebSocket to a Spotify host) goes
