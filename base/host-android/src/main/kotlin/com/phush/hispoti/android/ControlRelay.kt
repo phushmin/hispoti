@@ -110,7 +110,12 @@ internal class ControlRelay(private val view: WebView) {
     private fun onMessage(json: String) {
         val m = runCatching { JSONObject(json) }.getOrNull() ?: return
         if (m.optString("type") == "ws-debug") {
-            Logbook.log("ws-debug: ${m.optString("msg")} url=${m.optString("url")} matched=${m.optBoolean("matched")} hasNet=${m.optBoolean("hasNet", false)}")
+            val extra = when (m.optString("msg")) {
+                "check" -> " wsReplaced=${m.optBoolean("wsReplaced")} wsName=${m.optString("wsName")} isTop=${m.optBoolean("isTop")} href=${m.optString("href")}"
+                "constructor" -> " url=${m.optString("url")} matched=${m.optBoolean("matched")} net=${m.optBoolean("net")}"
+                else -> ""
+            }
+            Logbook.log("ws-debug: ${m.optString("msg")} hasNet=${m.optBoolean("hasNet", false)}$extra")
             return
         }
         if (m.optString("type") == "identity") {
@@ -897,7 +902,11 @@ internal class ControlRelay(private val view: WebView) {
         /** Wraps window.fetch; the same pattern as [RELAYED]. */
         private val SCRIPT = """
             (() => {
-              try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'script-start', hasNet: !!window.HispotiNet })); } catch (e) {}
+              // Worker detection: if we have no window or document, we're in a dedicated worker
+              const inWorker = typeof window === 'undefined' || window === null || !window.document;
+              try { window.HispotiNet?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'inworker', inWorker })); } catch (e) {}
+              if (inWorker) return; // cannot patch from a worker context
+              try { window.HispotiNet?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'script-start', hasNet: !!window.HispotiNet })); } catch (e) {}
               if (window.__mspNetInstalled) return;
               window.__mspNetInstalled = true;
               const doc = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
