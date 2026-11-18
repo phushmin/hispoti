@@ -1038,7 +1038,7 @@ internal class ControlRelay(private val view: WebView) {
               // OkHttp (system resolver) can. The page's new WebSocket() to a wss://*.spotify.com host
               // is opened by the host over OkHttp; frames travel back and forth here. Every other
               // WebSocket is left to the WebView untouched.
-              const wsProxy = /^wss:\/\/([a-z0-9-]+\.)*spotify\.com(\/|$)/i;
+              const wsProxy = /^wss:\/\/([a-z0-9-]+\.)*spotify\.com(?::\d+)?(\/|\$)/i;
               const NativeWS = window.WebSocket;
               const wsSockets = new Map();
               let wsSeq = 0;
