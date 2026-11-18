@@ -898,8 +898,10 @@ internal class ControlRelay(private val view: WebView) {
         private val SCRIPT = """
             (() => {
               try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'script-start', hasNet: !!window.HispotiNet })); } catch (e) {}
-              if (window.__mspNetInstalled || !window.HispotiNet) return;
+              if (window.__mspNetInstalled) return;
               window.__mspNetInstalled = true;
+              const doc = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+              if (window.HispotiNet) {
               // The identity this page really presents, read from the browser itself and handed to
               // the host, which echoes it on every relayed request. Written by hand before, the
               // relayed headers contradicted the page's own (a grease brand that read
@@ -948,10 +950,6 @@ internal class ControlRelay(private val view: WebView) {
               let registered = false;
               const pending = new Map();
               let seq = 0;
-              // This document's own mark on its requests: ids start again at 1 in every page, and an
-              // answer relayed for the page before a reload must not resolve the new page's request
-              // of the same id.
-              const doc = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
               const original = window.fetch;
               const command = /player\/command|connect\/transfer/;
               // A refused play or transfer (free accounts in some countries): the app tries another way.
@@ -1032,6 +1030,7 @@ internal class ControlRelay(private val view: WebView) {
                   window.HispotiNet.postMessage(JSON.stringify({ id, doc, url, method, headers, body: body == null ? null : body }));
                 });
               };
+              } // end if (window.HispotiNet)
               // Spotify Connect's dealer WebSocket (and any other WebSocket to a Spotify host) goes
               // through the host: the WebView's own resolver cannot resolve Spotify hosts through the
               // VPN's fake-IP (measured: ERR_NAME_NOT_RESOLVED on open.spotify.com), while the host's
@@ -1072,9 +1071,9 @@ internal class ControlRelay(private val view: WebView) {
                 constructor(url, protocols) {
                 const u = String(url);
                 const matched = wsProxy.test(u) && !!window.HispotiNet;
-                try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'constructor', url: u, matched: matched, net: !!window.HispotiNet })); } catch (e) {}
+                try { (window.HispotiNet || window.top?.HispotiNet)?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'constructor', url: u, matched: matched, net: !!window.HispotiNet })); } catch (e) {}
                 if (!matched) {
-                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'constructor-fallback', url: u })); } catch (e) {}
+                  try { (window.HispotiNet || window.top?.HispotiNet)?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'constructor-fallback', url: u })); } catch (e) {}
                   return new NativeWS(url, protocols);
                 }
                   this.__id = ++wsSeq;
@@ -1086,7 +1085,7 @@ internal class ControlRelay(private val view: WebView) {
                   this.extensions = '';
                   wsSockets.set(this.__id, this);
                   const list = protocols == null ? null : (Array.isArray(protocols) ? protocols : [protocols]);
-                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-open', id: this.__id, doc: doc, url: this.__url, protocols: list })); } catch (e) { /* host gone */ }
+                  try { (window.HispotiNet || window.top?.HispotiNet)?.postMessage?.(JSON.stringify({ type: 'ws-open', id: this.__id, doc: doc, url: this.__url, protocols: list })); } catch (e) { /* host gone */ }
                 }
                 get readyState() { return this.__ready; }
                 get bufferedAmount() { return 0; }
@@ -1094,7 +1093,7 @@ internal class ControlRelay(private val view: WebView) {
                   try { const fn = this['on' + ev]; if (typeof fn === 'function') fn.call(this, arg); } catch (e) { /* handler threw */ }
                   for (const l of this.__listeners) if (l[0] === ev) { try { l[1].call(this, arg); } catch (e) { /* listener threw */ } }
                 }
-                __post(o) { try { window.HispotiNet.postMessage(JSON.stringify(Object.assign({ type: 'ws-send', id: this.__id, doc: doc }, o))); } catch (e) { /* host gone */ } }
+                __post(o) { try { (window.HispotiNet || window.top?.HispotiNet)?.postMessage?.(JSON.stringify(Object.assign({ type: 'ws-send', id: this.__id, doc: doc }, o))); } catch (e) { /* host gone */ } }
                 send(data) {
                   if (this.__ready === 3) throw new DOMException('WebSocket is already in CLOSING or CLOSED state', 'InvalidStateError');
                   if (this.__ready !== 1) return;
@@ -1107,7 +1106,7 @@ internal class ControlRelay(private val view: WebView) {
                 close(code, reason) {
                   if (this.__ready >= 2) return;
                   this.__ready = 2;
-                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-close', id: this.__id, doc: doc, code: code || 1000, reason: reason || '' })); } catch (e) { /* host gone */ }
+                  try { (window.HispotiNet || window.top?.HispotiNet)?.postMessage?.(JSON.stringify({ type: 'ws-close', id: this.__id, doc: doc, code: code || 1000, reason: reason || '' })); } catch (e) { /* host gone */ }
                 }
                 addEventListener(t, cb, opts) { this.__listeners.push([t, cb, opts]); }
                 removeEventListener(t, cb) { this.__listeners = this.__listeners.filter(l => !(l[0] === t && l[1] === cb)); }
@@ -1121,7 +1120,13 @@ internal class ControlRelay(private val view: WebView) {
               ProxiedWebSocket.prototype.CLOSING = 2;
               ProxiedWebSocket.prototype.CLOSED = 3;
               window.WebSocket = ProxiedWebSocket;
-              try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'replaced' })); } catch (e) {}
+              try { (window.HispotiNet || window.top?.HispotiNet)?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'replaced' })); } catch (e) {}
+              // Diagnostic: does the replacement stick in the world the page's JS runs in?
+              const wsCheck = (ms) => setTimeout(() => {
+                const net = window.HispotiNet || window.top?.HispotiNet;
+                try { net?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'check', at: ms, wsReplaced: window.WebSocket === ProxiedWebSocket, wsName: String(window.WebSocket && window.WebSocket.name), isTop: window === window.top, href: String(location.href).slice(0, 70) })); } catch (e) {}
+              }, ms);
+              wsCheck(1000); wsCheck(3000);
               console.log('[msp-ws] replaced window.WebSocket');
             })();
         """.trimIndent()
