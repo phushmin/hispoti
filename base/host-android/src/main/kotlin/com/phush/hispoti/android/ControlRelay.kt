@@ -265,10 +265,12 @@ internal class ControlRelay(private val view: WebView) {
                 xhrDone(id, doc, 0, "{}", "")
             }
             override fun onResponse(call: Call, response: Response) {
+                Logbook.log("xhr relay #$id responded ${response.code}")
                 response.use {
                     val text = it.body?.string() ?: ""
                     val headers = JSONObject()
                     it.headers.forEach { (name, value) -> headers.put(name, value) }
+                    Logbook.log("xhr relay #$id body=${text.take(200)}")
                     xhrDone(id, doc, it.code, headers.toString(), text)
                 }
             }
@@ -277,6 +279,7 @@ internal class ControlRelay(private val view: WebView) {
 
     /** Sends an XHR answer back to the page via evaluateJavascript. */
     private fun xhrDone(id: Int, doc: String, status: Int, headersJson: String, body: String) {
+        Logbook.log("xhr relay #$id xhrDone status=$status")
         val script = "window.__mspXhrDone && window.__mspXhrDone($id, $status, ${JSONObject.quote(headersJson)}, ${JSONObject.quote(body)}, ${JSONObject.quote(doc)})"
         main.post { view.evaluateJavascript(script, null) }
     }
