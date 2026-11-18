@@ -1115,78 +1115,58 @@ internal class ControlRelay(private val view: WebView) {
                   try { const fn = r.onerror; if (typeof fn === 'function') fn.call(r); } catch (e) {}
                 }
               };
-              class ProxiedXHR {
+              class ProxiedXHR extends NativeXHR {
                 constructor() {
+                  super();
                   this.__doc = doc;
                   this.__status = 0;
                   this.__statusText = '';
                   this.__responseText = '';
                   this.__responseHeaders = {};
-                  this.readyState = 0; // UNSENT
-                  this.onreadystatechange = null;
-                  this.onload = null;
-                  this.onerror = null;
+                  this.__readyState = 0;
                   this.__method = null;
                   this.__url = null;
                   this.__id = null;
+                  this.__matched = false;
                 }
                 open(method, url, async) {
                   this.__method = String(method);
                   this.__url = String(url);
-                  this.readyState = 1; // OPENED
+                  this.__matched = xhrProxy.test(this.__url) && !!window.HispotiNet;
+                  if (!this.__matched) return super.open(method, url, async);
+                  // Matched: shadow the read-only native accessors so the relayed response
+                  // can set them. Every other member (upload, withCredentials, timeout,
+                  // onload, setRequestHeader, ...) is inherited from the native XHR.
+                  Object.defineProperty(this, 'readyState', { get() { return this.__readyState; }, set(v) { this.__readyState = v; }, configurable: true });
+                  Object.defineProperty(this, 'status', { get() { return this.__status; }, set(v) { this.__status = v; }, configurable: true });
+                  Object.defineProperty(this, 'statusText', { get() { return this.__statusText; }, set(v) { this.__statusText = v; }, configurable: true });
+                  Object.defineProperty(this, 'responseText', { get() { return this.__responseText; }, set(v) { this.__responseText = v; }, configurable: true });
+                  Object.defineProperty(this, 'response', { get() { return this.__responseText; }, set(v) { this.__responseText = v; }, configurable: true });
+                  Object.defineProperty(this, 'getAllResponseHeaders', { value: () => JSON.stringify(this.__responseHeaders || {}), writable: true, configurable: true });
+                  Object.defineProperty(this, 'getResponseHeader', { value: (name) => this.__responseHeaders && this.__responseHeaders[name] ? String(this.__responseHeaders[name]) : null, writable: true, configurable: true });
+                  this.__readyState = 1; // OPENED
                   this.__status = 0;
                   this.__statusText = '';
                   this.__responseText = '';
+                  this.__responseHeaders = {};
                   try { const fn = this.onreadystatechange; if (typeof fn === 'function') fn.call(this); } catch (e) {}
                 }
                 send(data) {
-                  if (this.readyState !== 1) return;
                   const u = String(this.__url);
-                  const matched = xhrProxy.test(u) && !!window.HispotiNet;
-                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'xhr-debug', msg: 'xhr-open', url: u, method: this.__method, matched: matched })); } catch (e) {}
-                  if (!matched) {
-                    try { NativeXHR.prototype.open.call(this, this.__method, this.__url, true); } catch (e) {}
-                    try { NativeXHR.prototype.send.call(this, data); } catch (e) {}
-                    return;
-                  }
+                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'xhr-debug', msg: 'xhr-open', url: u, method: this.__method, matched: this.__matched })); } catch (e) {}
+                  if (!this.__matched) { try { return super.send(data); } catch (e) {} return; }
                   const id = ++xhrSeq;
                   this.__id = id;
                   xhrRequests.set(id, this);
-                  this.readyState = 2; // HEADERS_RECEIVED (synthetic)
+                  this.__readyState = 2; // HEADERS_RECEIVED (synthetic)
                   try { const fn = this.onreadystatechange; if (typeof fn === 'function') fn.call(this); } catch (e) {}
                   try { window.HispotiNet.postMessage(JSON.stringify({ type: 'xhr-send', id, doc: this.__doc, url: this.__url, method: this.__method, body: data == null ? null : String(data) })); } catch (e) { /* host gone */ }
                 }
-                get responseText() { return this.__responseText; }
-                get response() { return this.__responseText; }
-                get status() { return this.__status || 0; }
-                set status(v) { this.__status = v; }
-                get statusText() { return this.__statusText; }
-                set statusText(v) { this.__statusText = v; }
-                get responseHeaders() { return this.__responseHeaders; }
                 abort() {
-                  if (this.readyState >= 4) return;
-                  this.readyState = 0;
-                  this.__status = 0;
-                  try { const fn = this.onabort; if (typeof fn === 'function') fn.call(this); } catch (e) {}
+                  if (this.__matched) { xhrRequests.delete(this.__id || 0); return; }
+                  return super.abort();
                 }
-                addEventListener(t, cb, opts) { this.__listeners = this.__listeners || []; this.__listeners.push([t, cb]); }
-                removeEventListener(t, cb) { this.__listeners = this.__listeners || []; this.__listeners = this.__listeners.filter(l => !(l[0] === t && l[1] === cb)); }
-                dispatchEvent(ev) {
-                  const t = ev && ev.type;
-                  if (!t) return true;
-                  const fn = this['on' + t];
-                  if (typeof fn === 'function') fn.call(this, ev);
-                  for (const l of (this.__listeners || [])) if (l[0] === t) l[1].call(this, ev);
-                  return true;
-                }
-                getAllResponseHeaders() { return JSON.stringify(this.__responseHeaders || {}); }
-                getResponseHeader(name) { return this.__responseHeaders && this.__responseHeaders[name] ? String(this.__responseHeaders[name]) : null; }
               }
-              ProxiedXHR.UNSENT = 0;
-              ProxiedXHR.OPENED = 1;
-              ProxiedXHR.HEADERS_RECEIVED = 2;
-              ProxiedXHR.LOADING = 3;
-              ProxiedXHR.DONE = 4;
               window.XMLHttpRequest = ProxiedXHR;
               } // end if (window.HispotiNet)
               // Spotify Connect's dealer WebSocket (and any other WebSocket to a Spotify host) goes
