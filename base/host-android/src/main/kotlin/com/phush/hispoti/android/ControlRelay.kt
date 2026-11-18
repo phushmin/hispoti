@@ -114,6 +114,7 @@ internal class ControlRelay(private val view: WebView) {
                 "check" -> " wsReplaced=${m.optBoolean("wsReplaced")} wsName=${m.optString("wsName")} isTop=${m.optBoolean("isTop")} href=${m.optString("href")}"
                 "constructor" -> " url=${m.optString("url")} matched=${m.optBoolean("matched")} net=${m.optBoolean("net")}"
                 "fetch-passthrough", "xhr-open" -> " url=${m.optString("url")} method=${m.optString("method", "")}"
+                "jserror", "jsreject", "console-error" -> " msg=${m.optString("message")} stack=${m.optString("stack")}"
                 else -> ""
             }
             Logbook.log("ws-debug: ${m.optString("msg")} hasNet=${m.optBoolean("hasNet", false)}$extra")
@@ -258,7 +259,7 @@ internal class ControlRelay(private val view: WebView) {
         if (!cookie.isNullOrBlank()) builder.header("Cookie", cookie)
         val payload = if (method == "GET" || method == "HEAD" || body == null) null else body.toByteArray().toRequestBody(null)
         val request = builder.method(method, payload).build()
-        Logbook.log("xhr relay #$id $method ${shortPath(url)}")
+        Logbook.log("xhr relay #$id $method ${shortPath(url)} full=$url")
         http.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Logbook.log("xhr relay #$id failed: ${e.message}")
@@ -954,6 +955,23 @@ internal class ControlRelay(private val view: WebView) {
               if (window.__mspNetInstalled) return;
               window.__mspNetInstalled = true;
               const doc = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+              // Capture page errors and console.error with stacks, so a failure like
+              // "Transport has no Dealer plugin" can be traced to the module that threw it.
+              window.addEventListener('error', (ev) => {
+                try { window.HispotiNet?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'jserror', message: String(ev.message), stack: String(ev.error && ev.error.stack || '').slice(0, 800), file: String(ev.filename).slice(0, 120), line: ev.lineno })); } catch (e) {}
+              });
+              window.addEventListener('unhandledrejection', (ev) => {
+                try { const r = ev.reason; window.HispotiNet?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'jsreject', message: String(r && r.message || r), stack: String(r && r.stack || '').slice(0, 800) })); } catch (e) {}
+              });
+              const origConsoleError = console.error;
+              console.error = function () {
+                try {
+                  const parts = [];
+                  for (const a of arguments) { try { parts.push(typeof a === 'string' ? a : JSON.stringify(a).slice(0, 300)); } catch (e) { parts.push(String(a).slice(0, 300)); } }
+                  window.HispotiNet?.postMessage?.(JSON.stringify({ type: 'ws-debug', msg: 'console-error', text: parts.join(' ').slice(0, 500) }));
+                } catch (e) {}
+                return origConsoleError.apply(console, arguments);
+              };
               if (window.HispotiNet) {
               // The identity this page really presents, read from the browser itself and handed to
               // the host, which echoes it on every relayed request. Written by hand before, the
