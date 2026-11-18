@@ -84,10 +84,19 @@ android {
                 keyPassword = keystoreProperties.getProperty("keyPassword")
             }
         }
+        // A stable debug key so CI builds install over each other with `adb install -r` and keep
+        // the signed-in session between iterations (the ephemeral runner's debug key changed each run).
+        create("debugStable") {
+            storeFile = rootProject.file("keystore/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
         debug {
+            signingConfig = signingConfigs.getByName("debugStable")
             // Installs next to the release apps (own data, own sign-in).
             if (!automixLab) applicationIdSuffix = ".dev"
             manifestPlaceholders["appLabel"] = if (automixLab) "Hispoti Mix Lab" else "Hispoti dev"

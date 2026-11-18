@@ -25,6 +25,8 @@ app/google-services.json
 *.p12
 *.pem
 keystore/
+# The stable debug key is not a secret: it lets every CI build install over the last one.
+!keystore/debug.keystore
 
 # OS files
 Thumbs.db
