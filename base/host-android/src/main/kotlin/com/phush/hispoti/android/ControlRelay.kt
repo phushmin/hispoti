@@ -1065,7 +1065,10 @@ internal class ControlRelay(private val view: WebView) {
               };
               class ProxiedWebSocket {
                 constructor(url, protocols) {
-                  if (!wsProxy.test(String(url)) || !window.HispotiNet) return new NativeWS(url, protocols);
+                  const u = String(url);
+                  const matched = wsProxy.test(u) && !!window.HispotiNet;
+                  console.log('[msp-ws] constructor url=' + u + ' matched=' + matched + ' HispotiNet=' + !!window.HispotiNet);
+                  if (!matched) return new NativeWS(url, protocols);
                   this.__id = ++wsSeq;
                   this.__url = String(url);
                   this.__ready = 0;
@@ -1110,6 +1113,7 @@ internal class ControlRelay(private val view: WebView) {
               ProxiedWebSocket.prototype.CLOSING = 2;
               ProxiedWebSocket.prototype.CLOSED = 3;
               window.WebSocket = ProxiedWebSocket;
+              console.log('[msp-ws] replaced window.WebSocket');
             })();
         """.trimIndent()
     }
