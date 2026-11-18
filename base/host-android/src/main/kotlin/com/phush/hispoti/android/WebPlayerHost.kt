@@ -219,6 +219,14 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
             .build()
     }
 
+    /** OkHttp client for player scripts from Spotify CDN: avoids WebView QUIC/fake-IP failures. */
+    private val playerScriptHttp by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
     /**
      * Fetches a login page's request with OkHttp (no X-Requested-With) and hands the answer back to
      * the WebView as the page's response. Cookies the answer sets are passed on. Null on failure:
@@ -247,6 +255,39 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                 it.code,
                 it.message.ifEmpty { if (it.isSuccessful) "OK" else "Error" },
                 headers + ("Access-Control-Allow-Origin" to "https://accounts.spotify.com") + ("Access-Control-Allow-Credentials" to "true"),
+                ByteArrayInputStream(bytes),
+            )
+        }
+    }.getOrNull()
+
+    /** Header names a proxied script answer must not carry over. */
+    private val SCRIPT_UNWANTED = setOf("host", "content-length", "connection")
+
+    /**
+     * A player script from Spotify's CDN, fetched here with OkHttp and handed back as the page's
+     * response. The WebView's own Chromium resolver mis-routes open.spotifycdn.com through the
+     * VPN's fake-IP and the script load ends in a cross-origin "Script error." (the page's
+     * React #421 and "Transport has no Dealer plugin" are the consequences: the dealer module
+     * never loads). OkHttp's system resolver gets the same content the phone's curl does.
+     */
+    private fun OkHttpClient.fetchScript(request: WebResourceRequest): WebResourceResponse? = runCatching {
+        val builder = Request.Builder().url(request.url.toString())
+        request.requestHeaders.forEach { (name, value) ->
+            if (name.lowercase() !in SCRIPT_UNWANTED) runCatching { builder.header(name, value) }
+        }
+        builder.header("Accept", "text/javascript,*/*;q=0.8")
+        val answer: Response = newCall(builder.build()).execute()
+        answer.use {
+            val bytes = it.body?.bytes() ?: ByteArray(0)
+            val headers = it.headers.toMultimap().filterKeys { k -> !k.equals("Set-Cookie", true) }
+                .mapValues { (_, v) -> v.joinToString(", ") }
+            Logbook.log("player script ${request.url.toString().substringAfterLast('/').take(60)} -> ${it.code} (${bytes.size} bytes)")
+            WebResourceResponse(
+                it.header("Content-Type")?.substringBefore(';') ?: "text/javascript",
+                "utf-8",
+                it.code,
+                it.message.ifEmpty { if (it.isSuccessful) "OK" else "Error" },
+                headers + ("Access-Control-Allow-Origin" to "*"),
                 ByteArrayInputStream(bytes),
             )
         }
@@ -422,6 +463,14 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                 // header and the check answers, so the page proceeds to the player.
                 if (url.contains("/login/enterprise/discover")) {
                     return loginHttp.fetch(request)
+                }
+                // Player scripts from Spotify CDN: fetch here to avoid WebView QUIC/fake-IP failures
+                // (the WebView's Chromium resolver mis-routes open.spotifycdn.com through the VPN's
+                // fake-IP and the script load ends in a cross-origin "Script error."; the relay's
+                // OkHttp, the system resolver, gets the same content the phone's curl does).
+                if (url.startsWith("https://open.spotifycdn.com/cdn/build/mobile-web-player/") && request.url.path?.endsWith(".js") == true) {
+                    Logbook.log("player script fetched here: ${url.substringAfterLast('/').take(80)}")
+                    return playerScriptHttp.fetchScript(request)
                 }
                 // Diagnostic: unhandled scripts and dealer-adjacent resources, so a cross-origin
                 // load failure ("Script error.") can be traced to its URL.
