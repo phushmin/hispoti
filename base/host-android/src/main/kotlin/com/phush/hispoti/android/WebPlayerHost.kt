@@ -423,6 +423,11 @@ class WebPlayerHost(private val context: Context) : BridgeHost {
                 if (url.contains("/login/enterprise/discover")) {
                     return loginHttp.fetch(request)
                 }
+                // Diagnostic: unhandled scripts and dealer-adjacent resources, so a cross-origin
+                // load failure ("Script error.") can be traced to its URL.
+                if (request.url.path?.endsWith(".js") == true || url.contains("dealer", ignoreCase = true)) {
+                    Logbook.log("unhandled resource ${request.method} ${Logbook.noQuery(url).take(150)}")
+                }
                 return null
             }
 
