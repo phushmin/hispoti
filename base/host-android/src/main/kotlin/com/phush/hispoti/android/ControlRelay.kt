@@ -169,6 +169,7 @@ internal class ControlRelay(private val view: WebView) {
                 sock.close(m.optInt("code", 1000), m.optString("reason", "").ifEmpty { null })
                 return
             }
+            "xhr-send" -> { sendXhr(m); return }
         }
         val id = m.optInt("id", -1).takeIf { it >= 0 } ?: return
         val body = if (m.isNull("body")) null else m.optString("body")
@@ -238,6 +239,45 @@ internal class ControlRelay(private val view: WebView) {
     /** Tells the page one event on one of its WebSockets; [a]/[b] carry the event's data. */
     private fun wsDone(id: Int, doc: String, event: String, a: String, b: String) {
         val script = "window.__mspWsDone && window.__mspWsDone($id, ${JSONObject.quote(event)}, ${JSONObject.quote(a)}, ${JSONObject.quote(b)}, ${JSONObject.quote(doc)})"
+        main.post { view.evaluateJavascript(script, null) }
+    }
+
+    /** An XHR the page routed here (dealer resolution, etc.): answered over OkHttp, system resolver. */
+    private fun sendXhr(m: JSONObject) {
+        val id = m.optInt("id", -1)
+        val doc = m.optString("doc")
+        val url = m.optString("url")
+        val method = m.optString("method", "GET").uppercase()
+        val body = if (m.isNull("body")) null else m.optString("body")
+        val builder = Request.Builder().url(url)
+        (identity?.optString("userAgent")?.takeIf { it.isNotEmpty() } ?: view.settings.userAgentString)
+            .let { builder.header("User-Agent", it) }
+        identity?.optString("acceptLanguage")?.takeIf { it.isNotEmpty() }?.let { builder.header("Accept-Language", it) }
+        builder.header("Accept", "application/json")
+        val cookie = runCatching { CookieManager.getInstance().getCookie(url) }.getOrNull()
+        if (!cookie.isNullOrBlank()) builder.header("Cookie", cookie)
+        val payload = if (method == "GET" || method == "HEAD" || body == null) null else body.toByteArray().toRequestBody(null)
+        val request = builder.method(method, payload).build()
+        Logbook.log("xhr relay #$id $method ${shortPath(url)}")
+        http.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Logbook.log("xhr relay #$id failed: ${e.message}")
+                xhrDone(id, doc, 0, "{}", "")
+            }
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    val text = it.body?.string() ?: ""
+                    val headers = JSONObject()
+                    it.headers.forEach { (name, value) -> headers.put(name, value) }
+                    xhrDone(id, doc, it.code, headers.toString(), text)
+                }
+            }
+        })
+    }
+
+    /** Sends an XHR answer back to the page via evaluateJavascript. */
+    private fun xhrDone(id: Int, doc: String, status: Int, headersJson: String, body: String) {
+        val script = "window.__mspXhrDone && window.__mspXhrDone($id, $status, ${JSONObject.quote(headersJson)}, ${JSONObject.quote(body)}, ${JSONObject.quote(doc)})"
         main.post { view.evaluateJavascript(script, null) }
     }
 
@@ -1043,12 +1083,111 @@ internal class ControlRelay(private val view: WebView) {
                   window.HispotiNet.postMessage(JSON.stringify({ id, doc, url, method, headers, body: body == null ? null : body }));
                 });
               };
-              // XHR diagnostics: some transports use XMLHttpRequest instead of fetch.
-              const xhrOpen = XMLHttpRequest.prototype.open;
-              XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-                try { window.HispotiNet.postMessage(JSON.stringify({ type: 'ws-debug', msg: 'xhr-open', url: String(url), method: String(method) })); } catch (e) {}
-                return xhrOpen.apply(this, [method, url, ...rest]);
+              // XHR proxy: like the WebSocket proxy, certain transports (the dealer) use
+              // XMLHttpRequest to resolve dealer endpoints. Native WebView XHR goes through
+              // Chromium's resolver (fails through the VPN fake-IP); this routes matching
+              // Spotify XHRs through the host's OkHttp (system resolver). Every other XHR stays
+              // native.
+              const xhrProxy = /^https:\/\/(apresolve|clienttoken|open)\.spotify\.com/;
+              const NativeXHR = XMLHttpRequest;
+              const xhrRequests = new Map();
+              let xhrSeq = 0;
+              window.__mspXhrDone = (id, status, headers, body, from) => {
+                if (from !== doc) return;
+                const r = xhrRequests.get(id);
+                if (!r) return;
+                xhrRequests.delete(id);
+                r.__status = status || 0;
+                r.__statusText = headers && headers.statusText ? String(headers.statusText) : '';
+                r.__responseText = body || '';
+                r.__responseHeaders = headers || {};
+                if (status >= 200 && status < 300) {
+                  r.readyState = 4;
+                  r.status = r.__status;
+                  r.statusText = r.__statusText;
+                  try { const fn = r.onreadystatechange; if (typeof fn === 'function') fn.call(r); } catch (e) {}
+                  try { const fn = r.onload; if (typeof fn === 'function') fn.call(r); } catch (e) {}
+                } else {
+                  r.readyState = 4;
+                  r.status = r.__status || 0;
+                  r.statusText = r.__statusText || 'error';
+                  try { const fn = r.onreadystatechange; if (typeof fn === 'function') fn.call(r); } catch (e) {}
+                  try { const fn = r.onerror; if (typeof fn === 'function') fn.call(r); } catch (e) {}
+                }
               };
+              class ProxiedXHR {
+                constructor() {
+                  this.__doc = doc;
+                  this.__status = 0;
+                  this.__statusText = '';
+                  this.__responseText = '';
+                  this.__responseHeaders = {};
+                  this.readyState = 0; // UNSENT
+                  this.onreadystatechange = null;
+                  this.onload = null;
+                  this.onerror = null;
+                  this.__method = null;
+                  this.__url = null;
+                  this.__id = null;
+                }
+                open(method, url, async) {
+                  this.__method = String(method);
+                  this.__url = String(url);
+                  this.readyState = 1; // OPENED
+                  this.__status = 0;
+                  this.__statusText = '';
+                  this.__responseText = '';
+                  try { const fn = this.onreadystatechange; if (typeof fn === 'function') fn.call(this); } catch (e) {}
+                }
+                send(data) {
+                  if (this.readyState !== 1) return;
+                  const u = String(this.__url);
+                  const matched = xhrProxy.test(u) && !!window.HispotiNet;
+                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'xhr-debug', msg: 'xhr-open', url: u, method: this.__method, matched: matched })); } catch (e) {}
+                  if (!matched) {
+                    try { NativeXHR.prototype.open.call(this, this.__method, this.__url, true); } catch (e) {}
+                    try { NativeXHR.prototype.send.call(this, data); } catch (e) {}
+                    return;
+                  }
+                  const id = ++xhrSeq;
+                  this.__id = id;
+                  xhrRequests.set(id, this);
+                  this.readyState = 2; // HEADERS_RECEIVED (synthetic)
+                  try { const fn = this.onreadystatechange; if (typeof fn === 'function') fn.call(this); } catch (e) {}
+                  try { window.HispotiNet.postMessage(JSON.stringify({ type: 'xhr-send', id, doc: this.__doc, url: this.__url, method: this.__method, body: data == null ? null : String(data) })); } catch (e) { /* host gone */ }
+                }
+                get responseText() { return this.__responseText; }
+                get response() { return this.__responseText; }
+                get status() { return this.__status || 0; }
+                set status(v) { this.__status = v; }
+                get statusText() { return this.__statusText; }
+                set statusText(v) { this.__statusText = v; }
+                get responseHeaders() { return this.__responseHeaders; }
+                abort() {
+                  if (this.readyState >= 4) return;
+                  this.readyState = 0;
+                  this.__status = 0;
+                  try { const fn = this.onabort; if (typeof fn === 'function') fn.call(this); } catch (e) {}
+                }
+                addEventListener(t, cb, opts) { this.__listeners = this.__listeners || []; this.__listeners.push([t, cb]); }
+                removeEventListener(t, cb) { this.__listeners = this.__listeners || []; this.__listeners = this.__listeners.filter(l => !(l[0] === t && l[1] === cb)); }
+                dispatchEvent(ev) {
+                  const t = ev && ev.type;
+                  if (!t) return true;
+                  const fn = this['on' + t];
+                  if (typeof fn === 'function') fn.call(this, ev);
+                  for (const l of (this.__listeners || [])) if (l[0] === t) l[1].call(this, ev);
+                  return true;
+                }
+                getAllResponseHeaders() { return JSON.stringify(this.__responseHeaders || {}); }
+                getResponseHeader(name) { return this.__responseHeaders && this.__responseHeaders[name] ? String(this.__responseHeaders[name]) : null; }
+              }
+              ProxiedXHR.UNSENT = 0;
+              ProxiedXHR.OPENED = 1;
+              ProxiedXHR.HEADERS_RECEIVED = 2;
+              ProxiedXHR.LOADING = 3;
+              ProxiedXHR.DONE = 4;
+              window.XMLHttpRequest = ProxiedXHR;
               } // end if (window.HispotiNet)
               // Spotify Connect's dealer WebSocket (and any other WebSocket to a Spotify host) goes
               // through the host: the WebView's own resolver cannot resolve Spotify hosts through the
